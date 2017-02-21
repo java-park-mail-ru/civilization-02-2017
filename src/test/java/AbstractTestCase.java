@@ -2,6 +2,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import java.io.InputStream;
+import java.util.Properties;
+
 public abstract class AbstractTestCase {
     protected static Properties properties;
     protected static String localAddress;
@@ -20,4 +23,3 @@ public abstract class AbstractTestCase {
         localAddress = "localhost" + properties.getProperty("server.port");
     }
 }
-

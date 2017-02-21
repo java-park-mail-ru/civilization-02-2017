@@ -9,4 +9,3 @@ public class AuthorizationTest extends AbstractTestCase{
         //send POST to localhost
     }
 }
-
