@@ -20,7 +20,7 @@ public class UserController {
 
     @NotNull
     private final AccountService accountService;
-    
+
     @RequestMapping(path = "api/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity register(@RequestBody AuthorizationCredentials credentials, HttpSession httpSession) {
         logger.debug("/signup called with login: {}", credentials.getLogin());
@@ -62,7 +62,8 @@ public class UserController {
         return ResponseEntity.ok(new SuccessResponseMessage("User successfully logged out"));
     }
 
-    @RequestMapping(path = "/api/user-change-pass", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    // change password
+    @RequestMapping(path = "/api/user", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity changePassword(@RequestBody ChangePasswordCredentials credentials, HttpSession httpSession) {
         logger.debug("/user-change-pass called");
         final Optional<ErrorResponse> sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
@@ -75,7 +76,8 @@ public class UserController {
         }
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully changed password for user "+credentials.getLogin()));
     }
-    @RequestMapping(path = "/api/user-get", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
+    //get logged user data
+    @RequestMapping(path = "/api/user", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
     public ResponseEntity getCurrentUser(HttpSession httpSession){
         final Optional<ErrorResponse> sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError.isPresent()) {
