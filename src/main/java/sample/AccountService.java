@@ -26,7 +26,7 @@ public class AccountService {
         } else if (!credentials.getLogin().matches("^[a-zA-Z0-9\\-_]+$")) {
             return Optional.of(new ErrorResponse("login should contain only latin letters or digits!", ErrorState.BAD_REQUEST));
         } else if (UserDAO.load(credentials.getLogin()).isPresent()) {
-            return Optional.of(new ErrorResponse("User with that login already exists!", ErrorState.CONFLICT));
+            return Optional.of(new ErrorResponse("User with that login already exists!", ErrorState.FORBIDDEN));
         } else if (!isValidEmailAddress(credentials.getEmail())) {
             return Optional.of(new ErrorResponse("Invalid e-mail format!", ErrorState.BAD_REQUEST));
         }
@@ -44,7 +44,7 @@ public class AccountService {
         if (loaded.isPresent()) {
             return Either.left(loaded.get());
         }
-        return Either.right(new ErrorResponse("Incorrect login", ErrorState.CONFLICT));
+        return Either.right(new ErrorResponse("Incorrect login", ErrorState.FORBIDDEN));
     }
 
     public Either<User, ErrorResponse> loginUser(AuthorizationCredentials credentials) {
@@ -54,11 +54,11 @@ public class AccountService {
         } else {
             final Optional<User> loaded = UserDAO.load(credentials.getLogin());
             if (!loaded.isPresent()) {
-                return Either.right(new ErrorResponse("User with that login does not exist", ErrorState.CONFLICT));
+                return Either.right(new ErrorResponse("User with that login does not exist", ErrorState.FORBIDDEN));
             } else userFromDB = loaded.get();
         }
         if (!userFromDB.getPassword().equals(credentials.getPassword())) {
-            return Either.right(new ErrorResponse("Incorrect password!", ErrorState.CONFLICT));
+            return Either.right(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
         }
         return Either.left(userFromDB);
     }
@@ -71,10 +71,10 @@ public class AccountService {
             final Optional<User> userFromDB = UserDAO.load(credentials.getLogin());
             if (userFromDB.isPresent()) {
                 if (!userFromDB.get().getPassword().equals(credentials.getPassword())) {
-                    return Optional.of(new ErrorResponse("Incorrect password!", ErrorState.CONFLICT));
+                    return Optional.of(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
                 }
             } else {
-                return Optional.of(new ErrorResponse("User with that login does not exist", ErrorState.CONFLICT));
+                return Optional.of(new ErrorResponse("User with that login does not exist", ErrorState.FORBIDDEN));
             }
             UserDAO.updatePassword(credentials.getLogin(), credentials.getNewPassword());
         }
