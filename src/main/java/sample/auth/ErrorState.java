@@ -1,11 +1,11 @@
 package sample.auth;
 
 
-public enum ERRORSTATE {
+public enum ErrorState {
     FORBIDDEN(403), NOT_FOUND(404), BAD_REQUEST(400), CONFLICT(409);
     private int value;
 
-    ERRORSTATE(int value) {
+    ErrorState(int value) {
         this.value = value;
     }
 

@@ -20,12 +20,7 @@ public class UserController {
 
     @NotNull
     private final AccountService accountService;
-
-    /**
-     * Данный метод вызывается с помощью reflection'a, поэтому Spring позволяет инжектить в него аргументы.
-     * Подробнее можно почитать в сорцах к аннотации {@link RequestMapping}. Там описано как заинжектить различные атрибуты http-запроса.
-     * Возвращаемое значение можно так же варьировать. Н.п. Если отдать InputStream, можно стримить музыку или видео
-     */
+    
     @RequestMapping(path = "api/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity register(@RequestBody AuthorizationCredentials credentials, HttpSession httpSession) {
         logger.debug("/signup called with login: {}", credentials.getLogin());
