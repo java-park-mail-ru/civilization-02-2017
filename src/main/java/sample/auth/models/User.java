@@ -23,16 +23,16 @@ public final class User {
         return userId;
     }
 
+    public String getLogin() {
+        return login;
+    }
+
     public String getPassword() {
         return password;
     }
 
     public String getEmail() {
         return email;
-    }
-
-    public String getlogin() {
-        return login;
     }
 
     public void setLogin(String login) {

@@ -18,7 +18,7 @@ public class UserDAO {
     }
 
     public static void save(User user){
-        registeredUsers.put(user.getlogin(), user);
+        registeredUsers.put(user.getLogin(), user);
     }
     public static Optional<User> load(String login){
         return Optional.ofNullable(registeredUsers.get(login));

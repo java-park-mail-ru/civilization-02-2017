@@ -47,8 +47,8 @@ public class UserController {
             return buildErrorResponse(result.getRight());
         }
         final User user = result.getLeft();
-        httpSession.setAttribute(httpSession.getId(), user.getlogin());
-        return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + user.getlogin()));
+        httpSession.setAttribute(httpSession.getId(), user.getLogin());
+        return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + user.getLogin()));
     }
 
     @RequestMapping(path = "/api/logout", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")

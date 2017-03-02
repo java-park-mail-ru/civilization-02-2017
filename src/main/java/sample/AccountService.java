@@ -70,6 +70,9 @@ public class AccountService {
         } else {
             final Optional<User> userFromDB = UserDAO.load(credentials.getLogin());
             if (userFromDB.isPresent()) {
+                if (userFromDB.get().getLogin().equals(credentials.getLogin())) {
+                    return Optional.of(new ErrorResponse("Incorrect login!", ErrorState.FORBIDDEN));
+                }
                 if (!userFromDB.get().getPassword().equals(credentials.getPassword())) {
                     return Optional.of(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
                 }
