@@ -50,7 +50,7 @@ public class UserController {
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + user.getLogin()));
     }
 
-    @RequestMapping(path = "/api/logout", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/api/logout", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity logout(HttpSession httpSession) {
         logger.debug("/logout called for id: {}", httpSession.getId());
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
