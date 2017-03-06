@@ -1,11 +1,10 @@
 package sample.auth.dao;
 
+import org.jetbrains.annotations.Nullable;
 import sample.auth.models.User;
-import sample.auth.utils.AuthorizationUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 //В дальнейшем здесь будем доставать из БД
 public class UserDAO {
@@ -20,8 +19,9 @@ public class UserDAO {
     public static void save(User user){
         registeredUsers.put(user.getLogin(), user);
     }
-    public static Optional<User> load(String login){
-        return Optional.ofNullable(registeredUsers.get(login));
+    @Nullable
+    public static User load(String login){
+        return registeredUsers.get(login);
     }
     public static void updatePassword(String login, String newPassword){
         final User user = registeredUsers.get(login);

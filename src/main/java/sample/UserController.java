@@ -10,7 +10,6 @@ import sample.auth.models.*;
 import sample.auth.utils.RequestValidator;
 
 import javax.servlet.http.HttpSession;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin // for localhost usage
@@ -24,13 +23,13 @@ public class UserController {
     @RequestMapping(path = "api/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity register(@RequestBody AuthorizationCredentials credentials, HttpSession httpSession) {
         logger.debug("/signup called with login: {}", credentials.getLogin());
-        final Optional<ErrorResponse> sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
-        if (sessionError.isPresent()) {
-            return buildErrorResponse(sessionError.get());
+        final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
+        if (sessionError !=null) {
+            return buildErrorResponse(sessionError);
         }
-        final Optional<ErrorResponse> registrationError = accountService.register(credentials);
-        if (registrationError.isPresent()){
-            return buildErrorResponse(registrationError.get());
+        final ErrorResponse registrationError = accountService.register(credentials);
+        if (registrationError != null){ // if errors returned
+            return buildErrorResponse(registrationError);
         }
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully registered user"));
     }
@@ -38,9 +37,9 @@ public class UserController {
     @RequestMapping(path = "/api/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity login(@RequestBody AuthorizationCredentials credentials, HttpSession httpSession) {
         logger.debug("/login called with login: {}", credentials.getLogin());
-        final Optional<ErrorResponse> sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
-        if (sessionError.isPresent()) {
-            return buildErrorResponse(sessionError.get());
+        final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
+        if (sessionError !=null) {
+            return buildErrorResponse(sessionError);
         }
         final Either<User, ErrorResponse> result = accountService.loginUser(credentials);
         if (!result.isLeft()){ //if error
@@ -54,9 +53,9 @@ public class UserController {
     @RequestMapping(path = "/api/logout", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
     public ResponseEntity logout(HttpSession httpSession) {
         logger.debug("/logout called for id: {}", httpSession.getId());
-        final Optional<ErrorResponse> sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
-        if (sessionError.isPresent()) {
-            return buildErrorResponse(sessionError.get());
+        final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
+        if (sessionError != null) {
+            return buildErrorResponse(sessionError);
         }
         httpSession.removeAttribute(httpSession.getId());
         return ResponseEntity.ok(new SuccessResponseMessage("User successfully logged out"));
@@ -66,22 +65,22 @@ public class UserController {
     @RequestMapping(path = "/api/user", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity changePassword(@RequestBody ChangePasswordCredentials credentials, HttpSession httpSession) {
         logger.debug("/user-change-pass called");
-        final Optional<ErrorResponse> sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
-        if (sessionError.isPresent()) {
-            return buildErrorResponse(sessionError.get());
+        final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
+        if (sessionError !=null) {
+            return buildErrorResponse(sessionError);
         }
-        final Optional<ErrorResponse> passwordChangeError = accountService.changePassword(credentials);
-        if (passwordChangeError.isPresent()) {
-            return buildErrorResponse(passwordChangeError.get());
+        final ErrorResponse passwordChangeError = accountService.changePassword(credentials);
+        if (passwordChangeError != null) {
+            return buildErrorResponse(passwordChangeError);
         }
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully changed password for user "+credentials.getLogin()));
     }
     //get logged user data
     @RequestMapping(path = "/api/user", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
     public ResponseEntity getCurrentUser(HttpSession httpSession){
-        final Optional<ErrorResponse> sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
-        if (sessionError.isPresent()) {
-            return buildErrorResponse(sessionError.get());
+        final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
+        if (sessionError != null) {
+            return buildErrorResponse(sessionError);
         }
         final String login = String.valueOf(httpSession.getAttribute(httpSession.getId())); //get login from session, 100% not null
         final Either<User,ErrorResponse> result = accountService.loadUser(login);
