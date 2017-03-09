@@ -13,6 +13,9 @@ import sample.auth.models.AuthorizationCredentials;
 import sample.auth.models.User;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static sample.auth.utils.RequestValidator.isValidEmailAddress;
 
 @Service
@@ -22,70 +25,107 @@ public class AccountService {
      * @return possible registration errors
      */
     @Nullable
-    public ErrorResponse register(AuthorizationCredentials credentials) {
-        if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getEmail())
-                || StringUtils.isEmpty(credentials.getPassword())) {
-            return new ErrorResponse("login, password, and email should be non-empty!", ErrorState.BAD_REQUEST);
-        } else if (!credentials.getLogin().matches("^[a-zA-Z0-9\\-_]+$")) {
-            return new ErrorResponse("login should contain only latin letters or digits!", ErrorState.BAD_REQUEST);
-        } else if (userDAO.load(credentials.getLogin()) != null) {
-            return new ErrorResponse("User with that login already exists!", ErrorState.FORBIDDEN);
-        } else if (!isValidEmailAddress(credentials.getEmail())) {
-            return new ErrorResponse("Invalid e-mail format!", ErrorState.BAD_REQUEST);
+    public List<ErrorResponse> register(AuthorizationCredentials credentials) {
+
+        List<ErrorResponse> errors = new ArrayList<>();
+
+        if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getEmail()) || StringUtils.isEmpty(credentials.getPassword())) {
+            errors.add(new ErrorResponse("Empty credentials", ErrorState.BAD_REQUEST));
         }
-        final User newUser = new User(credentials.getLogin(), credentials.getPassword(), credentials.getEmail());
-        userDAO.save(newUser);
-        return null;
+        if (!credentials.getLogin().matches("^[a-zA-Z0-9\\-_]+$") && !StringUtils.isEmpty(credentials.getLogin())) {
+            errors.add(new ErrorResponse("Incorrect login", ErrorState.BAD_REQUEST));
+        }
+        if (userDAO.load(credentials.getLogin()) != null && !StringUtils.isEmpty(credentials.getLogin())) {
+            errors.add(new ErrorResponse("User exists", ErrorState.FORBIDDEN));
+        }
+        if (!isValidEmailAddress(credentials.getEmail()) && !StringUtils.isEmpty(credentials.getEmail())) {
+            errors.add(new ErrorResponse("Email format", ErrorState.BAD_REQUEST));
+        }
+
+        if (errors.isEmpty()){
+            final User newUser = new User(credentials.getLogin(), credentials.getPassword(), credentials.getEmail());
+            userDAO.save(newUser);
+            return null;
+        }
+
+        else{
+            return errors;
+        }
+
     }
 
     /**
      * @return possibly existing User
      */
 
-    public Either<User, ErrorResponse> loadUser(String login) {
+    public Either<User, List<ErrorResponse>> loadUser(String login) {
         final User loaded = userDAO.load(login);
+        ArrayList<ErrorResponse> errors = new ArrayList<>();
         if (loaded != null) {
             return Either.left(loaded);
         }
-        return Either.right(new ErrorResponse("Incorrect login", ErrorState.FORBIDDEN));
+
+        errors.add(new ErrorResponse("Incorrect login", ErrorState.FORBIDDEN));
+        return Either.right(errors);
     }
 
-    public Either<User, ErrorResponse> loginUser(AuthorizationCredentials credentials) {
-        final User userFromDB;
+    public Either<User, List<ErrorResponse>> loginUser(AuthorizationCredentials credentials) {
+        User userFromDB = null;
+        ArrayList<ErrorResponse> errors = new ArrayList<>();
+
         if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getPassword())) {
-            return Either.right(new ErrorResponse("login and password should be non-empty!", ErrorState.BAD_REQUEST));
-        } else {
+            errors.add(new ErrorResponse("Empty credentials", ErrorState.BAD_REQUEST));
+        }
+
+        if(!StringUtils.isEmpty(credentials.getLogin())) {
             final User loaded = userDAO.load(credentials.getLogin());
             if (loaded == null) {
-                return Either.right(new ErrorResponse("User with that login does not exist", ErrorState.FORBIDDEN));
+                errors.add(new ErrorResponse("No such user", ErrorState.FORBIDDEN));
             } else userFromDB = loaded;
+
+            if (userFromDB != null && !StringUtils.isEmpty(credentials.getPassword()) &&
+                    !userFromDB.getPassword().equals(credentials.getPassword())) {
+                errors.add(new ErrorResponse("Incorrect password", ErrorState.FORBIDDEN));
+            }
         }
-        if (!userFromDB.getPassword().equals(credentials.getPassword())) {
-            return Either.right(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
+
+        if (errors.isEmpty()) {
+            return Either.left(userFromDB);
         }
-        return Either.left(userFromDB);
+
+        else{
+            return Either.right(errors);
+        }
     }
 
     @Nullable
-    public ErrorResponse changePassword(ChangePasswordCredentials credentials) {
+    public List<ErrorResponse> changePassword(ChangePasswordCredentials credentials) {
+
+        ArrayList<ErrorResponse> errors = new ArrayList<>();
         if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getNewPassword())
                 || StringUtils.isEmpty(credentials.getPassword())) {
-            return new ErrorResponse("login, password, and new password should be non-empty!", ErrorState.BAD_REQUEST);
-        } else {
+            errors.add(new ErrorResponse("Empty credentials", ErrorState.BAD_REQUEST));
+        }
+        if (!StringUtils.isEmpty(credentials.getLogin())){
             final User userFromDB = userDAO.load(credentials.getLogin());
             if (userFromDB != null) {
-                if (userFromDB.getLogin().equals(credentials.getLogin())) {
-                    return new ErrorResponse("Incorrect login!", ErrorState.FORBIDDEN);
-                }
-                if (!userFromDB.getPassword().equals(credentials.getPassword())) {
-                    return new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN);
+                if (!userFromDB.getPassword().equals(credentials.getPassword())
+                        && StringUtils.isEmpty(credentials.getNewPassword())) {
+                    errors.add(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
                 }
             } else {
-                return new ErrorResponse("User with that login does not exist", ErrorState.FORBIDDEN);
+                errors.add(new ErrorResponse("No such user", ErrorState.FORBIDDEN));
             }
-            userDAO.updatePassword(credentials.getLogin(), credentials.getNewPassword());
         }
-        return null; //success
+
+        if (errors.isEmpty()) {
+            userDAO.updatePassword(credentials.getLogin(), credentials.getNewPassword());
+            return null; //success
+        }
+
+        else{
+            return errors;
+        }
     }
 
     public AccountService(@NotNull UserDAO userDAO) {

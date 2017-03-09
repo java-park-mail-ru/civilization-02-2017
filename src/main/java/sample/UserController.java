@@ -1,15 +1,20 @@
 package sample;
 
 import com.msiops.ground.either.Either;
+import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sample.auth.models.*;
 import sample.auth.utils.RequestValidator;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
 
 @RestController
 @CrossOrigin // for localhost usage
@@ -24,10 +29,10 @@ public class UserController {
     public ResponseEntity register(@RequestBody AuthorizationCredentials credentials, HttpSession httpSession) {
         logger.debug("/signup called with login: {}", credentials.getLogin());
         final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
-        if (sessionError !=null) {
+        if (sessionError != null) {
             return buildErrorResponse(sessionError);
         }
-        final ErrorResponse registrationError = accountService.register(credentials);
+        final List<ErrorResponse> registrationError = accountService.register(credentials);
         if (registrationError != null){ // if errors returned
             return buildErrorResponse(registrationError);
         }
@@ -41,7 +46,7 @@ public class UserController {
         if (sessionError !=null) {
             return buildErrorResponse(sessionError);
         }
-        final Either<User, ErrorResponse> result = accountService.loginUser(credentials);
+        final Either<User, List<ErrorResponse>> result = accountService.loginUser(credentials);
         if (!result.isLeft()){ //if error
             return buildErrorResponse(result.getRight());
         }
@@ -69,9 +74,9 @@ public class UserController {
         if (sessionError !=null) {
             return buildErrorResponse(sessionError);
         }
-        final ErrorResponse passwordChangeError = accountService.changePassword(credentials);
-        if (passwordChangeError != null) {
-            return buildErrorResponse(passwordChangeError);
+        final List<ErrorResponse> passwordChangeErrors = accountService.changePassword(credentials);
+        if (passwordChangeErrors != null) {
+            return buildErrorResponse(passwordChangeErrors);
         }
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully changed password for user "+credentials.getLogin()));
     }
@@ -83,7 +88,7 @@ public class UserController {
             return buildErrorResponse(sessionError);
         }
         final String login = String.valueOf(httpSession.getAttribute(httpSession.getId())); //get login from session, 100% not null
-        final Either<User,ErrorResponse> result = accountService.loadUser(login);
+        final Either<User, List<ErrorResponse>> result = accountService.loadUser(login);
         if (!result.isLeft()){
             return buildErrorResponse(result.getRight());
         }
@@ -92,6 +97,19 @@ public class UserController {
 
     private ResponseEntity buildErrorResponse(ErrorResponse error) {
         return ResponseEntity.status(error.getErrorStatus().getCode()).body(error);
+    }
+
+    private ResponseEntity buildErrorResponse(List<ErrorResponse> errors) {
+        StringBuilder errorString = new StringBuilder();
+        for(ErrorResponse e : errors){
+            errorString.append(e.getErrorText());
+            errorString.append(",");
+        }
+
+        JSONObject result = new JSONObject();
+        result.put("Errors", errorString.toString());
+        System.out.println(errorString.toString());
+        return ResponseEntity.status(errors.get(0).getErrorStatus().getCode()).body(result);
     }
 
 
