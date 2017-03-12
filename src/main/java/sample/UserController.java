@@ -33,7 +33,7 @@ public class UserController {
             return buildErrorResponse(sessionError);
         }
         final List<ErrorResponse> registrationError = accountService.register(credentials);
-        if (registrationError != null){ // if errors returned
+        if (!registrationError.isEmpty()){ // if errors returned
             return buildErrorResponse(registrationError);
         }
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully registered user"));
@@ -75,7 +75,7 @@ public class UserController {
             return buildErrorResponse(sessionError);
         }
         final List<ErrorResponse> passwordChangeErrors = accountService.changePassword(credentials);
-        if (passwordChangeErrors != null) {
+        if (!passwordChangeErrors.isEmpty()) {
             return buildErrorResponse(passwordChangeErrors);
         }
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully changed password for user "+credentials.getLogin()));
@@ -100,15 +100,14 @@ public class UserController {
     }
 
     private ResponseEntity buildErrorResponse(List<ErrorResponse> errors) {
-        StringBuilder errorString = new StringBuilder();
+        final StringBuilder errorString = new StringBuilder();
         for(ErrorResponse e : errors){
             errorString.append(e.getErrorText());
-            errorString.append(",");
+            errorString.append(',');
         }
-
-        JSONObject result = new JSONObject();
-        result.put("Errors", errorString.toString());
-        System.out.println(errorString.toString());
+        final JSONObject result = new JSONObject();
+        final String error = errorString.toString();
+        result.put("Errors", error);
         return ResponseEntity.status(errors.get(0).getErrorStatus().getCode()).body(result);
     }
 

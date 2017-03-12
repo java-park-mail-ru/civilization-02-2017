@@ -21,13 +21,14 @@ import static sample.auth.utils.RequestValidator.isValidEmailAddress;
 @Service
 public class AccountService {
     private UserDAO userDAO;
+
     /**
      * @return possible registration errors
      */
-    @Nullable
+    @NotNull
     public List<ErrorResponse> register(AuthorizationCredentials credentials) {
 
-        List<ErrorResponse> errors = new ArrayList<>();
+        final List<ErrorResponse> errors = new ArrayList<>();
 
         if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getEmail()) || StringUtils.isEmpty(credentials.getPassword())) {
             errors.add(new ErrorResponse("Empty credentials", ErrorState.BAD_REQUEST));
@@ -42,16 +43,11 @@ public class AccountService {
             errors.add(new ErrorResponse("Email format", ErrorState.BAD_REQUEST));
         }
 
-        if (errors.isEmpty()){
+        if (errors.isEmpty()) {
             final User newUser = new User(credentials.getLogin(), credentials.getPassword(), credentials.getEmail());
             userDAO.save(newUser);
-            return null;
         }
-
-        else{
-            return errors;
-        }
-
+        return errors;
     }
 
     /**
@@ -60,53 +56,40 @@ public class AccountService {
 
     public Either<User, List<ErrorResponse>> loadUser(String login) {
         final User loaded = userDAO.load(login);
-        ArrayList<ErrorResponse> errors = new ArrayList<>();
         if (loaded != null) {
             return Either.left(loaded);
         }
-
+        final List<ErrorResponse> errors = new ArrayList<>();
         errors.add(new ErrorResponse("Incorrect login", ErrorState.FORBIDDEN));
         return Either.right(errors);
     }
-
     public Either<User, List<ErrorResponse>> loginUser(AuthorizationCredentials credentials) {
-        User userFromDB = null;
-        ArrayList<ErrorResponse> errors = new ArrayList<>();
-
+        final List<ErrorResponse> errors = new ArrayList<>();
         if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getPassword())) {
-            errors.add(new ErrorResponse("Empty credentials", ErrorState.BAD_REQUEST));
+            errors.add(new ErrorResponse("login and password should be non-empty!", ErrorState.BAD_REQUEST));
         }
-
-        if(!StringUtils.isEmpty(credentials.getLogin())) {
-            final User loaded = userDAO.load(credentials.getLogin());
-            if (loaded == null) {
-                errors.add(new ErrorResponse("No such user", ErrorState.FORBIDDEN));
-            } else userFromDB = loaded;
-
-            if (userFromDB != null && !StringUtils.isEmpty(credentials.getPassword()) &&
-                    !userFromDB.getPassword().equals(credentials.getPassword())) {
-                errors.add(new ErrorResponse("Incorrect password", ErrorState.FORBIDDEN));
-            }
+        final User userFromDB = userDAO.load(credentials.getLogin());
+        if (userFromDB == null){
+            errors.add(new ErrorResponse("User with that login does not exist", ErrorState.FORBIDDEN));
+        } else if (!userFromDB.getPassword().equals(credentials.getPassword())) {
+            errors.add(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
         }
-
-        if (errors.isEmpty()) {
-            return Either.left(userFromDB);
-        }
-
-        else{
+        if (!errors.isEmpty()){
             return Either.right(errors);
         }
+        //noinspection ConstantConditions
+        return Either.left(userFromDB); //wont be reached if null
     }
 
-    @Nullable
+    @NotNull
     public List<ErrorResponse> changePassword(ChangePasswordCredentials credentials) {
 
-        ArrayList<ErrorResponse> errors = new ArrayList<>();
+        final ArrayList<ErrorResponse> errors = new ArrayList<>();
         if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getNewPassword())
                 || StringUtils.isEmpty(credentials.getPassword())) {
             errors.add(new ErrorResponse("Empty credentials", ErrorState.BAD_REQUEST));
         }
-        if (!StringUtils.isEmpty(credentials.getLogin())){
+        if (!StringUtils.isEmpty(credentials.getLogin())) {
             final User userFromDB = userDAO.load(credentials.getLogin());
             if (userFromDB != null) {
                 if (!userFromDB.getPassword().equals(credentials.getPassword())
@@ -120,12 +103,9 @@ public class AccountService {
 
         if (errors.isEmpty()) {
             userDAO.updatePassword(credentials.getLogin(), credentials.getNewPassword());
-            return null; //success
         }
 
-        else{
-            return errors;
-        }
+        return errors;
     }
 
     public AccountService(@NotNull UserDAO userDAO) {
