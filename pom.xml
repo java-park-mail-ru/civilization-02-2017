@@ -27,6 +27,17 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- flyway  -->
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>4.1.2</version>
+                <configuration>
+                    <user>admin</user>
+                    <password>123456789</password>
+                    <url>jdbc:postgresql://localhost:5432/hexandria</url>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <parent>
@@ -35,6 +46,11 @@
         <version>1.5.1.RELEASE</version>
     </parent>
     <dependencies>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901-1.jdbc4</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
