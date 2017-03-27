@@ -2,7 +2,7 @@ package sample.auth.dao;
 
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
-import sample.auth.models.User;
+import sample.auth.common.user.User;
 
 import java.util.HashMap;
 import java.util.Map;

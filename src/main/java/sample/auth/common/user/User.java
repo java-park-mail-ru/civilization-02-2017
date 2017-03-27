@@ -1,4 +1,4 @@
-package sample.auth.models;
+package sample.auth.common.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import sample.auth.utils.AuthorizationUtils;

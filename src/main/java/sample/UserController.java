@@ -5,16 +5,14 @@ import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sample.auth.models.*;
+import sample.auth.common.*;
+import sample.auth.common.user.User;
 import sample.auth.utils.RequestValidator;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 @RestController
 @CrossOrigin // for localhost usage

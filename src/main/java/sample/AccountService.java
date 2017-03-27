@@ -2,15 +2,14 @@ package sample;
 
 import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import sample.auth.ErrorState;
 import sample.auth.dao.UserDAO;
-import sample.auth.models.ChangePasswordCredentials;
-import sample.auth.models.ErrorResponse;
-import sample.auth.models.AuthorizationCredentials;
-import sample.auth.models.User;
+import sample.auth.common.ChangePasswordCredentials;
+import sample.auth.common.ErrorResponse;
+import sample.auth.common.AuthorizationCredentials;
+import sample.auth.common.user.User;
 
 
 import java.util.ArrayList;
