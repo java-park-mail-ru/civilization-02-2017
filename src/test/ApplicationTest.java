@@ -1,4 +1,4 @@
-package sample.tests;
+
 
 // TODO Fix package
 // TODO Make request, createrequest wrapper for exchange and request entity
@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
+import sample.UserController;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -70,6 +71,7 @@ public class ApplicationTest {
     }
 
     @Test
+    @SpringBootTest(classes = {UserController.class})
     public void loginTests() throws URISyntaxException {
 
         JSONObject json = new JSONObject();
