@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sample.auth.common.*;
 import sample.auth.common.user.User;
+import sample.auth.common.user.UserManager;
 import sample.auth.utils.RequestValidator;
 
 import javax.servlet.http.HttpSession;
@@ -22,7 +23,8 @@ public class UserController {
 
     @NotNull
     private final AccountService accountService;
-
+    @NotNull
+    private final UserManager userManager;
     @RequestMapping(path = "api/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity register(@RequestBody AuthorizationCredentials credentials, HttpSession httpSession) {
         logger.debug("/signup called with login: {}", credentials.getLogin());
@@ -92,9 +94,12 @@ public class UserController {
         }
         return ResponseEntity.ok(result.getLeft());
     }
-
-    private ResponseEntity buildErrorResponse(ErrorResponse error) {
-        return ResponseEntity.status(error.getErrorStatus().getCode()).body(error);
+    //get logged user data
+    @RequestMapping(path = "/api/delete")
+    public ResponseEntity deleteUser(){
+        int a  = 0;
+        userManager.createUser(new AuthorizationCredentials("abc", "abc", "abc@abc.ru"));
+            return ResponseEntity.ok("");
     }
 
     private ResponseEntity buildErrorResponse(List<ErrorResponse> errors) {
@@ -108,9 +113,12 @@ public class UserController {
         result.put("Errors", error);
         return ResponseEntity.status(errors.get(0).getErrorStatus().getCode()).body(result);
     }
+    private ResponseEntity buildErrorResponse(ErrorResponse error) {
+        return ResponseEntity.status(error.getErrorStatus().getCode()).body(error);
+    }
 
-
-    public UserController(@NotNull AccountService accountService) {
+    public UserController(@NotNull AccountService accountService, @NotNull UserManager userManager) {
         this.accountService = accountService;
+        this.userManager = userManager;
     }
 }

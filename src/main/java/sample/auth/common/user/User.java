@@ -3,6 +3,8 @@ package sample.auth.common.user;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import sample.auth.utils.AuthorizationUtils;
 
+import javax.persistence.Entity;
+
 public final class User {
     //TODO password String ->>> Hashed
     @JsonIgnore
