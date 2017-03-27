@@ -1,8 +1,8 @@
-package sample.auth.common;
+package com.hexandria.auth.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import sample.auth.ErrorState;
+import com.hexandria.auth.ErrorState;
 
 public class ErrorResponse {
     @JsonProperty("error")

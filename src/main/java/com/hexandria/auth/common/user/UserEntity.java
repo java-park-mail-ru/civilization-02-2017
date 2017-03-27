@@ -1,22 +1,18 @@
-package sample.auth.common.user;
+package com.hexandria.auth.common.user;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
-/**
- * Created by nikita
- * Date: 2017-03-27
- */
 @Entity
 @Table(name = "users", schema = "public", catalog = "hexandria")
-public class UsersEntity {
+public class UserEntity {
     private int id;
-    private Serializable login;
+    private String login;
     private String password;
     private String email;
 
     @Id
     @Column(name = "id")
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -27,11 +23,11 @@ public class UsersEntity {
 
     @Basic
     @Column(name = "login")
-    public Serializable getLogin() {
+    public String getLogin() {
         return login;
     }
 
-    public void setLogin(Serializable login) {
+    public void setLogin(String login) {
         this.login = login;
     }
 
@@ -60,7 +56,7 @@ public class UsersEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        UsersEntity that = (UsersEntity) o;
+        UserEntity that = (UserEntity) o;
 
         if (id != that.id) return false;
         if (login != null ? !login.equals(that.login) : that.login != null) return false;
@@ -78,4 +74,10 @@ public class UsersEntity {
         result = 31 * result + (email != null ? email.hashCode() : 0);
         return result;
     }
+    public UserEntity(String login, String password, String email) {
+        this.login = login;
+        this.password = password;
+        this.email = email;
+    }
+    public UserEntity(){}
 }

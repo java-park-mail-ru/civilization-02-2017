@@ -1,4 +1,4 @@
-package sample.auth;
+package com.hexandria.auth;
 
 
 public enum ErrorState {

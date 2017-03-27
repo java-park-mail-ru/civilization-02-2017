@@ -1,4 +1,4 @@
-package sample.auth.utils;
+package com.hexandria.auth.utils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

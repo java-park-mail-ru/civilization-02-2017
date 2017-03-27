@@ -1,9 +1,9 @@
-package sample.auth.utils;
+package com.hexandria.auth.utils;
 
 import org.apache.commons.validator.routines.EmailValidator;
 import org.jetbrains.annotations.Nullable;
-import sample.auth.ErrorState;
-import sample.auth.common.ErrorResponse;
+import com.hexandria.auth.ErrorState;
+import com.hexandria.auth.common.ErrorResponse;
 
 import javax.servlet.http.HttpSession;
 
@@ -12,14 +12,14 @@ public class RequestValidator {
     @Nullable
     public static ErrorResponse validateNotAuthorizedSession(HttpSession session) {
         if (session.getAttribute(session.getId()) != null) {
-            return new ErrorResponse("User already authorized in this session", ErrorState.FORBIDDEN);
+            return new ErrorResponse("UserEntity already authorized in this session", ErrorState.FORBIDDEN);
         }
         return null;
     }
     @Nullable
     public static ErrorResponse validateAlreadyAuthorizedSession(HttpSession session) {
         if (session.getAttribute(session.getId()) == null) {
-            return new ErrorResponse("User not authorized in this session!", ErrorState.FORBIDDEN);
+            return new ErrorResponse("UserEntity not authorized in this session!", ErrorState.FORBIDDEN);
         }
         return null;
     }

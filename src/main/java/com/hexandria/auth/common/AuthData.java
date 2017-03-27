@@ -1,15 +1,15 @@
-package sample.auth.common;
+package com.hexandria.auth.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 //TODO REFACTOR ME PLS
-public class AuthorizationCredentials {
+public class AuthData {
     protected final String login;
     protected final String password;
     protected final String email;
     @JsonCreator
-    public AuthorizationCredentials(@JsonProperty("login") String login, @JsonProperty("password") String password, @JsonProperty("email") String email) {
+    public AuthData(@JsonProperty("login") String login, @JsonProperty("password") String password, @JsonProperty("email") String email) {
         this.login = login;
         this.password = password;
         this.email = email;

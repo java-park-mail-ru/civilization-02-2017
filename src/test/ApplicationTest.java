@@ -1,6 +1,4 @@
 
-
-// TODO Fix package
 // TODO Make request, createrequest wrapper for exchange and request entity
 // TODO Code inspection
 import net.minidev.json.JSONObject;
@@ -12,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
-import sample.UserController;
+import com.hexandria.Application;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,7 +18,7 @@ import java.net.URISyntaxException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = Application.class)
 public class ApplicationTest {
 
     final URI SIGNUP_URI = new URI("/api/signup");
@@ -37,7 +35,7 @@ public class ApplicationTest {
     @Test
     public void registerTests() {
 
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
         json.put("login", "test");
         json.put("password", "testypass");
         json.put("email", "testmail@mail.ru");
@@ -60,6 +58,13 @@ public class ApplicationTest {
         json.put("login", "test-user");
         json.put("password", "test-password");
         json.put("email", "test_email@test.ru");
+        assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        json.clear();
+
+        json.put("login", "test-user");
+        json.put("password", "test-password");
+        json.put("email", "test_email@test.ru");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 
         json.clear();
@@ -71,7 +76,6 @@ public class ApplicationTest {
     }
 
     @Test
-    @SpringBootTest(classes = {UserController.class})
     public void loginTests() throws URISyntaxException {
 
         JSONObject json = new JSONObject();

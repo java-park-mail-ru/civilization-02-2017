@@ -1,4 +1,4 @@
-package sample.auth.common;
+package com.hexandria.auth.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

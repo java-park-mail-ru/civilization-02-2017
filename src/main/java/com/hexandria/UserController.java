@@ -1,4 +1,4 @@
-package sample;
+package com.hexandria;
 
 import com.msiops.ground.either.Either;
 import net.minidev.json.JSONObject;
@@ -7,10 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sample.auth.common.*;
-import sample.auth.common.user.User;
-import sample.auth.common.user.UserManager;
-import sample.auth.utils.RequestValidator;
+import com.hexandria.auth.common.AuthData;
+import com.hexandria.auth.common.ChangePasswordData;
+import com.hexandria.auth.common.ErrorResponse;
+import com.hexandria.auth.common.SuccessResponseMessage;
+import com.hexandria.auth.common.user.UserEntity;
+import com.hexandria.auth.common.user.UserManager;
+import com.hexandria.auth.utils.RequestValidator;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -26,13 +29,13 @@ public class UserController {
     @NotNull
     private final UserManager userManager;
     @RequestMapping(path = "api/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity register(@RequestBody AuthorizationCredentials credentials, HttpSession httpSession) {
+    public ResponseEntity register(@RequestBody AuthData credentials, HttpSession httpSession) {
         logger.debug("/signup called with login: {}", credentials.getLogin());
         final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
         if (sessionError != null) {
             return buildErrorResponse(sessionError);
         }
-        final List<ErrorResponse> registrationError = accountService.register(credentials);
+        final List<ErrorResponse> registrationError = userManager.register(credentials);
         if (!registrationError.isEmpty()){ // if errors returned
             return buildErrorResponse(registrationError);
         }
@@ -40,19 +43,19 @@ public class UserController {
     }
 
     @RequestMapping(path = "/api/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity login(@RequestBody AuthorizationCredentials credentials, HttpSession httpSession) {
+    public ResponseEntity login(@RequestBody AuthData credentials, HttpSession httpSession) {
         logger.debug("/login called with login: {}", credentials.getLogin());
         final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
         if (sessionError !=null) {
             return buildErrorResponse(sessionError);
         }
-        final Either<User, List<ErrorResponse>> result = accountService.loginUser(credentials);
+        final Either<UserEntity, List<ErrorResponse>> result = accountService.loginUser(credentials);
         if (!result.isLeft()){ //if error
             return buildErrorResponse(result.getRight());
         }
-        final User user = result.getLeft();
-        httpSession.setAttribute(httpSession.getId(), user.getLogin());
-        return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + user.getLogin()));
+        final UserEntity userEntity = result.getLeft();
+        httpSession.setAttribute(httpSession.getId(), userEntity.getLogin());
+        return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + userEntity.getLogin()));
     }
 
     @RequestMapping(path = "/api/logout", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
@@ -68,7 +71,7 @@ public class UserController {
 
     // change password
     @RequestMapping(path = "/api/user", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity changePassword(@RequestBody ChangePasswordCredentials credentials, HttpSession httpSession) {
+    public ResponseEntity changePassword(@RequestBody ChangePasswordData credentials, HttpSession httpSession) {
         logger.debug("/user-change-pass called");
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError !=null) {
@@ -88,7 +91,7 @@ public class UserController {
             return buildErrorResponse(sessionError);
         }
         final String login = String.valueOf(httpSession.getAttribute(httpSession.getId())); //get login from session, 100% not null
-        final Either<User, List<ErrorResponse>> result = accountService.loadUser(login);
+        final Either<UserEntity, List<ErrorResponse>> result = accountService.loadUser(login);
         if (!result.isLeft()){
             return buildErrorResponse(result.getRight());
         }
@@ -98,7 +101,7 @@ public class UserController {
     @RequestMapping(path = "/api/delete")
     public ResponseEntity deleteUser(){
         int a  = 0;
-        userManager.createUser(new AuthorizationCredentials("abc", "abc", "abc@abc.ru"));
+        //userManager.createUser(new AuthData("ABc", "abc", "abc@abc.ru"));
             return ResponseEntity.ok("");
     }
 
