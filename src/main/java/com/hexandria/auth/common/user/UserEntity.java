@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 
+
 @Entity
 @Table(name = "users", schema = "public", catalog = "hexandria")
 public class UserEntity {
@@ -55,12 +56,13 @@ public class UserEntity {
         this.email = email;
     }
 
+    @SuppressWarnings("All")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        UserEntity that = (UserEntity) o;
+        final UserEntity that = (UserEntity) o;
 
         if (id != that.id) return false;
         if (login != null ? !login.equals(that.login) : that.login != null) return false;

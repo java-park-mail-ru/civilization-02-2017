@@ -26,8 +26,6 @@ public class UserController {
     Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @NotNull
-    private final AccountService accountService;
-    @NotNull
     private final UserManager userManager;
     @RequestMapping(path = "api/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity register(@RequestBody AuthData credentials, HttpSession httpSession) {
@@ -78,7 +76,7 @@ public class UserController {
         if (sessionError !=null) {
             return buildErrorResponse(sessionError);
         }
-        final List<ErrorResponse> passwordChangeErrors = accountService.changePassword(credentials);
+        final List<ErrorResponse> passwordChangeErrors = userManager.changeUserPassword(credentials);
         if (!passwordChangeErrors.isEmpty()) {
             return buildErrorResponse(passwordChangeErrors);
         }
@@ -121,8 +119,7 @@ public class UserController {
         return ResponseEntity.status(error.getErrorStatus().getCode()).body(error);
     }
 
-    public UserController(@NotNull AccountService accountService, @NotNull UserManager userManager) {
-        this.accountService = accountService;
+    public UserController(@NotNull UserManager userManager) {
         this.userManager = userManager;
     }
 }

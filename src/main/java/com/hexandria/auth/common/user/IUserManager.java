@@ -9,17 +9,16 @@ import com.msiops.ground.either.Either;
 import java.util.List;
 
 public interface IUserManager {
-    UserEntity updateUser(UserEntity userEntity);
+    void updateUser(UserEntity userEntity);
     List<UserEntity> updateUsers(List<UserEntity> userEntities);
-    void changeUserPassword(ChangePasswordData credentials);
     UserEntity getUserById(String id);
 
     /**
      *
-     * @param credentials - data input
-     * @return possible registration errors
+     * @param userEntity - data input
+     * @return created entity
      */
-    List<ErrorResponse> register(AuthData credentials);
+    UserEntity createUser(UserEntity userEntity);
 
     /**
      *

@@ -31,8 +31,16 @@ public class UserManager implements IUserManager{
     protected EntityManager entityManager;
 
     @Override
-    public UserEntity updateUser(UserEntity userEntity) {
-        return null;
+    public void updateUser(UserEntity userEntity) {
+        final EntityTransaction tx = entityManager.getTransaction();
+        try {
+            tx.begin();
+            entityManager.merge(userEntity);
+            tx.commit();
+        } catch (Throwable e){
+            tx.rollback();
+            throw e;
+        }
     }
 
     @Override
@@ -40,9 +48,34 @@ public class UserManager implements IUserManager{
         return null;
     }
 
-    @Override
-    public void changeUserPassword(ChangePasswordData credentials) {
+    @NotNull
+    public List<ErrorResponse> changeUserPassword(ChangePasswordData credentials) {
 
+        final ArrayList<ErrorResponse> errors = new ArrayList<>();
+        if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getNewPassword())
+                || StringUtils.isEmpty(credentials.getPassword())) {
+            errors.add(new ErrorResponse("Empty credentials", ErrorState.BAD_REQUEST));
+        }
+        UserEntity user = null;
+        if (!StringUtils.isEmpty(credentials.getLogin())) {
+            user = getUserByLogin(credentials.getLogin());
+            if (user != null) {
+                if (!user.getPassword().equals(credentials.getPassword())
+                        && StringUtils.isEmpty(credentials.getNewPassword())) {
+                    errors.add(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
+                }
+            } else {
+                errors.add(new ErrorResponse("No such user", ErrorState.FORBIDDEN));
+            }
+        }
+
+        if (errors.isEmpty()) {
+            //noinspection ConstantConditions
+            user.setPassword(credentials.getPassword()); // errors wont be empty if password is invalid
+            updateUser(user);
+        }
+
+        return errors;
     }
 
     @Override
@@ -62,7 +95,7 @@ public class UserManager implements IUserManager{
         }
         return user;
     }
-
+    @Override
     public UserEntity createUser(UserEntity userEntity) {
         final EntityTransaction tx = entityManager.getTransaction();
         try {
@@ -80,7 +113,6 @@ public class UserManager implements IUserManager{
      * @return possible registration errors
      */
     @SuppressWarnings("OverlyComplexMethod")
-    @Override
     @NotNull
     public List<ErrorResponse> register(AuthData credentials) {
 
