@@ -92,8 +92,7 @@ public class AccountService {
         if (!StringUtils.isEmpty(credentials.getLogin())) {
             final User userFromDB = userDAO.load(credentials.getLogin());
             if (userFromDB != null) {
-                if (!userFromDB.getPassword().equals(credentials.getPassword())
-                        && StringUtils.isEmpty(credentials.getNewPassword())) {
+                if (!userFromDB.getPassword().equals(credentials.getPassword())) {
                     errors.add(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
                 }
             } else {

@@ -81,7 +81,7 @@ public class UserController {
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully changed password for user "+credentials.getLogin()));
     }
     //get logged user data
-    @RequestMapping(path = "/api/user", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/api/user", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getCurrentUser(HttpSession httpSession){
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError != null) {
@@ -100,15 +100,7 @@ public class UserController {
     }
 
     private ResponseEntity buildErrorResponse(List<ErrorResponse> errors) {
-        final StringBuilder errorString = new StringBuilder();
-        for(ErrorResponse e : errors){
-            errorString.append(e.getErrorText());
-            errorString.append(',');
-        }
-        final JSONObject result = new JSONObject();
-        final String error = errorString.toString();
-        result.put("Errors", error);
-        return ResponseEntity.status(errors.get(0).getErrorStatus().getCode()).body(result);
+        return ResponseEntity.status(errors.get(0).getErrorStatus().getCode()).body(errors);
     }
 
 
