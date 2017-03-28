@@ -4,6 +4,7 @@ import net.minidev.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -149,7 +150,7 @@ public class ApplicationTest {
                 .isEqualTo(HttpStatus.FORBIDDEN);
 
     }
-
+    @AutoConfigureMockMvc
     @Test
     public void userPostTests() throws URISyntaxException {
         JSONObject json = createRegisterJson(rnd);

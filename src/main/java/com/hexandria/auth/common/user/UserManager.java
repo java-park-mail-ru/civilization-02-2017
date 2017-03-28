@@ -23,7 +23,7 @@ import java.util.List;
 import static com.hexandria.auth.utils.RequestValidator.isValidEmailAddress;
 
 @Service
-public class UserManager implements IUserManager{
+public class UserManager implements IUserManager {
 
     private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
 
@@ -37,7 +37,8 @@ public class UserManager implements IUserManager{
             tx.begin();
             entityManager.merge(userEntity);
             tx.commit();
-        } catch (Throwable e){
+        }
+        catch (Throwable e){
             tx.rollback();
             throw e;
         }
@@ -88,13 +89,14 @@ public class UserManager implements IUserManager{
     public UserEntity getUserByLogin(String login) {
         UserEntity user = null;
         try {
-            user =  (UserEntity)entityManager.
+            user = (UserEntity) entityManager.
                     createQuery("select u from UserEntity u where u.login = :login").setParameter("login", login).getSingleResult();
         } catch (NoResultException e) {
-            logger.info("no entity found for login {}",login);
+            logger.info("no entity found for login {}", login);
         }
         return user;
     }
+
     @Override
     public UserEntity createUser(UserEntity userEntity) {
         final EntityTransaction tx = entityManager.getTransaction();
@@ -102,7 +104,7 @@ public class UserManager implements IUserManager{
             tx.begin();
             entityManager.persist(userEntity);
             tx.commit();
-        } catch (Throwable e){
+        } catch (Throwable e) {
             tx.rollback();
             throw e;
         }
@@ -148,12 +150,12 @@ public class UserManager implements IUserManager{
         }
         final UserEntity user = getUserByLogin(credentials.getLogin());
 
-        if (user == null){
+        if (user == null) {
             errors.add(new ErrorResponse("User with that login does not exist", ErrorState.FORBIDDEN));
         } else if (!user.getPassword().equals(credentials.getPassword())) {
             errors.add(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
         }
-        if (!errors.isEmpty()){
+        if (!errors.isEmpty()) {
             return Either.right(errors);
         }
         //noinspection ConstantConditions
