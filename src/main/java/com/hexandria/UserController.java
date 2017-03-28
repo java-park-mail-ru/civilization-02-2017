@@ -1,5 +1,6 @@
 package com.hexandria;
 
+import com.hexandria.auth.ErrorState;
 import com.msiops.ground.either.Either;
 import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
@@ -84,18 +85,18 @@ public class UserController {
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully changed password for user "+credentials.getLogin()));
     }
     //get logged user data
-    @RequestMapping(path = "/api/user", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/api/user", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getCurrentUser(HttpSession httpSession){
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError != null) {
             return buildErrorResponse(sessionError);
         }
         final String login = String.valueOf(httpSession.getAttribute(httpSession.getId())); //get login from session, 100% not null
-        final Either<UserEntity, List<ErrorResponse>> result = accountService.loadUser(login);
-        if (!result.isLeft()){
-            return buildErrorResponse(result.getRight());
+        final UserEntity result = userManager.getUserByLogin(login);
+        if (result == null){
+            return buildErrorResponse(new ErrorResponse("Incorrect login", ErrorState.FORBIDDEN));
         }
-        return ResponseEntity.ok(result.getLeft());
+        return ResponseEntity.ok(result);
     }
     //get logged user data
     @RequestMapping(path = "/api/delete")

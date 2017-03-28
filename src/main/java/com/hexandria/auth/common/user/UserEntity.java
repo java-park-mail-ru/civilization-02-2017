@@ -1,12 +1,16 @@
 package com.hexandria.auth.common.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "users", schema = "public", catalog = "hexandria")
 public class UserEntity {
+    @JsonIgnore
     private int id;
     private String login;
+    @JsonIgnore
     private String password;
     private String email;
 
