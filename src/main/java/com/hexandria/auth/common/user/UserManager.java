@@ -3,6 +3,7 @@ package com.hexandria.auth.common.user;
 import com.hexandria.auth.ErrorState;
 import com.hexandria.auth.common.AuthData;
 import com.hexandria.auth.common.ErrorResponse;
+import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class UserManager implements IUserManager{
         }
         return user;
     }
-    @Override
+
     public UserEntity createUser(UserEntity userEntity) {
         final EntityTransaction tx = entityManager.getTransaction();
         try {
@@ -105,6 +106,26 @@ public class UserManager implements IUserManager{
             createUser(newUserEntity);
         }
         return errors;
+    }
+
+    @Override
+    public Either<UserEntity, List<ErrorResponse>> login(AuthData credentials) {
+        final List<ErrorResponse> errors = new ArrayList<>();
+        if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getPassword())) {
+            errors.add(new ErrorResponse("login and password should be non-empty!", ErrorState.BAD_REQUEST));
+        }
+        final UserEntity user = getUserByLogin(credentials.getLogin());
+
+        if (user == null){
+            errors.add(new ErrorResponse("User with that login does not exist", ErrorState.FORBIDDEN));
+        } else if (!user.getPassword().equals(credentials.getPassword())) {
+            errors.add(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
+        }
+        if (!errors.isEmpty()){
+            return Either.right(errors);
+        }
+        //noinspection ConstantConditions
+        return Either.left(user); //wont be reached if null
     }
 
     public UserManager() {

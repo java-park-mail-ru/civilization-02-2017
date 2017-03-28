@@ -33,23 +33,6 @@ public class AccountService {
         errors.add(new ErrorResponse("Incorrect login", ErrorState.FORBIDDEN));
         return Either.right(errors);
     }
-    public Either<UserEntity, List<ErrorResponse>> loginUser(AuthData credentials) {
-        final List<ErrorResponse> errors = new ArrayList<>();
-        if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getPassword())) {
-            errors.add(new ErrorResponse("login and password should be non-empty!", ErrorState.BAD_REQUEST));
-        }
-        final UserEntity userEntityFromDB = userDAO.load(credentials.getLogin());
-        if (userEntityFromDB == null){
-            errors.add(new ErrorResponse("User with that login does not exist", ErrorState.FORBIDDEN));
-        } else if (!userEntityFromDB.getPassword().equals(credentials.getPassword())) {
-            errors.add(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
-        }
-        if (!errors.isEmpty()){
-            return Either.right(errors);
-        }
-        //noinspection ConstantConditions
-        return Either.left(userEntityFromDB); //wont be reached if null
-    }
 
     @NotNull
     public List<ErrorResponse> changePassword(ChangePasswordData credentials) {

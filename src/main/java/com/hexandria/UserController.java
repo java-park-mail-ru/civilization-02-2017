@@ -49,7 +49,7 @@ public class UserController {
         if (sessionError !=null) {
             return buildErrorResponse(sessionError);
         }
-        final Either<UserEntity, List<ErrorResponse>> result = accountService.loginUser(credentials);
+        final Either<UserEntity, List<ErrorResponse>> result = userManager.login(credentials);
         if (!result.isLeft()){ //if error
             return buildErrorResponse(result.getRight());
         }
