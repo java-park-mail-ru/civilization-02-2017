@@ -62,7 +62,7 @@ public class UserManager implements IUserManager {
             user = getUserByLogin(credentials.getLogin());
             if (user != null) {
                 if (!user.getPassword().equals(credentials.getPassword())
-                        && StringUtils.isEmpty(credentials.getNewPassword())) {
+                        || StringUtils.isEmpty(credentials.getNewPassword())) {
                     errors.add(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
                 }
             } else {
@@ -72,7 +72,7 @@ public class UserManager implements IUserManager {
 
         if (errors.isEmpty()) {
             //noinspection ConstantConditions
-            user.setPassword(credentials.getPassword()); // errors wont be empty if password is invalid
+            user.setPassword(credentials.getNewPassword()); // errors wont be empty if password is invalid
             updateUser(user);
         }
 

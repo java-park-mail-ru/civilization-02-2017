@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -150,7 +151,6 @@ public class ApplicationTest {
                 .isEqualTo(HttpStatus.FORBIDDEN);
 
     }
-    @AutoConfigureMockMvc
     @Test
     public void userPostTests() throws URISyntaxException {
         JSONObject json = createRegisterJson(rnd);
