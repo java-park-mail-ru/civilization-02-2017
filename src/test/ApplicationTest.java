@@ -59,8 +59,8 @@ public class ApplicationTest {
         json.put("login", "test-user");
         json.put("password", "test-password");
         json.put("email", "test_email@test.ru");
+        assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-
         json.clear();
 
         json.put("login", "mailtest");
