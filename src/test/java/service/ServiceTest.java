@@ -3,6 +3,7 @@ package service;
 import com.hexandria.Application;
 import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
+import org.eclipse.jetty.server.Authentication;
 import org.junit.Before;
 import org.junit.Assert.*;
 import org.junit.Test;
@@ -15,10 +16,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.security.SecureRandom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by frozenfoot on 30.03.17.
@@ -26,8 +29,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @Transactional
-@WebAppConfiguration
-@ComponentScan(basePackages = {"com.hexandria.auth.common.user"})
+@ComponentScan(basePackages = {"com.hexandria.auth.common.user", "com.hexandria.auth.utils", })
 public class ServiceTest {
 
     UserManager userManager;
@@ -35,17 +37,31 @@ public class ServiceTest {
 
     @Before
     public void setup(){
-        UserManager userManager = new UserManager();
         rnd = new SecureRandom();
+        userManager = new UserManager();
     }
 
     @Test
     public void addTestUser(){
-        String testLogin = getRandomString(rnd, 10);
-        String testPassword = getRandomString(rnd, 12);
-        String testMail = getRandomString(rnd, 6) + "@mail.ru";
-        UserEntity newUser = userManager.createUser(new UserEntity(testLogin, testPassword, testMail));
-        assertEquals(testLogin, newUser.getLogin());
+        UserEntity randomUser = getRandomUser();
+        UserEntity newUser = userManager.createUser(randomUser);
+        assertEquals(randomUser.getLogin(), newUser.getLogin());
+        assertEquals(randomUser.getEmail(), newUser.getEmail());
+        assertEquals(randomUser.getPassword(), newUser.getPassword());
+    }
+
+    @Test
+    public void addExistingUser(){
+        String error = null;
+        UserEntity randomUser = getRandomUser();
+        UserEntity newUser = userManager.createUser(randomUser);
+        assertEquals(randomUser.getLogin(), newUser.getLogin());
+        try {
+            userManager.createUser(randomUser);
+        }
+        catch (Throwable e){
+            System.out.println("Error occured :" + e.toString());
+        }
     }
 
     public String getRandomString(SecureRandom random, int length){
@@ -56,5 +72,13 @@ public class ServiceTest {
         }
         return stringBuilder.toString();
     }
+
+    public UserEntity getRandomUser(){
+        String testLogin = getRandomString(rnd, 10);
+        String testPassword = getRandomString(rnd, 12);
+        String testMail = getRandomString(rnd, 6) + "@mail.ru";
+        return new UserEntity(testLogin, testPassword, testMail);
+    }
+
 
 }
