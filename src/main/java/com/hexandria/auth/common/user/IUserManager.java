@@ -10,7 +10,6 @@ import java.util.List;
 
 public interface IUserManager {
     void updateUser(UserEntity userEntity);
-    List<UserEntity> updateUsers(List<UserEntity> userEntities);
     UserEntity getUserById(String id);
 
     /**

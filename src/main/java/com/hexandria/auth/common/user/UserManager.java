@@ -44,11 +44,6 @@ public class UserManager implements IUserManager {
         }
     }
 
-    @Override
-    public List<UserEntity> updateUsers(List<UserEntity> userEntities) {
-        return null;
-    }
-
     @NotNull
     public List<ErrorResponse> changeUserPassword(ChangePasswordData credentials) {
 
@@ -78,10 +73,19 @@ public class UserManager implements IUserManager {
 
         return errors;
     }
-
     @Override
+    @Nullable
     public UserEntity getUserById(String id) {
-        return null;
+        final int intId;
+
+        try{
+            intId = Integer.parseInt(id);
+        }
+        catch (NumberFormatException e){
+            logger.error("Incorrect input string received ",e);
+            return null;
+        }
+        return entityManager.find(UserEntity.class, intId);
     }
 
     @Override
