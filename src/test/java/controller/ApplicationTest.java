@@ -1,4 +1,4 @@
-// TODO Code inspection
+package controller;// TODO Code inspection
 import com.hexandria.Application;
 import net.minidev.json.JSONObject;
 import org.junit.Test;
@@ -8,10 +8,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
 
+import javax.transaction.Transactional;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
@@ -21,6 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = Application.class)
+@Profile("test")
+@ComponentScan(basePackages = { "com.hexandria" })
 public class ApplicationTest {
 
     private static SecureRandom rnd = new SecureRandom();
@@ -36,6 +41,7 @@ public class ApplicationTest {
     }
 
     @Test
+    @Transactional
     public void registerTests() {
 
         JSONObject json = createRegisterJson(rnd);
@@ -241,7 +247,7 @@ public class ApplicationTest {
         final String lettersAndDigits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         StringBuilder stringBuilder = new StringBuilder(length);
         for(int i = 0; i < length; ++i){
-            stringBuilder.append(random.nextInt(lettersAndDigits.length()));
+            stringBuilder.append(lettersAndDigits.toCharArray()[random.nextInt(lettersAndDigits.length())]);
         }
         return stringBuilder.toString();
     }
