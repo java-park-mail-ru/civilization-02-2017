@@ -42,26 +42,8 @@ public class ServiceTest {
     }
 
     @Test
-    public void addTestUser(){
-        UserEntity randomUser = getRandomUser();
-        UserEntity newUser = userManager.createUser(randomUser);
-        assertEquals(randomUser.getLogin(), newUser.getLogin());
-        assertEquals(randomUser.getEmail(), newUser.getEmail());
-        assertEquals(randomUser.getPassword(), newUser.getPassword());
-    }
+    public void registerCorrectUser(){
 
-    @Test
-    public void addExistingUser(){
-        String error = null;
-        UserEntity randomUser = getRandomUser();
-        UserEntity newUser = userManager.createUser(randomUser);
-        assertEquals(randomUser.getLogin(), newUser.getLogin());
-        try {
-            userManager.createUser(randomUser);
-        }
-        catch (Throwable e){
-            System.out.println("Error occured :" + e.toString());
-        }
     }
 
     public String getRandomString(SecureRandom random, int length){

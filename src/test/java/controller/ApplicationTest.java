@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = Application.class)
 @Profile("test")
-@ComponentScan(basePackages = { "com.hexandria" })
 public class ApplicationTest {
 
     private static SecureRandom rnd = new SecureRandom();
@@ -41,27 +40,35 @@ public class ApplicationTest {
     }
 
     @Test
-    @Transactional
     public void registerTests() {
 
+        /**
+         * Correct User Registration
+         */
         JSONObject json = createRegisterJson(rnd);
         ResponseEntity response = proceedPostRequest(json, SIGNUP_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
         json.clear();
 
+        /**
+         * Incorrect request
+         */
         json.put("login", "test");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
         json.clear();
 
+        /**
+         * Empty credentials error
+         */
         json.put("login", "   ");
         json.put("password", "testypass");
         json.put("email", "testmail@mail.ru");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
         json.clear();
 
+        /**
+         * Trying to register alread registered user
+         */
         json.put("login", "test-user");
         json.put("password", "test-password");
         json.put("email", "test_email@test.ru");
@@ -69,13 +76,18 @@ public class ApplicationTest {
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         json.clear();
 
+        /**
+         * Wrong email format
+         */
         json.put("login", "mailtest");
         json.put("password", "test-password");
         json.put("email", "test_emailt.ru");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
         json.clear();
 
+        /**
+         * Multiple errors
+         */
         json.put("login", "mailtest");
         json.put("password", "");
         json.put("email", "test_emailt.ru");
@@ -85,28 +97,33 @@ public class ApplicationTest {
     @Test
     public void loginTests() throws URISyntaxException {
 
+        /**
+         * Register, login and logout user
+         */
         JSONObject json = new JSONObject();
         json.put("login", "test-user");
         json.put("password", "test-password");
-
         ResponseEntity<String> response = proceedPostRequest(json, LOGIN_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
         response = logoutUser(response);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
+        /**
+         * Create user and try to login with incorrect password credentials
+         */
         json = createRegisterJson(rnd);
         proceedPostRequest(json, SIGNUP_URI);
         json.remove("email");
-
         response = proceedPostRequest(json, LOGIN_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         logoutUser(response);
-
-        json.put("password", "");
+        json.put("password", "-----");
         response = proceedPostRequest(json, LOGIN_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 
+        /**
+         * Empty credentials
+         */
         json.remove("password");
         response = proceedPostRequest(json, LOGIN_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
