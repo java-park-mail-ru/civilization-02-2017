@@ -1,0 +1,20 @@
+language: java
+jdk:
+  - oraclejdk8
+
+branches:
+  only:
+  - databases
+
+deploy:
+  provider: heroku
+  api_key:
+    secure: 544077cd-76a1-4d75-9548-5bf338e88bca
+  app: hexandria-tp
+  on:
+    repo: Intaco/civilization-02-2017
+    branch: databases
+  skip_cleanup: true
+
+install:
+- mvn clean install
