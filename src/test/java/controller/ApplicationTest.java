@@ -1,4 +1,4 @@
-// TODO Code inspection
+package controller;// TODO Code inspection
 import com.hexandria.Application;
 import net.minidev.json.JSONObject;
 import org.junit.Test;
@@ -8,10 +8,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
 
+import javax.transaction.Transactional;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
@@ -21,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = Application.class)
+@Profile("test")
 public class ApplicationTest {
 
     private static SecureRandom rnd = new SecureRandom();
@@ -38,24 +42,33 @@ public class ApplicationTest {
     @Test
     public void registerTests() {
 
+        /**
+         * Correct User Registration
+         */
         JSONObject json = createRegisterJson(rnd);
         ResponseEntity response = proceedPostRequest(json, SIGNUP_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
         json.clear();
 
+        /**
+         * Incorrect request
+         */
         json.put("login", "test");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
         json.clear();
 
+        /**
+         * Empty credentials error
+         */
         json.put("login", "   ");
         json.put("password", "testypass");
         json.put("email", "testmail@mail.ru");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
         json.clear();
 
+        /**
+         * Trying to register alread registered user
+         */
         json.put("login", "test-user");
         json.put("password", "test-password");
         json.put("email", "test_email@test.ru");
@@ -63,13 +76,18 @@ public class ApplicationTest {
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         json.clear();
 
+        /**
+         * Wrong email format
+         */
         json.put("login", "mailtest");
         json.put("password", "test-password");
         json.put("email", "test_emailt.ru");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
         json.clear();
 
+        /**
+         * Multiple errors
+         */
         json.put("login", "mailtest");
         json.put("password", "");
         json.put("email", "test_emailt.ru");
@@ -79,28 +97,33 @@ public class ApplicationTest {
     @Test
     public void loginTests() throws URISyntaxException {
 
+        /**
+         * Register, login and logout user
+         */
         JSONObject json = new JSONObject();
         json.put("login", "test-user");
         json.put("password", "test-password");
-
         ResponseEntity<String> response = proceedPostRequest(json, LOGIN_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
         response = logoutUser(response);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
+        /**
+         * Create user and try to login with incorrect password credentials
+         */
         json = createRegisterJson(rnd);
         proceedPostRequest(json, SIGNUP_URI);
         json.remove("email");
-
         response = proceedPostRequest(json, LOGIN_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         logoutUser(response);
-
-        json.put("password", "");
+        json.put("password", "-----");
         response = proceedPostRequest(json, LOGIN_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 
+        /**
+         * Empty credentials
+         */
         json.remove("password");
         response = proceedPostRequest(json, LOGIN_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -241,7 +264,7 @@ public class ApplicationTest {
         final String lettersAndDigits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         StringBuilder stringBuilder = new StringBuilder(length);
         for(int i = 0; i < length; ++i){
-            stringBuilder.append(random.nextInt(lettersAndDigits.length()));
+            stringBuilder.append(lettersAndDigits.toCharArray()[random.nextInt(lettersAndDigits.length())]);
         }
         return stringBuilder.toString();
     }

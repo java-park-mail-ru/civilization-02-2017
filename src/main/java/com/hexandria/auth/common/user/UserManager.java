@@ -6,8 +6,11 @@ import com.hexandria.auth.common.ErrorResponse;
 import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.omg.CORBA.Environment;
+import org.omg.CORBA.SystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.hexandria.auth.common.ChangePasswordData;
 import com.hexandria.auth.utils.PersistenceManager;
@@ -27,7 +30,7 @@ public class UserManager implements IUserManager {
 
     private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
 
-    @PersistenceContext(unitName = "hexandria")
+    @Autowired
     protected EntityManager entityManager;
 
     @Override
