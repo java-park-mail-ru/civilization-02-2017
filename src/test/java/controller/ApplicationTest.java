@@ -1,4 +1,5 @@
 package controller;// TODO Code inspection
+
 import com.hexandria.Application;
 import net.minidev.json.JSONObject;
 import org.junit.Test;
@@ -69,9 +70,9 @@ public class ApplicationTest {
         /**
          * Trying to register alread registered user
          */
-        json.put("login", "test-user");
+        json.put("login", "test-user777");
         json.put("password", "test-password");
-        json.put("email", "test_email@test.ru");
+        json.put("email", "test_email654@test.ru");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         json.clear();
@@ -103,7 +104,10 @@ public class ApplicationTest {
         JSONObject json = new JSONObject();
         json.put("login", "test-user");
         json.put("password", "test-password");
-        ResponseEntity<String> response = proceedPostRequest(json, LOGIN_URI);
+        json.put("email", "testemail@mail.ru");
+        ResponseEntity<String> response = proceedPostRequest(json, SIGNUP_URI);
+        assertThat(response.getStatusCode() == HttpStatus.OK);
+        response = proceedPostRequest(json, LOGIN_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         response = logoutUser(response);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -119,7 +123,7 @@ public class ApplicationTest {
         logoutUser(response);
         json.put("password", "-----");
         response = proceedPostRequest(json, LOGIN_URI);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 
         /**
          * Empty credentials
@@ -174,6 +178,7 @@ public class ApplicationTest {
                 .isEqualTo(HttpStatus.FORBIDDEN);
 
     }
+
     @Test
     public void userPostTests() throws URISyntaxException {
         JSONObject json = createRegisterJson(rnd);
@@ -231,7 +236,7 @@ public class ApplicationTest {
 
     }
 
-    public RequestEntity createGetRequest(URI uri, String ... cookies){
+    public RequestEntity createGetRequest(URI uri, String... cookies) {
 
         return RequestEntity.get(uri)
                 .accept(MediaType.APPLICATION_JSON_UTF8)
@@ -239,7 +244,7 @@ public class ApplicationTest {
                 .build();
     }
 
-    public RequestEntity createPostRequest(JSONObject json, URI uri, String ... cookies) throws URISyntaxException {
+    public RequestEntity createPostRequest(JSONObject json, URI uri, String... cookies) throws URISyntaxException {
         return RequestEntity.post(uri)
                 .header(HttpHeaders.COOKIE, cookies)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -260,16 +265,16 @@ public class ApplicationTest {
         return restTemplate.exchange(request, String.class);
     }
 
-    public String getRandomString(SecureRandom random, int length){
+    public String getRandomString(SecureRandom random, int length) {
         final String lettersAndDigits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         StringBuilder stringBuilder = new StringBuilder(length);
-        for(int i = 0; i < length; ++i){
+        for (int i = 0; i < length; ++i) {
             stringBuilder.append(lettersAndDigits.toCharArray()[random.nextInt(lettersAndDigits.length())]);
         }
         return stringBuilder.toString();
     }
 
-    public JSONObject createRegisterJson(SecureRandom rnd){
+    public JSONObject createRegisterJson(SecureRandom rnd) {
 
         JSONObject json = new JSONObject();
         String login = getRandomString(rnd, 12);
