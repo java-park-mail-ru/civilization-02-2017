@@ -1,0 +1,8 @@
+#init
+docker build -t hexandria-image . && docker run -t -p 5432:5432 --name hexandria-container hexandria-image
+
+#run
+docker start hexandria-container
+
+#delete
+docker rmi hexandria-image && docker rm hexandria-container
