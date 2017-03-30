@@ -96,13 +96,6 @@ public class UserController {
         }
         return ResponseEntity.ok(result);
     }
-    //get logged user data
-    @RequestMapping(path = "/api/delete")
-    public ResponseEntity deleteUser(){
-        int a  = 0;
-        //userManager.createUser(new AuthData("ABc", "abc", "abc@abc.ru"));
-            return ResponseEntity.ok("");
-    }
 
     private ResponseEntity buildErrorResponse(List<ErrorResponse> errors) {
         return ResponseEntity.status(errors.get(0).getErrorStatus().getCode()).body(errors);

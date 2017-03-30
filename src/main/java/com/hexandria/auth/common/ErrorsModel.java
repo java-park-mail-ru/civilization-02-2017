@@ -1,4 +1,4 @@
-package sample.auth.models;
+package com.hexandria.auth.common;
 
 import java.util.List;
 

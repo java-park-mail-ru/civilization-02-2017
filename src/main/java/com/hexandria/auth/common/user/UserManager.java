@@ -30,7 +30,6 @@ public class UserManager implements IUserManager {
 
     private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
 
-    @Autowired
     protected EntityManager entityManager;
 
     @Override
