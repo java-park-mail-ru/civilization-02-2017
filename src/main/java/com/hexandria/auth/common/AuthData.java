@@ -3,7 +3,6 @@ package com.hexandria.auth.common;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-//TODO REFACTOR ME PLS
 public class AuthData {
     protected final String login;
     protected final String password;

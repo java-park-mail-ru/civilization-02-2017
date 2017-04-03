@@ -1,9 +1,9 @@
 package com.hexandria.auth.utils;
 
-import org.apache.commons.validator.routines.EmailValidator;
-import org.jetbrains.annotations.Nullable;
 import com.hexandria.auth.ErrorState;
 import com.hexandria.auth.common.ErrorResponse;
+import org.apache.commons.validator.routines.EmailValidator;
+import org.jetbrains.annotations.Nullable;
 
 import javax.servlet.http.HttpSession;
 

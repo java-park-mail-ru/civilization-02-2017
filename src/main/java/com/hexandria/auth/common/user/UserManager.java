@@ -2,24 +2,20 @@ package com.hexandria.auth.common.user;
 
 import com.hexandria.auth.ErrorState;
 import com.hexandria.auth.common.AuthData;
+import com.hexandria.auth.common.ChangePasswordData;
 import com.hexandria.auth.common.ErrorResponse;
+import com.hexandria.auth.utils.PersistenceManager;
 import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.omg.CORBA.Environment;
-import org.omg.CORBA.SystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.hexandria.auth.common.ChangePasswordData;
-import com.hexandria.auth.utils.PersistenceManager;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +26,7 @@ public class UserManager implements IUserManager {
 
     private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
 
-    protected EntityManager entityManager;
+    private EntityManager entityManager;
 
     @Override
     public void updateUser(UserEntity userEntity) {
@@ -46,6 +42,7 @@ public class UserManager implements IUserManager {
         }
     }
 
+    @Override
     @NotNull
     public List<ErrorResponse> changeUserPassword(ChangePasswordData credentials) {
 
@@ -77,17 +74,8 @@ public class UserManager implements IUserManager {
     }
     @Override
     @Nullable
-    public UserEntity getUserById(String id) {
-        final int intId;
-
-        try{
-            intId = Integer.parseInt(id);
-        }
-        catch (NumberFormatException e){
-            logger.error("Incorrect input string received ",e);
-            return null;
-        }
-        return entityManager.find(UserEntity.class, intId);
+    public UserEntity getUserById(Integer id) {
+        return entityManager.find(UserEntity.class, id);
     }
 
     @Override
@@ -120,6 +108,7 @@ public class UserManager implements IUserManager {
     /**
      * @return possible registration errors
      */
+    @Override
     @SuppressWarnings("OverlyComplexMethod")
     @NotNull
     public List<ErrorResponse> register(AuthData credentials) {
