@@ -5,7 +5,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 public class PersistenceManager {
 
-    private static final String PERSISTENT_UNIT_NAME = "hexandria_test";
+    private static final String PERSISTENT_UNIT_NAME = "hexandria";
 
     private static final EntityManagerFactory emf;
 
