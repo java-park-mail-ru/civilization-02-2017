@@ -3,20 +3,14 @@ package service;
 import com.hexandria.Application;
 import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
-import org.eclipse.jetty.server.Authentication;
+import com.hexandria.auth.common.user.UserManagerImpl;
 import org.junit.Before;
-import org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.security.SecureRandom;
 
@@ -32,13 +26,13 @@ import static org.junit.Assert.assertNotNull;
 @ComponentScan(basePackages = {"com.hexandria.auth.common.user", "com.hexandria.auth.utils", })
 public class ServiceTest {
 
-    UserManager userManager;
+    UserManager userManagerImpl;
     private static SecureRandom rnd;
 
     @Before
     public void setup(){
         rnd = new SecureRandom();
-        userManager = new UserManager();
+        userManagerImpl = new UserManagerImpl();
     }
 
     @Test

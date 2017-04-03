@@ -5,12 +5,10 @@ import com.hexandria.auth.common.AuthData;
 import com.hexandria.auth.common.ChangePasswordData;
 import com.hexandria.auth.common.ErrorResponse;
 import com.hexandria.auth.common.SuccessResponseMessage;
-import com.hexandria.auth.common.user.IUserManager;
-import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
+import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.utils.RequestValidator;
 import com.msiops.ground.either.Either;
-import org.hibernate.tool.schema.spi.*;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.beans.ExceptionListener;
 import java.util.List;
 
 @RestController
@@ -28,7 +25,7 @@ public class UserController{
     Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @NotNull
-    private final IUserManager userManager;
+    private final UserManager userManager;
 
     @RequestMapping(path = "api/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity register(@RequestBody AuthData credentials, HttpSession httpSession) {
