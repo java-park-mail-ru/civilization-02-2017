@@ -12,6 +12,7 @@ import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,13 +22,14 @@ import java.util.List;
 @RestController
 @CrossOrigin // for localhost usage
 //@CrossOrigin(origins = "https://[...].herokuapp.com") //for remote usage
+@RequestMapping(value = "api/user")
 public class UserController{
     Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @NotNull
     private final UserManager userManager;
 
-    @RequestMapping(path = "api/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity register(@RequestBody AuthData credentials, HttpSession httpSession) {
         logger.debug("/signup called with login: {}", credentials.getLogin());
         final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
@@ -41,7 +43,7 @@ public class UserController{
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully registered user"));
     }
 
-    @RequestMapping(path = "/api/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity login(@RequestBody AuthData credentials, HttpSession httpSession) {
         logger.debug("/login called with login: {}", credentials.getLogin());
         final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
@@ -57,7 +59,7 @@ public class UserController{
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + userEntity.getLogin()));
     }
 
-    @RequestMapping(path = "/api/logout", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/logout", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity logout(HttpSession httpSession) {
         logger.debug("/logout called for id: {}", httpSession.getId());
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
@@ -69,7 +71,7 @@ public class UserController{
     }
 
     // change password
-    @RequestMapping(path = "/api/user", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity changePassword(@RequestBody ChangePasswordData credentials, HttpSession httpSession) {
         logger.debug("/user-change-pass called");
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
@@ -83,7 +85,7 @@ public class UserController{
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully changed password for user "+credentials.getLogin()));
     }
     //get logged user data
-    @RequestMapping(path = "/api/user", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getCurrentUser(HttpSession httpSession){
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError != null) {
@@ -95,6 +97,17 @@ public class UserController{
             return buildErrorResponse(new ErrorResponse("Incorrect login", ErrorState.FORBIDDEN));
         }
         return ResponseEntity.ok(result);
+    }
+    // delete user
+    @RequestMapping(path = "/delete", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    public ResponseEntity deleteUser(HttpSession httpSession){
+        final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
+        if (sessionError != null) {
+            return buildErrorResponse(sessionError);
+        }
+        final String userName = (String) httpSession.getAttribute(httpSession.getId());
+        userManager.deleteUser(userName);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     private ResponseEntity buildErrorResponse(List<ErrorResponse> errors) {

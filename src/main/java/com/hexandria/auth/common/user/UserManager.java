@@ -41,4 +41,6 @@ public interface UserManager {
 
     @NotNull
     List<ErrorResponse> register(AuthData credentials);
+
+    void deleteUser(String login);
 }

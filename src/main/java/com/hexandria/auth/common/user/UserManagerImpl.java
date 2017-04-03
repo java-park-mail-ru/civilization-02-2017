@@ -35,8 +35,7 @@ public class UserManagerImpl implements UserManager {
             tx.begin();
             entityManager.merge(userEntity);
             tx.commit();
-        }
-        catch (Throwable e){
+        } catch (Throwable e) {
             tx.rollback();
             throw e;
         }
@@ -72,6 +71,7 @@ public class UserManagerImpl implements UserManager {
 
         return errors;
     }
+
     @Override
     @Nullable
     public UserEntity getUserById(Integer id) {
@@ -155,6 +155,22 @@ public class UserManagerImpl implements UserManager {
         }
         //noinspection ConstantConditions
         return Either.left(user); //wont be reached if null
+    }
+
+    @Override
+    public void deleteUser(String login) {
+        final UserEntity user = getUserByLogin(login);
+        final EntityTransaction tx = entityManager.getTransaction();
+        if (user != null) { //TODO else throw error?
+            try {
+                tx.begin();
+                entityManager.remove(user);
+                tx.commit();
+            } catch (Throwable e) {
+                tx.rollback();
+                throw e;
+            }
+        }
     }
 
     public UserManagerImpl() {

@@ -29,10 +29,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApplicationTest {
 
     private static SecureRandom rnd = new SecureRandom();
-    private final URI SIGNUP_URI = new URI("/api/signup");
-    private final URI LOGIN_URI = new URI("/api/login");
-    private final URI LOGOUT_URI = new URI("/api/logout");
-    private final URI USER_URI = new URI("/api/user");
+    private final URI SIGNUP_URI = new URI("/api/user/signup");
+    private final URI LOGIN_URI = new URI("/api/user/login");
+    private final URI LOGOUT_URI = new URI("/api/user/logout");
+    private final URI USER_URI = new URI("/api/user/");
 
     @Autowired
     private TestRestTemplate restTemplate;
