@@ -17,13 +17,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @RestController
 @CrossOrigin // for localhost usage
 //@CrossOrigin(origins = "https://[...].herokuapp.com") //for remote usage
 @RequestMapping(value = "api/user")
-public class UserController{
+@Transactional
+public class UserController {
+
     Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @NotNull

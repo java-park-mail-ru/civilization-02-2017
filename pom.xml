@@ -21,25 +21,24 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>1.5.1.RELEASE</version>
             </plugin>
             <!-- flyway  -->
             <!--<plugin>-->
-                <!--<groupId>org.flywaydb</groupId>-->
-                <!--<artifactId>flyway-maven-plugin</artifactId>-->
-                <!--<version>4.1.2</version>-->
-                <!--<configuration>-->
-                    <!--<user>admin</user>-->
-                    <!--<password>123456789</password>-->
-                    <!--<url>jdbc:postgresql://localhost:5432/hexandria</url>-->
-                <!--</configuration>-->
+            <!--<groupId>org.flywaydb</groupId>-->
+            <!--<artifactId>flyway-maven-plugin</artifactId>-->
+            <!--<version>4.1.2</version>-->
+            <!--<configuration>-->
+            <!--<user>admin</user>-->
+            <!--<password>123456789</password>-->
+            <!--<url>jdbc:postgresql://localhost:5432/hexandria</url>-->
+            <!--</configuration>-->
             <!--</plugin>-->
         </plugins>
     </build>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.1.RELEASE</version>
+        <version>1.5.2.RELEASE</version>
     </parent>
     <dependencies>
         <dependency>
@@ -85,7 +84,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>1.5.2.RELEASE</version>
         </dependency>
 
 
@@ -146,6 +144,11 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate-core-version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
     </dependencies>

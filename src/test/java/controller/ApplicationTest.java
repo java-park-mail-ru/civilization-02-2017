@@ -5,21 +5,16 @@ import net.minidev.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
-
-import javax.transaction.Transactional;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,6 +43,7 @@ public class ApplicationTest {
          */
         JSONObject json = createRegisterJson(rnd);
         ResponseEntity response = proceedPostRequest(json, SIGNUP_URI);
+        System.out.println(response.toString());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         json.clear();
 
