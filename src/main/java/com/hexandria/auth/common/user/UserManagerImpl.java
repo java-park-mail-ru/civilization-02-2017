@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ import static com.hexandria.auth.utils.RequestValidator.isValidEmailAddress;
 @Service
 public class UserManagerImpl implements UserManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
     @PersistenceContext
     protected EntityManager entityManager;
@@ -79,7 +78,7 @@ public class UserManagerImpl implements UserManager {
             user = (UserEntity) entityManager.
                     createQuery("select u from UserEntity u where u.login = :login").setParameter("login", login).getSingleResult();
         } catch (NoResultException e) {
-            logger.info("no entity found for login {}", login);
+            LOGGER.info("no entity found for login {}", login);
         }
         return user;
     }
@@ -145,7 +144,6 @@ public class UserManagerImpl implements UserManager {
     @Override
     public void deleteUser(String login) {
         final UserEntity user = getUserByLogin(login);
-        final EntityTransaction tx = entityManager.getTransaction();
         if (user != null) { //TODO else throw error?
             entityManager.remove(user);
         }
