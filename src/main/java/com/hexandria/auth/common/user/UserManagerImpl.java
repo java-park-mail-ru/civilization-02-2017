@@ -4,7 +4,6 @@ import com.hexandria.auth.ErrorState;
 import com.hexandria.auth.common.AuthData;
 import com.hexandria.auth.common.ChangePasswordData;
 import com.hexandria.auth.common.ErrorResponse;
-import com.hexandria.auth.utils.PersistenceManager;
 import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,15 +31,7 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     public void updateUser(UserEntity userEntity) {
-        final EntityTransaction tx = entityManager.getTransaction();
-        try {
-            tx.begin();
-            entityManager.merge(userEntity);
-            tx.commit();
-        } catch (Throwable e) {
-            tx.rollback();
-            throw e;
-        }
+        entityManager.merge(userEntity);
     }
 
     @Override
@@ -95,15 +86,7 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     public UserEntity createUser(UserEntity userEntity) {
-        final EntityTransaction tx = entityManager.getTransaction();
-        try {
-            tx.begin();
-            entityManager.persist(userEntity);
-            tx.commit();
-        } catch (Throwable e) {
-            tx.rollback();
-            throw e;
-        }
+        entityManager.persist(userEntity);
         return userEntity;
     }
 
@@ -164,16 +147,10 @@ public class UserManagerImpl implements UserManager {
         final UserEntity user = getUserByLogin(login);
         final EntityTransaction tx = entityManager.getTransaction();
         if (user != null) { //TODO else throw error?
-            try {
-                tx.begin();
-                entityManager.remove(user);
-                tx.commit();
-            } catch (Throwable e) {
-                tx.rollback();
-                throw e;
-            }
+            entityManager.remove(user);
         }
     }
 
-    public UserManagerImpl() {}
+    public UserManagerImpl() {
+    }
 }
