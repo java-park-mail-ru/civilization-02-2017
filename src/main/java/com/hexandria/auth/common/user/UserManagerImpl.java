@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,8 @@ public class UserManagerImpl implements UserManager {
 
     private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
 
-    private EntityManager entityManager;
+    @PersistenceContext
+    protected EntityManager entityManager;
 
     @Override
     public void updateUser(UserEntity userEntity) {
@@ -173,7 +175,5 @@ public class UserManagerImpl implements UserManager {
         }
     }
 
-    public UserManagerImpl() {
-        entityManager = PersistenceManager.getEm();
-    }
+    public UserManagerImpl() {}
 }
