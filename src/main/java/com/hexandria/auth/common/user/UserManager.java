@@ -34,6 +34,7 @@ public interface UserManager {
      * @param credentials - data input
      * @return sucessfully loaded user data or errors
      */
+    @NotNull
     Either<UserEntity, List<ErrorResponse>> login(AuthData credentials);
 
     @NotNull

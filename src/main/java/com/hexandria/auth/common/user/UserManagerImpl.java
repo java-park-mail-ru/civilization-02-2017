@@ -138,6 +138,7 @@ public class UserManagerImpl implements UserManager {
     }
 
     @Override
+    @NotNull
     public Either<UserEntity, List<ErrorResponse>> login(AuthData credentials) {
         final List<ErrorResponse> errors = new ArrayList<>();
         if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getPassword())) {
