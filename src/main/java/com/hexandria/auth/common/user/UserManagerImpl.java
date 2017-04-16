@@ -99,6 +99,11 @@ public class UserManagerImpl implements UserManager {
 
         final List<ErrorResponse> errors = new ArrayList<>();
 
+        if(credentials.getLogin() == null || credentials.getPassword() == null || credentials.getPassword() == null){
+            errors.add(new ErrorResponse("Incorrect JSON", ErrorState.BAD_REQUEST));
+            return errors;
+        }
+
         if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getEmail()) || StringUtils.isEmpty(credentials.getPassword())) {
             errors.add(new ErrorResponse("Empty credentials", ErrorState.BAD_REQUEST));
         }
