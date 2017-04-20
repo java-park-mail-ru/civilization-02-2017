@@ -10,6 +10,9 @@
     <properties>
         <jetty.version>9.3.14.v20161028</jetty.version>
         <java.version>1.8</java.version>
+        <hibernate-core-version>5.2.9.Final</hibernate-core-version>
+        <hibernate-validator-version>5.4.1.Final</hibernate-validator-version>
+        <hibernate-search-version>5.7.0.Final</hibernate-search-version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
@@ -27,6 +30,17 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- flyway  -->
+            <!--<plugin>-->
+                <!--<groupId>org.flywaydb</groupId>-->
+                <!--<artifactId>flyway-maven-plugin</artifactId>-->
+                <!--<version>4.1.2</version>-->
+                <!--<configuration>-->
+                    <!--<user>admin</user>-->
+                    <!--<password>123456789</password>-->
+                    <!--<url>jdbc:postgresql://localhost:5432/hexandria</url>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
         </plugins>
     </build>
     <parent>
@@ -35,6 +49,18 @@
         <version>1.5.1.RELEASE</version>
     </parent>
     <dependencies>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901-1.jdbc4</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.194</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -99,6 +125,34 @@
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
             <version>1.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>${hibernate-core-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate-validator-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-search</artifactId>
+            <version>${hibernate-search-version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api -->
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <version>1.0.0.Final</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate-core-version}</version>
         </dependency>
 
     </dependencies>

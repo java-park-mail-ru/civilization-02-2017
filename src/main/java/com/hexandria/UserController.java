@@ -1,38 +1,40 @@
-package sample;
+package com.hexandria;
 
+import com.hexandria.auth.ErrorState;
+import com.hexandria.auth.common.AuthData;
+import com.hexandria.auth.common.ChangePasswordData;
+import com.hexandria.auth.common.ErrorResponse;
+import com.hexandria.auth.common.SuccessResponseMessage;
+import com.hexandria.auth.common.user.UserManager;
+import com.hexandria.auth.common.user.UserEntity;
+import com.hexandria.auth.utils.RequestValidator;
 import com.msiops.ground.either.Either;
-import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sample.auth.models.*;
-import sample.auth.utils.RequestValidator;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 @RestController
 @CrossOrigin // for localhost usage
 //@CrossOrigin(origins = "https://[...].herokuapp.com") //for remote usage
-public class UserController {
+public class UserController{
     Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @NotNull
-    private final AccountService accountService;
+    private final UserManager userManager;
 
     @RequestMapping(path = "api/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity register(@RequestBody AuthorizationCredentials credentials, HttpSession httpSession) {
+    public ResponseEntity register(@RequestBody AuthData credentials, HttpSession httpSession) {
         logger.debug("/signup called with login: {}", credentials.getLogin());
         final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
         if (sessionError != null) {
             return buildErrorResponse(sessionError);
         }
-        final List<ErrorResponse> registrationError = accountService.register(credentials);
+        final List<ErrorResponse> registrationError = userManager.register(credentials);
         if (!registrationError.isEmpty()){ // if errors returned
             return buildErrorResponse(registrationError);
         }
@@ -40,19 +42,19 @@ public class UserController {
     }
 
     @RequestMapping(path = "/api/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity login(@RequestBody AuthorizationCredentials credentials, HttpSession httpSession) {
+    public ResponseEntity login(@RequestBody AuthData credentials, HttpSession httpSession) {
         logger.debug("/login called with login: {}", credentials.getLogin());
         final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
         if (sessionError !=null) {
             return buildErrorResponse(sessionError);
         }
-        final Either<User, List<ErrorResponse>> result = accountService.loginUser(credentials);
+        final Either<UserEntity, List<ErrorResponse>> result = userManager.login(credentials);
         if (!result.isLeft()){ //if error
             return buildErrorResponse(result.getRight());
         }
-        final User user = result.getLeft();
-        httpSession.setAttribute(httpSession.getId(), user.getLogin());
-        return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + user.getLogin()));
+        final UserEntity userEntity = result.getLeft();
+        httpSession.setAttribute(httpSession.getId(), userEntity.getLogin());
+        return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + userEntity.getLogin()));
     }
 
     @RequestMapping(path = "/api/logout", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
@@ -68,13 +70,13 @@ public class UserController {
 
     // change password
     @RequestMapping(path = "/api/user", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity changePassword(@RequestBody ChangePasswordCredentials credentials, HttpSession httpSession) {
+    public ResponseEntity changePassword(@RequestBody ChangePasswordData credentials, HttpSession httpSession) {
         logger.debug("/user-change-pass called");
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError !=null) {
             return buildErrorResponse(sessionError);
         }
-        final List<ErrorResponse> passwordChangeErrors = accountService.changePassword(credentials);
+        final List<ErrorResponse> passwordChangeErrors = userManager.changeUserPassword(credentials);
         if (!passwordChangeErrors.isEmpty()) {
             return buildErrorResponse(passwordChangeErrors);
         }
@@ -88,23 +90,21 @@ public class UserController {
             return buildErrorResponse(sessionError);
         }
         final String login = String.valueOf(httpSession.getAttribute(httpSession.getId())); //get login from session, 100% not null
-        final Either<User, List<ErrorResponse>> result = accountService.loadUser(login);
-        if (!result.isLeft()){
-            return buildErrorResponse(result.getRight());
+        final UserEntity result = userManager.getUserByLogin(login);
+        if (result == null){
+            return buildErrorResponse(new ErrorResponse("Incorrect login", ErrorState.FORBIDDEN));
         }
-        return ResponseEntity.ok(result.getLeft());
-    }
-
-    private ResponseEntity buildErrorResponse(ErrorResponse error) {
-        return ResponseEntity.status(error.getErrorStatus().getCode()).body(error);
+        return ResponseEntity.ok(result);
     }
 
     private ResponseEntity buildErrorResponse(List<ErrorResponse> errors) {
         return ResponseEntity.status(errors.get(0).getErrorStatus().getCode()).body(errors);
     }
+    private ResponseEntity buildErrorResponse(ErrorResponse error) {
+        return ResponseEntity.status(error.getErrorStatus().getCode()).body(error);
+    }
 
-
-    public UserController(@NotNull AccountService accountService) {
-        this.accountService = accountService;
+    public UserController(@NotNull UserManager userManager) {
+        this.userManager = userManager;
     }
 }
