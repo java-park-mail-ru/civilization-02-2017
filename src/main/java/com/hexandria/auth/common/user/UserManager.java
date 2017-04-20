@@ -11,36 +11,37 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public interface UserManager {
-    void updateUser(UserEntity userEntity);
+    void updateUser(@NotNull UserEntity userEntity);
 
     @Nullable
-    UserEntity getUserById(Integer id);
+    UserEntity getUserById(@NotNull Integer id);
 
     /**
      * @param userEntity - data input
      * @return created entity
      */
     @Nullable
-    UserEntity createUser(UserEntity userEntity);
+    UserEntity createUser(@NotNull UserEntity userEntity);
 
     /**
      * @param login - user login
      * @return User data or null
      */
     @Nullable
-    UserEntity getUserByLogin(String login);
+    UserEntity getUserByLogin(@NotNull String login);
 
     /**
      * @param credentials - data input
      * @return sucessfully loaded user data or errors
      */
-    Either<UserEntity, List<ErrorResponse>> login(AuthData credentials);
+    @NotNull
+    Either<UserEntity, List<ErrorResponse>> login(@NotNull AuthData credentials);
 
     @NotNull
-    List<ErrorResponse> changeUserPassword(ChangePasswordData credentials);
+    List<ErrorResponse> changeUserPassword(@NotNull ChangePasswordData credentials);
 
     @NotNull
-    List<ErrorResponse> register(AuthData credentials);
+    List<ErrorResponse> register(@NotNull AuthData credentials);
 
     void deleteUser(String login);
 }
