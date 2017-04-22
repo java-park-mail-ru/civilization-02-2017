@@ -29,13 +29,13 @@ public class UserManagerImpl implements UserManager {
     protected EntityManager entityManager;
 
     @Override
-    public void updateUser(UserEntity userEntity) {
+    public void updateUser(@NotNull UserEntity userEntity) {
         entityManager.merge(userEntity);
     }
 
     @Override
     @NotNull
-    public List<ErrorResponse> changeUserPassword(ChangePasswordData credentials) {
+    public List<ErrorResponse> changeUserPassword(@NotNull ChangePasswordData credentials) {
 
         final ArrayList<ErrorResponse> errors = new ArrayList<>();
         if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getNewPassword())
@@ -66,13 +66,13 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     @Nullable
-    public UserEntity getUserById(Integer id) {
+    public UserEntity getUserById(@NotNull Integer id) {
         return entityManager.find(UserEntity.class, id);
     }
 
     @Override
     @Nullable
-    public UserEntity getUserByLogin(String login) {
+    public UserEntity getUserByLogin(@NotNull String login) {
         UserEntity user = null;
         try {
             user = (UserEntity) entityManager.
@@ -84,7 +84,7 @@ public class UserManagerImpl implements UserManager {
     }
 
     @Override
-    public UserEntity createUser(UserEntity userEntity) {
+    public UserEntity createUser(@NotNull UserEntity userEntity) {
         entityManager.persist(userEntity);
         return userEntity;
     }
@@ -95,7 +95,7 @@ public class UserManagerImpl implements UserManager {
     @Override
     @SuppressWarnings("OverlyComplexMethod")
     @NotNull
-    public List<ErrorResponse> register(AuthData credentials) {
+    public List<ErrorResponse> register(@NotNull AuthData credentials) {
 
         final List<ErrorResponse> errors = new ArrayList<>();
 
@@ -127,7 +127,8 @@ public class UserManagerImpl implements UserManager {
     }
 
     @Override
-    public Either<UserEntity, List<ErrorResponse>> login(AuthData credentials) {
+    @NotNull
+    public Either<UserEntity, List<ErrorResponse>> login(@NotNull AuthData credentials) {
         final List<ErrorResponse> errors = new ArrayList<>();
         if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getPassword())) {
             errors.add(new ErrorResponse("login and password should be non-empty!", ErrorState.BAD_REQUEST));
