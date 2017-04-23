@@ -11,19 +11,6 @@ class City extends GameCeil {
     private int coordX;
     private int coordY;
     protected UserAvatar owner;
-    protected Troops troops;
-
-    public City(){
-        super(0, 0);
-        owner = null;
-        troops = null;
-    }
-
-    public City(int coordX, int coordY){
-        super(coordX, coordY);
-        owner = null;
-        troops = null;
-    }
 
     public void generateTroops(){
         if (troops == null){
@@ -33,6 +20,26 @@ class City extends GameCeil {
             troops.setAmount(troops.getAmount() + troopsGenerated);
             troops.setMorale(troops.getMorale() + moraleGenerated);
         }
+    }
+
+    public City(){
+        super(0, 0);
+        owner = null;
+        this.troops = null;
+    }
+
+    public City(int coordX, int coordY){
+        super(coordX, coordY);
+        owner = null;
+        troops = null;
+    }
+
+    public void setCoordX(int coordX) {
+        this.coordX = coordX;
+    }
+
+    public void setCoordY(int coordY) {
+        this.coordY = coordY;
     }
 
     public int getCoordX(){

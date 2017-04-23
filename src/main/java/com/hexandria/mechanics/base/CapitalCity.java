@@ -10,5 +10,6 @@ public class CapitalCity extends City {
     public CapitalCity(int coordX, int coordY, UserAvatar owner){
         super(coordX, coordY);
         this.owner = owner;
+        this.troops = new Troops(50, 30, this.owner);
     }
 }
