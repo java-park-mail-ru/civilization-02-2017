@@ -3,7 +3,7 @@ CREATE SCHEMA IF NOT EXISTS hexandria;
 DROP TABLE IF EXISTS users;
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY ,
-  login TEXT UNIQUE ,
-  password TEXT,
-  email TEXT
+  login VARCHAR(255) UNIQUE,
+  password VARCHAR(255),
+  email VARCHAR(255)
 );
