@@ -1,5 +1,6 @@
 package com.hexandria;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -13,16 +14,17 @@ import javax.validation.constraints.NotNull;
  */
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer{
+
     @NotNull
     private final WebSocketHandler webSocketHandler;
 
-    public WebSocketConfig(WebSocketHandler webSocketHandler){
+    public WebSocketConfig(@NotNull WebSocketHandler webSocketHandler){
         this.webSocketHandler = webSocketHandler;
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry){
-        registry.addHandler(webSocketHandler, "/game")
+        registry.addHandler(webSocketHandler, "/ws")
                 .addInterceptors(new HttpSessionHandshakeInterceptor())
                 .setAllowedOrigins("*");
     }

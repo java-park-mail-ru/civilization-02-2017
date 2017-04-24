@@ -13,6 +13,8 @@ class City extends GameCeil {
     protected UserAvatar owner;
 
     public void generateTroops(){
+        if(this.owner == null){return;}
+
         if (troops == null){
             troops = new Troops(troopsGenerated, moraleGenerated, owner);
         }
@@ -42,10 +44,12 @@ class City extends GameCeil {
         this.coordY = coordY;
     }
 
+    @Override
     public int getCoordX(){
         return coordX;
     }
 
+    @Override
     public int getCoordY(){
         return coordY;
     }

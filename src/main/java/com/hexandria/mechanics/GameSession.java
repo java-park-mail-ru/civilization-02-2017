@@ -36,6 +36,6 @@ public class GameSession {
     public GameSession(@NotNull ArrayList<UserEntity> players){
         this.players = players;
         this.sessionId = ID_GENERATOR.getAndIncrement();
-        this.map = new GameMap("Map" + this.sessionId, 10, 10);
+        this.map = new GameMap("Map " + this.sessionId, 10, 10);
     }
 }
