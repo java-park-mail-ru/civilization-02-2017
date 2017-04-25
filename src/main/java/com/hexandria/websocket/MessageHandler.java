@@ -17,7 +17,7 @@ public abstract class MessageHandler<T> {
     }
 
     @SuppressWarnings("OverlyBroadCatchBlock")
-    public void handleMessage(@NotNull Message message, @NotNull Long forUser) throws HandleException {
+    public void handleMessage(@NotNull KMessage message, @NotNull Long forUser) throws HandleException {
         try {
             final Object data = new ObjectMapper().readValue(message.getContent(), clazz);
 

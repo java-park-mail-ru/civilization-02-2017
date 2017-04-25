@@ -7,27 +7,33 @@ import org.jetbrains.annotations.NotNull;
  */
 
 @SuppressWarnings("NullableProblems")
-public class
-Message {
-    private @NotNull String type;
-    private @NotNull String content;
+public class Message {
+    public String event;
+    public String payload;
 
-    public @NotNull String getType() {
-        return type;
-    }
-    public @NotNull String getContent() {
-        return content;
+    public Message(String event, String payload){
+        this.event = event;
+        this.payload = payload;
     }
 
-    public Message() {
+    public Message(){
+        this.event = "";
+        this.payload = "";
     }
 
-    public Message(@NotNull String type, @NotNull String content) {
-        this.type = type;
-        this.content = content;
+    public String getEvent() {
+        return event;
     }
 
-    public Message(@NotNull Class clazz, @NotNull String content) {
-        this(clazz.getName(), content);
+    public void setEvent(String event) {
+        this.event = event;
+    }
+
+    public String getPayload() {
+        return payload;
+    }
+
+    public void setPayload(String payload) {
+        this.payload = payload;
     }
 }

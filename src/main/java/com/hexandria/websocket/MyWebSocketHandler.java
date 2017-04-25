@@ -2,15 +2,15 @@ package com.hexandria.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.auth.common.user.UserManager;
-import org.eclipse.jetty.server.Authentication;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import java.io.IOException;
 
 /**
  * Created by root on 25.04.17.
@@ -49,6 +49,16 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage jsonTextMessage) throws Exception {
-        System.out.println("message received: " + jsonTextMessage.getPayload());
+        Long userId = new Long((Integer) session.getAttributes().get("userId"));
+        LOGGER.warn(jsonTextMessage.getPayload());
+        final Message message;
+        try {
+            message = objectMapper.readValue(jsonTextMessage.getPayload(), Message.class);
+        } catch (IOException ex) {
+            LOGGER.error("wrong json format at ping response", ex);
+            return;
+        }
+        service.handleGameMessage(message);
+        System.out.println(jsonTextMessage.getPayload());
     }
 }

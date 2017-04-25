@@ -34,7 +34,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession webSocketSession) throws AuthenticationException {
+    public void afterConnectionEstablished(WebSocketSession webSocketSession) throws AuthenticationException, IOException {
         final Long userId = (Long) webSocketSession.getAttributes().get("userId");
         if (userId == null || accountService.getUserById(userId.intValue()) == null) {
             throw new AuthenticationException("Only authenticated users allowed to play a game");
@@ -54,9 +54,9 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
     private void handleMessage(UserEntity userProfile, TextMessage text) {
 
-        final Message message;
+        final KMessage message;
         try {
-            message = objectMapper.readValue(text.getPayload(), Message.class);
+            message = objectMapper.readValue(text.getPayload(), KMessage.class);
         } catch (IOException ex) {
             LOGGER.error("wrong json format at ping response", ex);
             return;

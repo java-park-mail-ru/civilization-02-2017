@@ -5,23 +5,23 @@ import com.hexandria.mechanics.avatar.UserAvatar;
 /**
  * Created by root on 23.04.17.
  */
-class Troops {
-    private int amount;
+public class Squad {
+    private int count;
     private int morale;
     private UserAvatar owner;
 
-    public Troops(int amount, int morale, UserAvatar owner){
-        this.amount = amount;
+    public Squad(int amount, int morale, UserAvatar owner){
+        this.count = amount;
         this.morale = morale;
         this.owner = owner;
     }
 
-    public int getAmount() {
-        return amount;
+    public int getCount() {
+        return count;
     }
 
-    public void setAmount(int amount) {
-        this.amount = amount;
+    public void setCount(int amount) {
+        this.count = amount;
     }
 
     public int getMorale() {
