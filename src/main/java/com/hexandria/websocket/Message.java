@@ -1,7 +1,6 @@
 package com.hexandria.websocket;
 
-import javax.validation.constraints.NotNull;
-
+import org.jetbrains.annotations.NotNull;
 /**
  * Created by root on 20.04.17.
  */

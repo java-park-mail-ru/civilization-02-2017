@@ -1,19 +1,14 @@
 package com.hexandria.websocket;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
-
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.socket.*;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import javax.naming.AuthenticationException;
 import java.io.IOException;
@@ -53,6 +48,7 @@ public class GameSocketHandler extends TextWebSocketHandler{
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws AuthenticationException {
+        System.out.println("PAYLOAD: " + message.getPayload());
         final Long userId = (Long) session.getAttributes().get("userId");
         final UserEntity user = userManager.getUserById(userId.intValue());
         if(userId == null || user == null){

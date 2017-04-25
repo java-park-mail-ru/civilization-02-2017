@@ -1,6 +1,5 @@
 package com.hexandria.websocket;
 
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 /**
  * Created by root on 20.04.17.
