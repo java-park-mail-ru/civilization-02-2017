@@ -1,10 +1,12 @@
 package com.hexandria.websocket;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -14,56 +16,51 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by root on 20.04.17.
+ * Created by root on 09.04.17.
  */
-public class RemotePointService {
 
+@Service
+public class RemotePointService {
     private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Logger LOGGER = LoggerFactory.getLogger(RemotePointService.class);
 
-    public void registerUser(@NotNull Long userId, @NotNull WebSocketSession session){
-        sessions.put(userId, session);
+    public void registerUser(Long userId, @NotNull WebSocketSession webSocketSession) {
+        LOGGER.warn("User with " + userId + " connected");
+        sessions.put(userId, webSocketSession);
     }
 
-    public boolean isConnected(Long userId){
+    public boolean isConnected(Long userId) {
         return sessions.containsKey(userId) && sessions.get(userId).isOpen();
     }
 
-    public void removeUser(Long userId){
+    public void removeUser(Long userId)
+    {
         sessions.remove(userId);
     }
 
-    public void cutDownConnection(Long userId, @NotNull CloseStatus closeStatus){
-
+    public void cutDownConnection(Long userId, @NotNull CloseStatus closeStatus) {
         final WebSocketSession webSocketSession = sessions.get(userId);
-        if(webSocketSession != null && webSocketSession.isOpen()){
-            try{
-                webSocketSession.close();
-            }
-            catch (IOException e) {
-
+        if (webSocketSession != null && webSocketSession.isOpen()) {
+            try {
+                webSocketSession.close(closeStatus);
+            } catch (IOException ignore) {
             }
         }
     }
 
-    public void sendMessage(Long userId, @NotNull Message message) throws IOException {
-
+    public void sendMessageToUser(Long userId, @NotNull Message message) throws IOException {
         final WebSocketSession webSocketSession = sessions.get(userId);
-
-        if(webSocketSession == null){
-            throw new IOException("No game socket for " + userId);
+        if (webSocketSession == null) {
+            throw new IOException("No game websocket for user " + userId);
         }
-
-        if(!webSocketSession.isOpen()){
-            throw new IOException("Session closed for user" + userId);
+        if (!webSocketSession.isOpen()) {
+            throw new IOException("Session is closed or not exsists");
         }
-
-        try{
+        try {
             webSocketSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
-        }
-        catch (JsonProcessingException | WebSocketException e){
+        } catch (JsonProcessingException | WebSocketException e) {
             throw new IOException("Unable to send message", e);
         }
     }
-
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
+import java.util.Enumeration;
 import java.util.List;
 
 @RestController
@@ -60,6 +61,10 @@ public class UserController {
         }
         final UserEntity userEntity = result.getLeft();
         httpSession.setAttribute(httpSession.getId(), userEntity.getLogin());
+        httpSession.setAttribute("userId", userEntity.getId());
+        for (Enumeration<String> e = httpSession.getAttributeNames(); e.hasMoreElements();) {
+            System.out.println("ATTRIBUTE: " + e.nextElement());
+        }
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + userEntity.getLogin()));
     }
 

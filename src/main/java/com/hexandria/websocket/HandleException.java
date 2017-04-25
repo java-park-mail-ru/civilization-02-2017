@@ -2,15 +2,15 @@ package com.hexandria.websocket;
 
 
 /**
- * Created by root on 20.04.17.
+ * Created by root on 09.04.17.
  */
-public class HandleException extends Exception {
 
-    public HandleException (String message, Throwable clause){
-        super(message, clause);
+public class HandleException extends Exception {
+    public HandleException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public HandleException(String message){
+    public HandleException(String message) {
         super(message);
     }
 }

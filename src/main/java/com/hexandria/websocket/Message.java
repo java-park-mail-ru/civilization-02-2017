@@ -1,37 +1,33 @@
 package com.hexandria.websocket;
 
 import org.jetbrains.annotations.NotNull;
-/**
- * Created by root on 20.04.17.
- */
-public class Message {
-    @NotNull
-    private String type;
-    @NotNull
-    private String content;
 
-    @NotNull
-    public String getType() {
+/**
+ * Created by root on 09.04.17.
+ */
+
+@SuppressWarnings("NullableProblems")
+public class
+Message {
+    private @NotNull String type;
+    private @NotNull String content;
+
+    public @NotNull String getType() {
         return type;
     }
-
-    @NotNull
-    public String getContent() {
-
+    public @NotNull String getContent() {
         return content;
     }
 
-    public Message(){
-
+    public Message() {
     }
 
-    public Message (@NotNull String type, @NotNull String content){
-        this.content = content;
+    public Message(@NotNull String type, @NotNull String content) {
         this.type = type;
+        this.content = content;
     }
 
-    public Message(@NotNull Class clazz, @NotNull String content){
+    public Message(@NotNull Class clazz, @NotNull String content) {
         this(clazz.getName(), content);
     }
-
 }
