@@ -6,6 +6,7 @@ import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.Game;
 import com.hexandria.mechanics.avatar.UserAvatar;
+import com.hexandria.mechanics.events.Logic;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.jetbrains.annotations.NotNull;
@@ -46,16 +47,23 @@ public class RemotePointService {
         this.manager = manager;
     }
 
-    public void handleGameMessage(Message message){
+    public void handleGameMessage(Message message, Long userID) throws IOException {
         System.out.println("Event: " + message.getEvent() + "\nPayload: " + message.getPayload());
+        
+//        Logic event = objectMapper.readValue(message.getPayload(), Logic.class);
+//        System.out.println(event.getCoordinates().toString());
+//        Game userGame = gameMap.get(userID);
+//        userGame.changeGameMap(event);
     }
 
     public void registerUser(Long userId, @NotNull WebSocketSession webSocketSession) throws IOException {
+
         LOGGER.warn("User with " + userId + " connected");
         sessions.put(userId, webSocketSession);
         waiters.add(userId);
+
         if(waiters.size() >= 2){
-            
+
             sessions.get(waiters.get(0))
                     .sendMessage(new TextMessage("Game created, connecting to game server"));
             sessions.get(waiters.get(1))
@@ -65,17 +73,18 @@ public class RemotePointService {
             UserEntity secondUser = manager.getUserById(waiters.get(1).intValue());
 
             List<UserAvatar> avatars = new ArrayList<>();
-            avatars.add(new UserAvatar(new Long(firstUser.getId()), firstUser.getLogin()));
-            avatars.add(new UserAvatar(new Long(secondUser.getId()), secondUser.getLogin()));
+            avatars.add(new UserAvatar((long) firstUser.getId(), firstUser.getLogin()));
+            avatars.add(new UserAvatar((long) secondUser.getId(), secondUser.getLogin()));
 
             Game newGame = new Game(new ArrayList<>(avatars));
             games.add(newGame);
-            gameMap.put(new Long(firstUser.getId()), newGame);
-            gameMap.put(new Long(secondUser.getId()), newGame);
+            gameMap.put((long) firstUser.getId(), newGame);
+            gameMap.put((long) secondUser.getId(), newGame);
 
-            waiters.remove(0);
             waiters.remove(1);
+            waiters.remove(0);
         }
+
         else{
             webSocketSession.sendMessage(new TextMessage("Wait for new users connected"));
         }

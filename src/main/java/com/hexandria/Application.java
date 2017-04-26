@@ -1,6 +1,5 @@
 package com.hexandria;
 
-import com.hexandria.websocket.GameSocketHandler;
 import com.hexandria.websocket.MyWebSocketHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +12,6 @@ import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
  */
 @SpringBootApplication
 public class Application {
-
 
     @Bean
     public WebSocketHandler myWebSocketHandler() {

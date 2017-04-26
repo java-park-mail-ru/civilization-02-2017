@@ -50,7 +50,6 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage jsonTextMessage) throws Exception {
         Long userId = new Long((Integer) session.getAttributes().get("userId"));
-        LOGGER.warn(jsonTextMessage.getPayload());
         final Message message;
         try {
             message = objectMapper.readValue(jsonTextMessage.getPayload(), Message.class);
@@ -58,7 +57,6 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
             LOGGER.error("wrong json format at ping response", ex);
             return;
         }
-        service.handleGameMessage(message);
-        System.out.println(jsonTextMessage.getPayload());
+        service.handleGameMessage(message, userId);
     }
 }

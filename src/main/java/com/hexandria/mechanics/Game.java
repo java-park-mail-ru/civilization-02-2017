@@ -5,6 +5,8 @@ import com.hexandria.mechanics.base.Capital;
 import com.hexandria.mechanics.base.Ceil;
 import com.hexandria.mechanics.base.Coordinates;
 import com.hexandria.mechanics.base.Town;
+import com.hexandria.mechanics.events.Logic;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,5 +60,9 @@ public class Game {
         map[2][3] = new Town(new Coordinates(2, 3), "Town1");
         map[7][8] = new Town(new Coordinates(7, 8), "Town2");
         this.players = players;
+    }
+
+    public void changeGameMap(Logic event) {
+        System.out.println("In game map: " + event.toString());
     }
 }
