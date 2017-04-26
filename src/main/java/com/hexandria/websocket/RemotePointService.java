@@ -53,20 +53,31 @@ public class RemotePointService {
     public void registerUser(Long userId, @NotNull WebSocketSession webSocketSession) throws IOException {
         LOGGER.warn("User with " + userId + " connected");
         sessions.put(userId, webSocketSession);
+        waiters.add(userId);
         if(waiters.size() >= 2){
+            
+            sessions.get(waiters.get(0))
+                    .sendMessage(new TextMessage("Game created, connecting to game server"));
+            sessions.get(waiters.get(1))
+                    .sendMessage(new TextMessage("Game created, connecting to game server"));
+
             UserEntity firstUser = manager.getUserById(waiters.get(0).intValue());
             UserEntity secondUser = manager.getUserById(waiters.get(1).intValue());
+
             List<UserAvatar> avatars = new ArrayList<>();
             avatars.add(new UserAvatar(new Long(firstUser.getId()), firstUser.getLogin()));
             avatars.add(new UserAvatar(new Long(secondUser.getId()), secondUser.getLogin()));
+
             Game newGame = new Game(new ArrayList<>(avatars));
             games.add(newGame);
             gameMap.put(new Long(firstUser.getId()), newGame);
             gameMap.put(new Long(secondUser.getId()), newGame);
+
+            waiters.remove(0);
+            waiters.remove(1);
         }
         else{
-            waiters.add(userId);
-            webSocketSession.sendMessage(new TextMessage("Wait for new users connected".getBytes()));
+            webSocketSession.sendMessage(new TextMessage("Wait for new users connected"));
         }
     }
 
