@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @CrossOrigin // for localhost usage
 //@CrossOrigin(origins = "https://[...].herokuapp.com") //for remote usage
-@RequestMapping(value = "api")
+@RequestMapping(value = "api/user")
 @Transactional
 public class UserController {
 
@@ -94,7 +94,7 @@ public class UserController {
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully changed password for user "+credentials.getLogin()));
     }
     //get logged user data
-    @RequestMapping(path = "/user", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getCurrentUser(HttpSession httpSession){
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError != null) {
