@@ -63,7 +63,7 @@ public class UserController {
         httpSession.setAttribute(httpSession.getId(), userEntity.getLogin());
         httpSession.setAttribute("userId", userEntity.getId());
         for (Enumeration<String> e = httpSession.getAttributeNames(); e.hasMoreElements();) {
-            System.out.println("ATTRIBUTE: " + e.nextElement());
+            logger.debug("ATTRIBUTE: " + e.nextElement());
         }
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + userEntity.getLogin()));
     }
