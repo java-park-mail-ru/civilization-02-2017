@@ -49,11 +49,6 @@ public class RemotePointService {
 
     public void handleGameMessage(Message message, Long userID) throws IOException {
         System.out.println("Event: " + message.getEvent() + "\nPayload: " + message.getPayload());
-        
-//        Logic event = objectMapper.readValue(message.getPayload(), Logic.class);
-//        System.out.println(event.getCoordinates().toString());
-//        Game userGame = gameMap.get(userID);
-//        userGame.changeGameMap(event);
     }
 
     public void registerUser(Long userId, @NotNull WebSocketSession webSocketSession) throws IOException {
