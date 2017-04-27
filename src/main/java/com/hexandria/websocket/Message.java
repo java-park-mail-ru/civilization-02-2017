@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("NullableProblems")
 public class Message {
     public String event;
-    public String payload;
+    public Payload payload;
 
     public Message(String event, String payload){
         this.event = event;

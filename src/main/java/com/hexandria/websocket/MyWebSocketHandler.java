@@ -2,6 +2,8 @@ package com.hexandria.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.auth.common.user.UserManager;
+import jdk.nashorn.internal.parser.JSONParser;
+import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
