@@ -5,7 +5,6 @@ import com.hexandria.mechanics.base.Capital;
 import com.hexandria.mechanics.base.Ceil;
 import com.hexandria.mechanics.base.Coordinates;
 import com.hexandria.mechanics.base.Town;
-import com.hexandria.mechanics.events.Logic;
 
 import java.util.ArrayList;
 import java.util.List;

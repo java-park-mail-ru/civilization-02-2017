@@ -1,39 +1,38 @@
 package com.hexandria.websocket;
 
-import org.jetbrains.annotations.NotNull;
+import com.hexandria.mechanics.events.Payload;
 
 /**
  * Created by root on 09.04.17.
  */
 
-@SuppressWarnings("NullableProblems")
 public class Message {
-    public String event;
+    public Event event;
     public Payload payload;
 
-    public Message(String event, String payload){
+    public Message(Event event, Payload payload){
         this.event = event;
         this.payload = payload;
     }
 
     public Message(){
-        this.event = "";
-        this.payload = "";
+        this.event = new Event();
+        this.payload = new Payload();
     }
 
-    public String getEvent() {
+    public Event getEvent() {
         return event;
     }
 
-    public void setEvent(String event) {
+    public void setEvent(Event event) {
         this.event = event;
     }
 
-    public String getPayload() {
+    public Payload getPayload() {
         return payload;
     }
 
-    public void setPayload(String payload) {
+    public void setPayload(Payload payload) {
         this.payload = payload;
     }
 }

@@ -5,7 +5,7 @@ import com.hexandria.mechanics.base.Coordinates;
 /**
  * Created by root on 25.04.17.
  */
-public class Update extends Logic {
+public class Update extends Payload {
     private Integer newMorale;
 
     private Integer newCount;
