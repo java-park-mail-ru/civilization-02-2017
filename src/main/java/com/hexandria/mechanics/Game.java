@@ -5,6 +5,7 @@ import com.hexandria.mechanics.base.Capital;
 import com.hexandria.mechanics.base.Ceil;
 import com.hexandria.mechanics.base.Coordinates;
 import com.hexandria.mechanics.base.Town;
+import com.hexandria.websocket.Event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +62,7 @@ public class Game {
         this.players = players;
     }
 
-    public void changeGameMap(Logic event) {
+    public void changeGameMap(Event event) {
         System.out.println("In game map: " + event.toString());
     }
 }
