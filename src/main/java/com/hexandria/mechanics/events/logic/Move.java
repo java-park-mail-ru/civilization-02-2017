@@ -1,71 +1,44 @@
 package com.hexandria.mechanics.events.logic;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hexandria.mechanics.base.Coordinates;
-import com.hexandria.mechanics.events.Payload;
 import com.hexandria.websocket.Message;
 
 /**
  * Created by root on 25.04.17.
  */
 public class Move extends Message {
+	private final Payload payload;
 
-    private int playerIndex;
-    private int squadIndex;
-    private Coordinates moveTo;
+	@JsonCreator
+	public Move(@JsonProperty("payload") Payload payload) {
+		this.payload = payload;
+	}
 
-    @JsonCreator
-    public Move(@JsonProperty("playerIndex") int playerIndex, @JsonProperty("squadIdnex") int squadIndex){
-        System.out.println("Move creator with " + playerIndex + " squadIndex : " + squadIndex);
-        this.playerIndex = playerIndex;
-        this.squadIndex = squadIndex;
-    }
+	public int getPlayerIndex() {
+		return payload.playerIndex;
+	}
 
-    public int getPlayerIndex() {
-        return playerIndex;
-    }
+	public int getSquadIndex() {
+		return payload.squadIndex;
+	}
 
-    public void setPlayerIndex(int playerIndex) {
-        this.playerIndex = playerIndex;
-    }
+	public Coordinates getMoveTo() {
+		return payload.moveTo;
+	}
+	
+	public static class Payload {
+		private final int playerIndex;
+		private final int squadIndex;
+		private final Coordinates moveTo;
 
-    public int getSquadIndex() {
-        return squadIndex;
-    }
-
-    public void setSquadIndex(int squadIndex) {
-        this.squadIndex = squadIndex;
-    }
-
-    public Coordinates getMoveTo() {
-        return moveTo;
-    }
-
-    public void setMoveTo(Coordinates moveTo) {
-        this.moveTo = moveTo;
-    }
-
-    //    private Coordinates newCoordinates;
-//    private Coordinates oldCoordinates;
-//
-//    @JsonCreator
-//    public Move(Coordinates newCoordinates, Coordinates oldCoordinates){
-//        this.oldCoordinates = oldCoordinates;
-//        this.newCoordinates = newCoordinates;
-//    }
-//
-//    public Coordinates getNewCoordinates() {
-//        return newCoordinates;
-//    }
-//
-//    public Coordinates getOldCordinates() {return oldCoordinates;}
-//
-//    public void setOldCordinates(Coordinates oldCordinates) {this.oldCoordinates = oldCordinates;}
-//
-//    public void setNewCoordinates(Coordinates newCoordinates) {
-//        this.newCoordinates = newCoordinates;
-//    }
+		@JsonCreator
+		public Payload(@JsonProperty("playerIndex") int playerIndex, @JsonProperty("squadIndex") int squadIndex,
+				@JsonProperty("moveTo") Coordinates moveTo) {
+			this.playerIndex = playerIndex;
+			this.squadIndex = squadIndex;
+			this.moveTo = moveTo;
+		}
+	}
 }

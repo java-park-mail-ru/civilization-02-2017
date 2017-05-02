@@ -14,6 +14,7 @@ import java.io.IOException;
  * Created by root on 09.04.17.
  */
 
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "event")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Move.class, name = "EVENTS.LOGIC.MOVE"),
@@ -21,8 +22,4 @@ import java.io.IOException;
         @JsonSubTypes.Type(value = Ping.class, name = "EVENTS.SERVICE.PING")
 })
 public abstract class Message {
-    public String event;
-    public String getEvent(){
-        return this.event;
-    }
 }
