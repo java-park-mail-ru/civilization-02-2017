@@ -42,7 +42,7 @@ public class RemotePointService {
     }
 
     public void handleGameMessage(Message message, Long userID) throws IOException {
-        System.out.println("Event: " + message.getEvent());
+        //System.out.println("Event: " + message.getEvent());
     }
 
     public void registerUser(Long userId, @NotNull WebSocketSession webSocketSession) throws IOException {

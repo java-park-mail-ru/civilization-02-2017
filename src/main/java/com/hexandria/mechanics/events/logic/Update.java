@@ -1,12 +1,11 @@
 package com.hexandria.mechanics.events.logic;
 
 import com.hexandria.mechanics.base.Coordinates;
-import com.hexandria.mechanics.events.Payload;
 
 /**
  * Created by root on 25.04.17.
  */
-public class Update extends Payload {
+public class Update {
     private Integer newMorale;
     private Coordinates squatCoordinates;
     private Integer newCount;
