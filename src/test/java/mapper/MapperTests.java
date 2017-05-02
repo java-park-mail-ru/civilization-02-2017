@@ -1,20 +1,14 @@
 package mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hexandria.Application;
 import com.hexandria.mechanics.events.logic.Move;
 import com.hexandria.mechanics.events.service.Connect;
 import com.hexandria.mechanics.events.service.Ping;
 import com.hexandria.websocket.Message;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.socket.TextMessage;
-
-import java.io.IOException;
 
 /**
  * Created by frozenfoot on 02.05.17.

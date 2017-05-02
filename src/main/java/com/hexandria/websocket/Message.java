@@ -14,7 +14,8 @@ import java.io.IOException;
  * Created by root on 09.04.17.
  */
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "event")
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "event")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Move.class, name = "EVENTS.LOGIC.MOVE"),
         @JsonSubTypes.Type(value = Connect.class, name = "EVENTS.SERVICE.CONNECT"),

@@ -9,7 +9,6 @@ import com.hexandria.websocket.Message;
  * Created by root on 25.04.17.
  */
 public class Move extends Message {
-
 	private final Payload payload;
 
 	@JsonCreator
@@ -42,5 +41,4 @@ public class Move extends Message {
 			this.moveTo = moveTo;
 		}
 	}
-
 }
