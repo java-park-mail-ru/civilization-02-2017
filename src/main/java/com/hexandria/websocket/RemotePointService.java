@@ -42,7 +42,7 @@ public class RemotePointService {
     }
 
     public void handleGameMessage(Message message, Long userID) throws IOException {
-        //System.out.println("Event: " + message.getEvent());
+        System.out.println(message.toString());
     }
 
     public void registerUser(Long userId, @NotNull WebSocketSession webSocketSession) throws IOException {
@@ -76,6 +76,7 @@ public class RemotePointService {
 
         else{
             webSocketSession.sendMessage(new TextMessage("Wait for new users connected"));
+            System.out.println(new TextMessage("Wait for new users connected").toString());
         }
     }
 

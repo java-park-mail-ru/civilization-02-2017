@@ -16,29 +16,28 @@ public class Move extends Message {
 		this.payload = payload;
 	}
 
-	public int getPlayerIndex() {
-		return payload.playerIndex;
-	}
-
-	public int getSquadIndex() {
-		return payload.squadIndex;
-	}
-
 	public Coordinates getMoveTo() {
+		return payload.moveFrom;
+	}
+
+	public Coordinates getMoveFrom() {
 		return payload.moveTo;
 	}
-	
+
 	public static class Payload {
-		private final int playerIndex;
-		private final int squadIndex;
+		private final Coordinates moveFrom;
 		private final Coordinates moveTo;
 
 		@JsonCreator
-		public Payload(@JsonProperty("playerIndex") int playerIndex, @JsonProperty("squadIndex") int squadIndex,
+		public Payload(@JsonProperty("moveFrom") Coordinates moveFrom,
 				@JsonProperty("moveTo") Coordinates moveTo) {
-			this.playerIndex = playerIndex;
-			this.squadIndex = squadIndex;
+			this.moveFrom = moveFrom;
 			this.moveTo = moveTo;
 		}
+	}
+
+	@Override
+	public String toString(){
+		return "Move from :" + this.getMoveFrom() + " Squad Index: " + this.getMoveTo();
 	}
 }

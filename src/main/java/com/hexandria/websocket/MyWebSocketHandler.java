@@ -34,7 +34,6 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable throwable) throws Exception {
-
     }
 
     @Override
@@ -52,7 +51,6 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage jsonTextMessage) throws Exception {
         Long userId = new Long((Integer) session.getAttributes().get("userId"));
-        LOGGER.info("Message : " + jsonTextMessage.getPayload());
         final Message message;
         try {
             message = objectMapper.readValue(jsonTextMessage.getPayload(), Message.class);

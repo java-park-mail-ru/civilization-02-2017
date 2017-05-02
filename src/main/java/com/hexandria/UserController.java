@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @CrossOrigin // for localhost usage
 //@CrossOrigin(origins = "https://[...].herokuapp.com") //for remote usage
-@RequestMapping(value = "api")
+@RequestMapping(value = "api/user")
 @Transactional
 public class UserController {
 
