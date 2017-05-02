@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -42,7 +43,16 @@ public class RemotePointService {
     }
 
     public void handleGameMessage(Message message, Long userID) throws IOException {
+        System.out.println(message.toString() + " User: " + userID);
+        Game game = gameMap.get(userID);
+        Message confirmMessage = game.changeGameMap(message);
         System.out.println(message.toString());
+        WebSocketMessage webMessage = new TextMessage(confirmMessage.toString());
+        for(Map.Entry<Long, Game> entry : gameMap.entrySet()){
+            if(entry.getValue() == game){
+                sessions.get(entry.getKey()).sendMessage(webMessage);
+            }
+        }
     }
 
     public void registerUser(Long userId, @NotNull WebSocketSession webSocketSession) throws IOException {

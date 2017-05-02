@@ -16,6 +16,10 @@ public class Squad {
         this.owner = owner;
     }
 
+    public UserAvatar getOwner(){
+        return owner;
+    }
+
     public int getCount() {
         return count;
     }

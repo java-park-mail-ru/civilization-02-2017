@@ -2,6 +2,7 @@ package com.hexandria.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.auth.common.user.UserManager;
+import com.hexandria.mechanics.events.logic.Move;
 import jdk.nashorn.internal.parser.JSONParser;
 import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
@@ -58,6 +59,11 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
             LOGGER.error("wrong json format at ping response", ex);
             return;
         }
-        service.handleGameMessage(message, userId);
+        if(message.getClass() == Move.class) {
+            service.handleGameMessage(message, userId);
+        }
+        else{
+            LOGGER.info(message.toString());
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.hexandria.mechanics.events.logic;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hexandria.mechanics.base.Coordinates;
 import com.hexandria.websocket.Message;
@@ -17,11 +18,11 @@ public class Move extends Message {
 	}
 
 	public Coordinates getMoveTo() {
-		return payload.moveFrom;
+		return payload.moveTo;
 	}
 
 	public Coordinates getMoveFrom() {
-		return payload.moveTo;
+		return payload.moveFrom;
 	}
 
 	public static class Payload {
@@ -29,8 +30,8 @@ public class Move extends Message {
 		private final Coordinates moveTo;
 
 		@JsonCreator
-		public Payload(@JsonProperty("moveFrom") Coordinates moveFrom,
-				@JsonProperty("moveTo") Coordinates moveTo) {
+		public Payload(@JsonProperty("from") Coordinates moveFrom,
+				@JsonProperty("to") Coordinates moveTo) {
 			this.moveFrom = moveFrom;
 			this.moveTo = moveTo;
 		}
@@ -38,6 +39,6 @@ public class Move extends Message {
 
 	@Override
 	public String toString(){
-		return "Move from :" + this.getMoveFrom() + " Squad Index: " + this.getMoveTo();
+		return "Move from :" + this.getMoveFrom() + " Move to: " + this.getMoveTo();
 	}
 }

@@ -5,7 +5,7 @@ package com.hexandria.mechanics.base;
  */
 public class Ceil {
     private Coordinates coordinates;
-    protected Squad squad;
+    public Squad squad;
 
     public Ceil(Coordinates coordinates){
         this.coordinates = coordinates;
