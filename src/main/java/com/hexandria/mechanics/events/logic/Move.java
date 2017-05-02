@@ -23,7 +23,32 @@ public class Move extends Message {
         this.playerIndex = playerIndex;
         this.squadIndex = squadIndex;
     }
-//    private Coordinates newCoordinates;
+
+    public int getPlayerIndex() {
+        return playerIndex;
+    }
+
+    public void setPlayerIndex(int playerIndex) {
+        this.playerIndex = playerIndex;
+    }
+
+    public int getSquadIndex() {
+        return squadIndex;
+    }
+
+    public void setSquadIndex(int squadIndex) {
+        this.squadIndex = squadIndex;
+    }
+
+    public Coordinates getMoveTo() {
+        return moveTo;
+    }
+
+    public void setMoveTo(Coordinates moveTo) {
+        this.moveTo = moveTo;
+    }
+
+    //    private Coordinates newCoordinates;
 //    private Coordinates oldCoordinates;
 //
 //    @JsonCreator
