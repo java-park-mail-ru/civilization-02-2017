@@ -6,6 +6,8 @@ import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.Game;
 import com.hexandria.mechanics.avatar.UserAvatar;
+import net.minidev.json.JSONObject;
+import org.eclipse.jetty.util.ConcurrentArrayQueue;
 import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -16,10 +18,12 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import javax.management.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -31,23 +35,25 @@ public class RemotePointService {
     @NotNull
     private final UserManager manager;
     private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
     private final Logger LOGGER = LoggerFactory.getLogger(RemotePointService.class);
 
-    private final List<Long> waiters = new ArrayList<>();
+    private final Queue<Long> waiters = new ConcurrentArrayQueue<>();
     private final List<Game> games = new ArrayList<>();
     private final Map<Long, Game> gameMap = new ConcurrentHashMap<>();
 
-    public RemotePointService(@NotNull UserManager manager){
+    public RemotePointService(@NotNull UserManager manager, @NotNull ObjectMapper objectMapper){
         this.manager = manager;
+        this.objectMapper = objectMapper;
     }
 
     public void handleGameMessage(Message message, Long userID) throws IOException {
-        System.out.println(message.toString() + " User: " + userID);
+        LOGGER.error("Message:" + objectMapper.writeValueAsString(message));
         Game game = gameMap.get(userID);
         Message confirmMessage = game.changeGameMap(message);
-        System.out.println(message.toString());
-        WebSocketMessage webMessage = new TextMessage(confirmMessage.toString());
+        String jsonResponce = objectMapper.writeValueAsString(confirmMessage);
+        LOGGER.info(jsonResponce);
+        WebSocketMessage webMessage = new TextMessage(jsonResponce);
         for(Map.Entry<Long, Game> entry : gameMap.entrySet()){
             if(entry.getValue() == game){
                 sessions.get(entry.getKey()).sendMessage(webMessage);
@@ -57,19 +63,23 @@ public class RemotePointService {
 
     public void registerUser(Long userId, @NotNull WebSocketSession webSocketSession) throws IOException {
 
-        LOGGER.warn("User with " + userId + " connected");
+        LOGGER.info("User with " + userId + " connected");
         sessions.put(userId, webSocketSession);
         waiters.add(userId);
 
         if(waiters.size() >= 2){
 
-            sessions.get(waiters.get(0))
-                    .sendMessage(new TextMessage("Game created, connecting to game server"));
-            sessions.get(waiters.get(1))
-                    .sendMessage(new TextMessage("Game created, connecting to game server"));
+            JSONObject json = new JSONObject();
+            json.put("message", "Game created, connecting to game");
+            Long firstUserId = waiters.poll();
+            Long secondUserId = waiters.poll();
+            sessions.get(firstUserId)
+                    .sendMessage(new TextMessage(json.toString()));
+            sessions.get(secondUserId)
+                    .sendMessage(new TextMessage(json.toString()));
 
-            UserEntity firstUser = manager.getUserById(waiters.get(0).intValue());
-            UserEntity secondUser = manager.getUserById(waiters.get(1).intValue());
+            UserEntity firstUser = manager.getUserById(firstUserId.intValue());
+            UserEntity secondUser = manager.getUserById(secondUserId.intValue());
 
             List<UserAvatar> avatars = new ArrayList<>();
             avatars.add(new UserAvatar((long) firstUser.getId(), firstUser.getLogin()));
@@ -85,8 +95,9 @@ public class RemotePointService {
         }
 
         else{
-            webSocketSession.sendMessage(new TextMessage("Wait for new users connected"));
-            System.out.println(new TextMessage("Wait for new users connected").toString());
+            JSONObject json = new JSONObject();
+            json.put("message", "waiting for new users");
+            webSocketSession.sendMessage(new TextMessage(json.toString()));
         }
     }
 

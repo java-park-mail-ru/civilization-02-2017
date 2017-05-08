@@ -75,10 +75,10 @@ public class Game {
     public Message changeGameMap(Message message) {
         if(message.getClass() == Move.class && validate()) {
             Move move = ((Move) message);
-            int fromX = move.getMoveFrom().getX();
-            int fromY = move.getMoveFrom().getY();
-            int toX = move.getMoveTo().getX();
-            int toY = move.getMoveTo().getY();
+            int fromX = move.getFrom().getX();
+            int fromY = move.getFrom().getY();
+            int toX = move.getTo().getX();
+            int toY = move.getTo().getY();
             Squad moveableSquad = map[fromX][fromY].getSquad();
             map[fromX][fromY].setSquad(null);
             map[toX][toY].setSquad(moveableSquad);

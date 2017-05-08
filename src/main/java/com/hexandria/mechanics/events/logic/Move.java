@@ -1,8 +1,6 @@
 package com.hexandria.mechanics.events.logic;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.hexandria.mechanics.base.Coordinates;
 import com.hexandria.websocket.Message;
 
@@ -10,35 +8,41 @@ import com.hexandria.websocket.Message;
  * Created by root on 25.04.17.
  */
 public class Move extends Message {
-	private final Payload payload;
-
+	public Payload payload;
 	@JsonCreator
 	public Move(@JsonProperty("payload") Payload payload) {
 		this.payload = payload;
 	}
+//
+//	@JsonProperty("payload")
+//    public Payload getPayload(){
+//	    return this.payload;
+//    }
+//
+//    @JsonProperty("payload")
+//    public void setPayload(@JsonProperty("payload") Payload payload){
+//        this.payload = payload;
+//    }
 
-	public Coordinates getMoveTo() {
-		return payload.moveTo;
+    @JsonIgnore
+	public Coordinates getTo() {
+		return payload.to;
 	}
 
-	public Coordinates getMoveFrom() {
-		return payload.moveFrom;
+    @JsonIgnore
+	public Coordinates getFrom() {
+		return payload.from;
 	}
 
 	public static class Payload {
-		private final Coordinates moveFrom;
-		private final Coordinates moveTo;
+		public final Coordinates from;
+		public final Coordinates to;
 
 		@JsonCreator
-		public Payload(@JsonProperty("from") Coordinates moveFrom,
-				@JsonProperty("to") Coordinates moveTo) {
-			this.moveFrom = moveFrom;
-			this.moveTo = moveTo;
+		public Payload(@JsonProperty("from") Coordinates from,
+				@JsonProperty("to") Coordinates to) {
+			this.from = from;
+			this.to = to;
 		}
-	}
-
-	@Override
-	public String toString(){
-		return "Move from :" + this.getMoveFrom() + " Move to: " + this.getMoveTo();
 	}
 }

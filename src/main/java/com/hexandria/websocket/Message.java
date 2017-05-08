@@ -1,5 +1,7 @@
 package com.hexandria.websocket;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,4 +24,5 @@ import java.io.IOException;
         @JsonSubTypes.Type(value = Ping.class, name = "EVENTS.SERVICE.PING")
 })
 public abstract class Message {
+    public Message(){}
 }

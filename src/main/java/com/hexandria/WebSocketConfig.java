@@ -11,6 +11,7 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
  * Created by root on 09.04.17.
  */
 
+
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 

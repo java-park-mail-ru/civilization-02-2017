@@ -27,15 +27,6 @@ public class MapperTests {
 	}
 
 	@Test
-	public void testMove() throws Exception {
-		Message message = objectMapper.readValue(
-				"{\"event\":\"EVENTS.LOGIC.MOVE\",\"payload\":{\"playerIndex\":1,\"squadIndex\":0,\"moveTo\":{\"x\":4,\"y\":6}}}",
-				Message.class);
-		assertThat(message.getClass()).isEqualTo(Move.class);
-		System.out.println("Methods are: " + Arrays.toString(message.getClass().getMethods()));
-	}
-
-	@Test
 	public void testConnect() throws Exception {
 		Message message = objectMapper.readValue("{\"event\":\"EVENTS.SERVICE.CONNECT\",\"payload\":\"testytest\"}",
 				Message.class);

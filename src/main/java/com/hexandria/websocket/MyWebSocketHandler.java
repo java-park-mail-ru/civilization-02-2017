@@ -35,6 +35,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable throwable) throws Exception {
+        LOGGER.warn("Transportation problem");
     }
 
     @Override
@@ -61,9 +62,10 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         }
         if(message.getClass() == Move.class) {
             service.handleGameMessage(message, userId);
+            LOGGER.info(message.toString());
         }
         else{
-            LOGGER.info(message.toString());
+            LOGGER.error("FAIL");
         }
     }
 }
