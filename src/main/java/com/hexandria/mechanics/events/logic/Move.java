@@ -13,16 +13,6 @@ public class Move extends Message {
 	public Move(@JsonProperty("payload") Payload payload) {
 		this.payload = payload;
 	}
-//
-//	@JsonProperty("payload")
-//    public Payload getPayload(){
-//	    return this.payload;
-//    }
-//
-//    @JsonProperty("payload")
-//    public void setPayload(@JsonProperty("payload") Payload payload){
-//        this.payload = payload;
-//    }
 
     @JsonIgnore
 	public Coordinates getTo() {

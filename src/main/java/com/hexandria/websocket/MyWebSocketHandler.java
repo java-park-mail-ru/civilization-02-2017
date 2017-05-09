@@ -65,7 +65,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
             LOGGER.info(message.toString());
         }
         else{
-            LOGGER.error("FAIL");
+            LOGGER.info(jsonTextMessage.getPayload());
         }
     }
 }
