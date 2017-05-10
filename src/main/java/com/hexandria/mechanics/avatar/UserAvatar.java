@@ -3,7 +3,6 @@ package com.hexandria.mechanics.avatar;
 import com.hexandria.mechanics.base.Capital;
 import com.hexandria.mechanics.base.Squad;
 import com.hexandria.mechanics.base.Town;
-import org.eclipse.jetty.server.Authentication;
 
 import java.util.List;
 

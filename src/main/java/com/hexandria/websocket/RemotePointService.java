@@ -18,7 +18,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import javax.management.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,11 +47,9 @@ public class RemotePointService {
     }
 
     public void handleGameMessage(Message message, Long userID) throws IOException {
-        LOGGER.error("Message:" + objectMapper.writeValueAsString(message));
         Game game = gameMap.get(userID);
         Message confirmMessage = game.changeGameMap(message);
         String jsonResponce = objectMapper.writeValueAsString(confirmMessage);
-        LOGGER.info(jsonResponce);
         WebSocketMessage webMessage = new TextMessage(jsonResponce);
         for(Map.Entry<Long, Game> entry : gameMap.entrySet()){
             if(entry.getValue() == game){

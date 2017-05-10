@@ -3,8 +3,6 @@ package com.hexandria.websocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.events.logic.Move;
-import jdk.nashorn.internal.parser.JSONParser;
-import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,19 +33,19 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable throwable) throws Exception {
-        LOGGER.warn("Transportation problem");
+        LOGGER.warn("Transportation problem", throwable);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        LOGGER.warn("Disconnected user with id  " + session.getAttributes().get("userId"));
+        LOGGER.info("Disconnected user with id  " + session.getAttributes().get("userId"));
         service.removeUser(new Long(session.getAttributes().get("userId").toString()));
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         service.registerUser(new Long(session.getAttributes().get("userId").toString()), session);
-        LOGGER.warn("Connected user with id  " + session.getAttributes().get("userId"));
+        LOGGER.info("Connected user with id  " + session.getAttributes().get("userId"));
     }
 
     @Override
@@ -57,15 +55,11 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         try {
             message = objectMapper.readValue(jsonTextMessage.getPayload(), Message.class);
         } catch (IOException ex) {
-            LOGGER.error("wrong json format at ping response", ex);
+            LOGGER.error("wrong json format response", ex);
             return;
         }
         if(message.getClass() == Move.class) {
             service.handleGameMessage(message, userId);
-            LOGGER.info(message.toString());
-        }
-        else{
-            LOGGER.info(jsonTextMessage.getPayload());
         }
     }
 }

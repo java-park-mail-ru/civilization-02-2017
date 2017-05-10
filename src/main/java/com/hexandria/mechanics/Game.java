@@ -89,20 +89,6 @@ public class Game {
         }
     }
 
-    public void printMap(){
-        for(int i = 0; i < sizeX; ++i){
-            for(int j = 0; j < sizeY; ++j){
-                if(map[i][j].getSquad() == null){
-                    System.out.print("0");
-                }
-                else{
-                    System.out.print("1");
-                }
-            }
-            System.out.println();
-        }
-    }
-
     public boolean validate(){
         return true;
     }

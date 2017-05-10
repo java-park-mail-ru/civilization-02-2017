@@ -1,4 +1,4 @@
-package com.hexandria.auth.utils.dataSources;
+package com.hexandria.auth.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 
 
 /**
- * Created by root on 01.04.17.
+ * Created by frozenfoot on 01.04.17.
  */
 @Configuration
 public class DataSourceCreator {

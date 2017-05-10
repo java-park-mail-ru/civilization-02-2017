@@ -10,8 +10,6 @@ import com.hexandria.mechanics.events.service.Connect;
 import com.hexandria.mechanics.events.service.Ping;
 import com.hexandria.websocket.Message;
 
-import java.util.Arrays;
-
 /**
  * Created by frozenfoot on 02.05.17.
  */
@@ -25,6 +23,14 @@ public class MapperTests {
 		assertThat(message.getClass()).isEqualTo(Ping.class);
 
 	}
+
+	@Test
+	public void testMove() throws Exception {
+		Message message = objectMapper.readValue(
+		        "{\"event\":\"EVENTS.LOGIC.MOVE\",\"payload\":{\"from\":{\"x\":5,\"y\":5},\"to\":{\"x\":6,\"y\":5}}}",
+				Message.class);
+		assertThat(message.getClass()).isEqualTo(Move.class);
+		}
 
 	@Test
 	public void testConnect() throws Exception {

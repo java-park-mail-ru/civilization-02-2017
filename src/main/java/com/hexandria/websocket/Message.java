@@ -1,16 +1,10 @@
 package com.hexandria.websocket;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.mechanics.events.service.Connect;
 import com.hexandria.mechanics.events.logic.Move;
 import com.hexandria.mechanics.events.service.Ping;
-import org.springframework.web.socket.TextMessage;
-
-import java.io.IOException;
 
 /**''
  * Created by root on 09.04.17.

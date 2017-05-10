@@ -1,4 +1,4 @@
-package controller;// TODO Code inspection
+package controller;
 
 import com.hexandria.Application;
 import net.minidev.json.JSONObject;
@@ -43,7 +43,6 @@ public class ApplicationTest {
          */
         JSONObject json = createRegisterJson(rnd);
         ResponseEntity response = proceedPostRequest(json, SIGNUP_URI);
-        System.out.println(response.toString());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         json.clear();
 
