@@ -5,8 +5,8 @@ import com.hexandria.auth.common.AuthData;
 import com.hexandria.auth.common.ChangePasswordData;
 import com.hexandria.auth.common.ErrorResponse;
 import com.hexandria.auth.common.SuccessResponseMessage;
-import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.auth.common.user.UserEntity;
+import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.auth.utils.RequestValidator;
 import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
-import java.util.Enumeration;
 import java.util.List;
 
 @RestController
@@ -61,9 +60,6 @@ public class UserController {
         final UserEntity userEntity = result.getLeft();
         httpSession.setAttribute(httpSession.getId(), userEntity.getLogin());
         httpSession.setAttribute("userId", userEntity.getId());
-        for (Enumeration<String> e = httpSession.getAttributeNames(); e.hasMoreElements();) {
-            logger.debug("ATTRIBUTE: " + e.nextElement());
-        }
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + userEntity.getLogin()));
     }
 
