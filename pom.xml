@@ -11,8 +11,6 @@
         <jetty.version>9.3.14.v20161028</jetty.version>
         <java.version>1.8</java.version>
         <hibernate-core-version>5.2.9.Final</hibernate-core-version>
-        <hibernate-validator-version>5.4.1.Final</hibernate-validator-version>
-        <hibernate-search-version>5.7.0.Final</hibernate-search-version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
@@ -92,18 +90,6 @@
         </dependency>
 
 
-        <!-- LOGGING -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.23</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.1</version>
-        </dependency>
-        <!--END  LOGGING -->
         <dependency>
             <groupId>com.msiops.ground</groupId>
             <artifactId>ground-either</artifactId>
@@ -122,22 +108,7 @@
             <artifactId>hibernate-entitymanager</artifactId>
             <version>${hibernate-core-version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>${hibernate-validator-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-search</artifactId>
-            <version>${hibernate-search-version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api -->
-        <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.1-api</artifactId>
-            <version>1.0.0.Final</version>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -149,6 +120,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+        <!--sm RemotePointService-->
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
