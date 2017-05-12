@@ -6,7 +6,6 @@ import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.Game;
 import com.hexandria.mechanics.avatar.UserAvatar;
-import org.eclipse.jetty.util.ConcurrentArrayQueue;
 import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static java.util.Collections.singletonMap;
 
@@ -38,7 +38,7 @@ public class RemotePointService {
     private final ObjectMapper objectMapper;
     private final Logger LOGGER = LoggerFactory.getLogger(RemotePointService.class);
 
-    private final Queue<Long> waiters = new ConcurrentArrayQueue<>();
+    private final Queue<Long> waiters = new ConcurrentLinkedDeque<>();
     private final List<Game> games = new ArrayList<>();
     private final Map<Long, Game> gameMap = new ConcurrentHashMap<>();
 
