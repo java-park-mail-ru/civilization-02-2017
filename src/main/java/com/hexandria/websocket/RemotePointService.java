@@ -6,7 +6,6 @@ import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.Game;
 import com.hexandria.mechanics.avatar.UserAvatar;
-import net.minidev.json.JSONObject;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
 import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +24,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.util.Collections.singletonMap;
+
 /**
  * Created by root on 09.04.17.
  */
@@ -41,7 +42,7 @@ public class RemotePointService {
     private final List<Game> games = new ArrayList<>();
     private final Map<Long, Game> gameMap = new ConcurrentHashMap<>();
 
-    public RemotePointService(@NotNull UserManager manager, @NotNull ObjectMapper objectMapper){
+    public RemotePointService(@NotNull UserManager manager, @NotNull ObjectMapper objectMapper) {
         this.manager = manager;
         this.objectMapper = objectMapper;
     }
@@ -51,8 +52,8 @@ public class RemotePointService {
         Message confirmMessage = game.changeGameMap(message);
         String jsonResponce = objectMapper.writeValueAsString(confirmMessage);
         WebSocketMessage webMessage = new TextMessage(jsonResponce);
-        for(Map.Entry<Long, Game> entry : gameMap.entrySet()){
-            if(entry.getValue() == game){
+        for (Map.Entry<Long, Game> entry : gameMap.entrySet()) {
+            if (entry.getValue() == game) {
                 sessions.get(entry.getKey()).sendMessage(webMessage);
             }
         }
@@ -64,16 +65,16 @@ public class RemotePointService {
         sessions.put(userId, webSocketSession);
         waiters.add(userId);
 
-        if(waiters.size() >= 2){
-
-            JSONObject json = new JSONObject();
-            json.put("message", "Game created, connecting to game");
+        if (waiters.size() >= 2) {
             Long firstUserId = waiters.poll();
             Long secondUserId = waiters.poll();
-            sessions.get(firstUserId)
-                    .sendMessage(new TextMessage(json.toString()));
-            sessions.get(secondUserId)
-                    .sendMessage(new TextMessage(json.toString()));
+            TextMessage message = new TextMessage(
+                    objectMapper.writeValueAsString(
+                            singletonMap("message", "Game created, connecting to game")
+                    )
+            );
+            sessions.get(firstUserId).sendMessage(message);
+            sessions.get(secondUserId).sendMessage(message);
 
             UserEntity firstUser = manager.getUserById(firstUserId.intValue());
             UserEntity secondUser = manager.getUserById(secondUserId.intValue());
@@ -89,12 +90,12 @@ public class RemotePointService {
 
             waiters.remove(1);
             waiters.remove(0);
-        }
-
-        else{
-            JSONObject json = new JSONObject();
-            json.put("message", "waiting for new users");
-            webSocketSession.sendMessage(new TextMessage(json.toString()));
+        } else {
+            webSocketSession.sendMessage(
+                    new TextMessage(objectMapper.writeValueAsString(
+                            singletonMap("message", "waiting for new users")
+                    ))
+            );
         }
     }
 
@@ -102,8 +103,7 @@ public class RemotePointService {
         return sessions.containsKey(userId) && sessions.get(userId).isOpen();
     }
 
-    public void removeUser(Long userId)
-    {
+    public void removeUser(Long userId) {
         sessions.remove(userId);
     }
 
