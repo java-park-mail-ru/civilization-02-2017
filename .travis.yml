@@ -14,4 +14,3 @@ before_install:
 
 install:
   - mvn clean install
-  - mvn flyway:migrate
