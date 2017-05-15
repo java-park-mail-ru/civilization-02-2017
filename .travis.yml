@@ -10,7 +10,7 @@ services:
 
 before_install:
   - psql --command "CREATE USER admin WITH SUPERUSER PASSWORD '123456789';"
-  - psql -c 'CREATE DATABASE hexandria-test WITH OWNER admin;'
+  - psql -c 'CREATE DATABASE hexandriaTest WITH OWNER admin;'
 
 install:
   - mvn clean install
