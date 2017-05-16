@@ -81,7 +81,7 @@ public class Game {
             }
         }
         map[0][0] = new Capital(new Coordinates(0, 0), "capital1", players.get(0));
-        map[9][14] = new Capital(new Coordinates(9, 14), "capital2", players.get(1));
+        map[8][13] = new Capital(new Coordinates(8, 13), "capital2", players.get(1));
         map[2][3] = new Town(new Coordinates(2, 3), "Town1");
         map[7][8] = new Town(new Coordinates(7, 8), "Town2");
         this.players = players;
@@ -97,6 +97,10 @@ public class Game {
                 return move(move, fromCeil, toCeil);
             }
 
+            else if(toCeil.getSquad() == null && toCeil.getClass() == Town.class){
+                return captureEmptyTown(fromCeil, toCeil);
+            }
+
             else if(Objects.equals(toCeil.getSquad().getOwner(), fromCeil.getSquad().getOwner())){
                 return mergeSquads(fromCeil, toCeil);
             }
@@ -110,6 +114,17 @@ public class Game {
         else{
             return null;
         }
+    }
+
+    public List<Message> captureEmptyTown(Ceil fromCeil, Ceil toCeil){
+        Town town = (Town) toCeil;
+        town.setOwner(fromCeil.getSquad().getOwner());
+        town.setSquad(fromCeil.getSquad());
+        fromCeil.setSquad(null);
+        List<Message> messages = new LinkedList<>();
+        messages.add(new AttackTown(toCeil.getPosition(), toCeil.getSquad().getOwner()));
+        messages.add(new Update(fromCeil.getPosition(), toCeil.getPosition(), null, null));
+        return messages;
     }
 
     public List<Message> fight(Move move, Ceil fromCeil, Ceil toCeil){
@@ -171,7 +186,6 @@ public class Game {
 
     public List<Message> move(Move move, Ceil fromCeil, Ceil toCeil){
         final Squad moveableSquad = fromCeil.getSquad();
-        fromCeil.setSquad(null);
         toCeil.setSquad(moveableSquad);
         final List<Message> events = new LinkedList<>();
         events.add(new Update(
@@ -180,6 +194,7 @@ public class Game {
                 null,
                 null));
         events.add(new Delete(fromCeil.getPosition()));
+        fromCeil.setSquad(null);
         return events;
     }
 
