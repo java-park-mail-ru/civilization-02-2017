@@ -11,5 +11,5 @@ public class Error extends Message {
         this.error = error;
     }
 
-    private String error;
+    private final String error;
 }

@@ -17,10 +17,7 @@ import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -30,6 +27,7 @@ import static java.util.Collections.singletonMap;
  * Created by root on 09.04.17.
  */
 
+@SuppressWarnings("OverlyBroadThrowsClause")
 @Service
 public class RemotePointService {
     @NotNull
@@ -47,18 +45,22 @@ public class RemotePointService {
         this.objectMapper = objectMapper;
     }
 
+    @SuppressWarnings("OverlyBroadThrowsClause")
     public void handleGameMessage(Message message, Long userID) throws IOException {
-        Game game = gameMap.get(userID);
-        Message confirmMessage = game.changeGameMap(message);
-        String jsonResponce = objectMapper.writeValueAsString(confirmMessage);
-        WebSocketMessage webMessage = new TextMessage(jsonResponce);
-        for (Map.Entry<Long, Game> entry : gameMap.entrySet()) {
-            if (entry.getValue() == game) {
-                sessions.get(entry.getKey()).sendMessage(webMessage);
+        final Game game = gameMap.get(userID);
+        final List<Message> responces = game.interact(message);
+        for(Message responce : responces) {
+            final String jsonResponce = objectMapper.writeValueAsString(responce);
+            final WebSocketMessage webMessage = new TextMessage(jsonResponce);
+            for (Map.Entry<Long, Game> entry : gameMap.entrySet()) {
+                if (Objects.equals(entry.getValue(), game)) {
+                    sessions.get(entry.getKey()).sendMessage(webMessage);
+                }
             }
         }
     }
 
+    @SuppressWarnings("OverlyBroadThrowsClause")
     public void registerUser(Long userId, @NotNull WebSocketSession webSocketSession) throws IOException {
 
         LOGGER.info("User with " + userId + " connected");
@@ -66,9 +68,9 @@ public class RemotePointService {
         waiters.add(userId);
 
         if (waiters.size() >= 2) {
-            Long firstUserId = waiters.poll();
-            Long secondUserId = waiters.poll();
-            TextMessage message = new TextMessage(
+            final Long firstUserId = waiters.poll();
+            final Long secondUserId = waiters.poll();
+            final TextMessage message = new TextMessage(
                     objectMapper.writeValueAsString(
                             singletonMap("message", "Game created, connecting to game")
                     )
@@ -76,20 +78,20 @@ public class RemotePointService {
             sessions.get(firstUserId).sendMessage(message);
             sessions.get(secondUserId).sendMessage(message);
 
-            UserEntity firstUser = manager.getUserById(firstUserId.intValue());
-            UserEntity secondUser = manager.getUserById(secondUserId.intValue());
+            final UserEntity firstUser = manager.getUserById(firstUserId.intValue());
+            final UserEntity secondUser = manager.getUserById(secondUserId.intValue());
 
-            List<UserAvatar> avatars = new ArrayList<>();
+            final List<UserAvatar> avatars = new ArrayList<>();
             avatars.add(new UserAvatar((long) firstUser.getId(), firstUser.getLogin()));
             avatars.add(new UserAvatar((long) secondUser.getId(), secondUser.getLogin()));
 
-            Game newGame = new Game(new ArrayList<>(avatars));
+            final Game newGame = new Game(new ArrayList<>(avatars));
             games.add(newGame);
             gameMap.put((long) firstUser.getId(), newGame);
             gameMap.put((long) secondUser.getId(), newGame);
 
-            waiters.remove(1);
-            waiters.remove(0);
+            waiters.remove(1L);
+            waiters.remove(0L);
         } else {
             webSocketSession.sendMessage(
                     new TextMessage(objectMapper.writeValueAsString(

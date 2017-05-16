@@ -30,7 +30,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 public class ApplicationTest {
 
-    private static SecureRandom rnd = new SecureRandom();
+    private static final int LOGIN_LENGTH = 12;
+    private static final int PASSWORD_LENGTH = 12;
+    private static final int EMAIL_LENGTH = 12;
+    private static final SecureRandom rnd = new SecureRandom();
     private final URI SIGNUP_URI = new URI("/api/user/signup");
     private final URI LOGIN_URI = new URI("/api/user/login");
     private final URI LOGOUT_URI = new URI("/api/user/logout");
@@ -61,8 +64,8 @@ public class ApplicationTest {
      */
     @Test
     public void correctRegister() {
-        JSONObject json = createRegisterJson(rnd);
-        ResponseEntity response = proceedPostRequest(json, SIGNUP_URI);
+        final JSONObject json = createRegisterJson(rnd);
+        final ResponseEntity response = proceedPostRequest(json, SIGNUP_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
@@ -71,7 +74,7 @@ public class ApplicationTest {
      */
     @Test
     public void incorrectRequest() {
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
         json.put("login", "test");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -81,7 +84,7 @@ public class ApplicationTest {
      */
     @Test
     public void emptyCredentials() {
-        JSONObject json = createRegisterJson(rnd);
+        final JSONObject json = createRegisterJson(rnd);
         json.put("login", "   ");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -91,7 +94,7 @@ public class ApplicationTest {
      */
     @Test
     public void alreadyRegisteredUser() {
-        JSONObject json = createRegisterJson(rnd);
+        final JSONObject json = createRegisterJson(rnd);
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
@@ -101,7 +104,7 @@ public class ApplicationTest {
      */
     @Test
     public void emailFormatTest() {
-        JSONObject json = createRegisterJson(rnd);
+        final JSONObject json = createRegisterJson(rnd);
         json.put("email", "test_emailt.ru");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -111,7 +114,7 @@ public class ApplicationTest {
      */
     @Test
     public void multipleErrors() {
-        JSONObject json = createRegisterJson(rnd);
+        final JSONObject json = createRegisterJson(rnd);
         json.put("password", "");
         json.put("email", "test_emailt.ru");
         assertThat(proceedPostRequest(json, SIGNUP_URI).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -123,10 +126,11 @@ public class ApplicationTest {
     @Test
     public void loginTest() throws URISyntaxException {
         correctRegister();
-        JSONObject json = createRegisterJson(rnd);
+        final JSONObject json = createRegisterJson(rnd);
         proceedPostRequest(json, SIGNUP_URI);
-        ResponseEntity response = proceedPostRequest(json, LOGIN_URI);
+        final ResponseEntity response = proceedPostRequest(json, LOGIN_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        //noinspection unchecked
         assertThat(logoutUser(response).getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
@@ -135,10 +139,10 @@ public class ApplicationTest {
      */
     public void incorrectPasswordLogin() throws URISyntaxException {
         loginTest();
-        JSONObject json = createRegisterJson(rnd);
+        final JSONObject json = createRegisterJson(rnd);
         proceedPostRequest(json, SIGNUP_URI);
         json.put("password", "-----");
-        ResponseEntity response = proceedPostRequest(json, LOGIN_URI);
+        final ResponseEntity response = proceedPostRequest(json, LOGIN_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
@@ -148,7 +152,7 @@ public class ApplicationTest {
     @Test
     public void logoutTests() throws URISyntaxException {
         loginTest();
-        ResponseEntity response = proceedPostRequest(new JSONObject(), LOGOUT_URI);
+        final ResponseEntity response = proceedPostRequest(new JSONObject(), LOGOUT_URI);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
@@ -158,12 +162,12 @@ public class ApplicationTest {
     @Test
     public void userGetTests() throws URISyntaxException {
         loginTest();
-        JSONObject json = createRegisterJson(rnd);
+        final JSONObject json = createRegisterJson(rnd);
         proceedPostRequest(json, SIGNUP_URI);
         json.remove("email");
-        RequestEntity request = createGetRequest(USER_URI, proceedPostRequest(json, LOGIN_URI).
+        final RequestEntity request = createGetRequest(USER_URI, proceedPostRequest(json, LOGIN_URI).
                 getHeaders().get(HttpHeaders.SET_COOKIE).toArray(new String[0]));
-        ResponseEntity response = restTemplate.exchange(request, String.class);
+        final ResponseEntity response = restTemplate.exchange(request, String.class);
         json.remove("password");
         assertThat(response.getBody().toString().equals(json.toString()));
         assertThat(restTemplate.exchange(createGetRequest(USER_URI, ""), String.class)
@@ -177,18 +181,19 @@ public class ApplicationTest {
     @Test
     public void userPostTest() throws URISyntaxException {
         loginTest();
-        JSONObject json = createRegisterJson(rnd);
+        final JSONObject json = createRegisterJson(rnd);
         proceedPostRequest(json, SIGNUP_URI);
-        ResponseEntity response = proceedPostRequest(json, LOGIN_URI);
-        String[] cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE).toArray(new String[0]);
-        String oldPassword = json.getAsString("password");
-        String newPassword = getRandomString(rnd, 12);
+        final ResponseEntity response = proceedPostRequest(json, LOGIN_URI);
+        final String[] cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE).toArray(new String[0]);
+        final String oldPassword = json.getAsString("password");
+        final String newPassword = getRandomString(rnd, PASSWORD_LENGTH);
         json.put("newPassword", newPassword);
         assertThat(proceedPostRequest(json, USER_URI).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(restTemplate
                 .exchange(createPostRequest(json, USER_URI, cookies), String.class)
                 .getStatusCode())
                 .isEqualTo(HttpStatus.OK);
+        //noinspection unchecked
         logoutUser(response);
         json.remove("newPassword");
         json.put("password", newPassword);
@@ -198,9 +203,9 @@ public class ApplicationTest {
     @Test
     public void userPostEmptyLogin() throws URISyntaxException {
         userPostTest();
-        JSONObject json = createRegisterJson(rnd);
+        final JSONObject json = createRegisterJson(rnd);
         proceedPostRequest(json, SIGNUP_URI);
-        String[] cookies = proceedPostRequest(json, LOGIN_URI)
+        final String[] cookies = proceedPostRequest(json, LOGIN_URI)
                 .getHeaders()
                 .get(HttpHeaders.SET_COOKIE)
                 .toArray(new String[0]);
@@ -214,13 +219,13 @@ public class ApplicationTest {
     @Test
     public void userPostIncorrectPassword() throws URISyntaxException {
         userPostTest();
-        JSONObject json = createRegisterJson(rnd);
+        final JSONObject json = createRegisterJson(rnd);
         proceedPostRequest(json, SIGNUP_URI);
-        String[] cookies = proceedPostRequest(json, LOGIN_URI).
+        final String[] cookies = proceedPostRequest(json, LOGIN_URI).
                 getHeaders().
                 get(HttpHeaders.SET_COOKIE).
                 toArray(new String[0]);
-        json.put("newPassword", getRandomString(rnd, 12));
+        json.put("newPassword", getRandomString(rnd, PASSWORD_LENGTH));
         json.put("password", "--------");
         assertThat(restTemplate
                 .exchange(createPostRequest(json, USER_URI, cookies), String.class)
@@ -230,13 +235,13 @@ public class ApplicationTest {
     @Test
     public void userPostIncorrectLogin() throws URISyntaxException {
         userPostTest();
-        JSONObject json = createRegisterJson(rnd);
+        final JSONObject json = createRegisterJson(rnd);
         proceedPostRequest(json, SIGNUP_URI);
-        String[] cookies = proceedPostRequest(json, LOGIN_URI)
+        final String[] cookies = proceedPostRequest(json, LOGIN_URI)
                 .getHeaders()
                 .get(HttpHeaders.SET_COOKIE)
                 .toArray(new String[0]);
-        json.put("newPassword", getRandomString(rnd, 12));
+        json.put("newPassword", getRandomString(rnd, PASSWORD_LENGTH));
         json.put("login", "--------");
         assertThat(restTemplate
                 .exchange(createPostRequest(json, USER_URI, cookies), String.class)
@@ -262,21 +267,21 @@ public class ApplicationTest {
 
     public ResponseEntity<String> proceedPostRequest(JSONObject json, URI url) {
 
-        HttpHeaders headers = new HttpHeaders();
+        final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity request = new HttpEntity<>(json.toString(), headers);
+        final HttpEntity request = new HttpEntity<>(json.toString(), headers);
         return restTemplate.postForEntity(url, request, String.class);
     }
 
     public ResponseEntity<String> logoutUser(ResponseEntity<String> response) throws URISyntaxException {
-        String[] cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE).toArray(new String[0]);
-        RequestEntity<JSONObject> request = createPostRequest(new JSONObject(), LOGOUT_URI, cookies);
+        final String[] cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE).toArray(new String[0]);
+        @SuppressWarnings("unchecked") final RequestEntity<JSONObject> request = createPostRequest(new JSONObject(), LOGOUT_URI, cookies);
         return restTemplate.exchange(request, String.class);
     }
 
     public String getRandomString(SecureRandom random, int length) {
         final String lettersAndDigits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        StringBuilder stringBuilder = new StringBuilder(length);
+        final StringBuilder stringBuilder = new StringBuilder(length);
         for (int i = 0; i < length; ++i) {
             stringBuilder.append(lettersAndDigits.toCharArray()[random.nextInt(lettersAndDigits.length())]);
         }
@@ -285,10 +290,10 @@ public class ApplicationTest {
 
     public JSONObject createRegisterJson(SecureRandom rnd) {
 
-        JSONObject json = new JSONObject();
-        String login = getRandomString(rnd, 12);
-        String password = getRandomString(rnd, 12);
-        String email = getRandomString(rnd, 8) + "@mail.ru";
+        final JSONObject json = new JSONObject();
+        final String login = getRandomString(rnd, LOGIN_LENGTH);
+        final String password = getRandomString(rnd, PASSWORD_LENGTH);
+        final String email = getRandomString(rnd, EMAIL_LENGTH) + "@mail.ru";
         json.put("login", login);
         json.put("password", password);
         json.put("email", email);

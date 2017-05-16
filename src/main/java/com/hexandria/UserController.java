@@ -27,7 +27,7 @@ import java.util.List;
 @Transactional
 public class UserController {
 
-    Logger logger = LoggerFactory.getLogger(UserController.class);
+    final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @NotNull
     private final UserManager userManager;

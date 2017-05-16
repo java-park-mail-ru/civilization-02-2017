@@ -4,11 +4,11 @@ package com.hexandria.mechanics.base;
  * Created by root on 23.04.17.
  */
 public class Ceil {
-    private Coordinates coordinates;
+    private Coordinates position;
     public Squad squad;
 
-    public Ceil(Coordinates coordinates){
-        this.coordinates = coordinates;
+    public Ceil(Coordinates position){
+        this.position = position;
         this.squad = null;
     }
 
@@ -20,11 +20,11 @@ public class Ceil {
         this.squad = squad;
     }
 
-    public void setCoordinates(Coordinates coordinates){
-        this.coordinates = coordinates;
+    public void setPosition(Coordinates coordinates){
+        this.position = coordinates;
     }
 
-    public Coordinates getCoordinates(){
-        return coordinates;
+    public Coordinates getPosition(){
+        return position;
     }
 }

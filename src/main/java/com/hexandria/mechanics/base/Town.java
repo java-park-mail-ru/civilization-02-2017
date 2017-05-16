@@ -1,28 +1,34 @@
 package com.hexandria.mechanics.base;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hexandria.mechanics.avatar.UserAvatar;
 
 /**
  * Created by root on 23.04.17.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Town extends Ceil {
 
     private static final int troopsGenerated = 15;
     private static final int moraleGenerated = 10;
     private String name;
-    protected UserAvatar owner;
 
-    public Town(Coordinates coordinates, String name){
-        super(coordinates);
+    public UserAvatar owner;
+
+    public Town(Coordinates position, String name){
+        super(position);
         this.owner = null;
         this.name = name;
     }
 
-    public static int getTroopsGenerated() {
+    @JsonIgnore
+    public int getTroopsGenerated() {
         return troopsGenerated;
     }
 
-    public static int getMoraleGenerated() {
+    @JsonIgnore
+    public int getMoraleGenerated() {
         return moraleGenerated;
     }
 

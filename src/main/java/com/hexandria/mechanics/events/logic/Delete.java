@@ -1,23 +1,22 @@
 package com.hexandria.mechanics.events.logic;
 
 import com.hexandria.mechanics.base.Coordinates;
-
+import com.hexandria.websocket.Message;
 
 /**
  * Created by root on 25.04.17.
  */
-public class Delete  {
-    Coordinates coordinates;
+public class Delete extends Message {
+    public final Payload payload;
 
-    public Delete(Coordinates coordinates) {
-        this.coordinates = coordinates;
+    public Delete(Coordinates position){
+        this.payload = new Payload(position);
     }
 
-    public Coordinates getCoordinates() {
-        return coordinates;
-    }
-
-    public void setCoordinates(Coordinates coordinates) {
-        this.coordinates = coordinates;
+    public static class Payload{
+        public final Coordinates position;
+        public Payload(Coordinates coordinates) {
+            this.position = coordinates;
+        }
     }
 }

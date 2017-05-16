@@ -1,5 +1,6 @@
 package com.hexandria.websocket;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.events.logic.Move;
@@ -16,6 +17,7 @@ import java.io.IOException;
 /**
  * Created by root on 25.04.17.
  */
+@SuppressWarnings("OverlyBroadThrowsClause")
 public class MyWebSocketHandler extends TextWebSocketHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MyWebSocketHandler.class);
@@ -36,12 +38,14 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         LOGGER.warn("Transportation problem", throwable);
     }
 
+    @SuppressWarnings("OverlyBroadThrowsClause")
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         LOGGER.info("Disconnected user with id  " + session.getAttributes().get("userId"));
         service.removeUser(new Long(session.getAttributes().get("userId").toString()));
     }
 
+    @SuppressWarnings("OverlyBroadThrowsClause")
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         service.registerUser(new Long(session.getAttributes().get("userId").toString()), session);
@@ -50,16 +54,18 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage jsonTextMessage) throws Exception {
-        Long userId = new Long((Integer) session.getAttributes().get("userId"));
+        final Long userId = new Long((Integer) session.getAttributes().get("userId"));
         final Message message;
         try {
             message = objectMapper.readValue(jsonTextMessage.getPayload(), Message.class);
+            if(message.getClass() == Move.class) {
+                service.handleGameMessage(message, userId);
+            }
+        } catch (JsonParseException e) {
+            e.printStackTrace();
         } catch (IOException ex) {
             LOGGER.error("wrong json format response", ex);
             return;
-        }
-        if(message.getClass() == Move.class) {
-            service.handleGameMessage(message, userId);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.hexandria.mechanics.base;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hexandria.mechanics.avatar.UserAvatar;
 
 /**
@@ -8,14 +9,19 @@ import com.hexandria.mechanics.avatar.UserAvatar;
 public class Squad {
     private int count;
     private int morale;
-    private UserAvatar owner;
+    private final UserAvatar owner;
 
-    public Squad(int amount, int morale, UserAvatar owner){
-        this.count = amount;
+    public Squad(int count, int morale, UserAvatar owner){
+        this.count = count;
         this.morale = morale;
         this.owner = owner;
     }
 
+    public void mergeSquads(Squad squad){
+        count = count + squad.count;
+    }
+
+    @JsonIgnore
     public UserAvatar getOwner(){
         return owner;
     }

@@ -155,6 +155,4 @@ public class UserManagerImpl implements UserManager {
         }
     }
 
-    public UserManagerImpl() {
-    }
 }

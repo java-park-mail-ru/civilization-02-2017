@@ -1,42 +1,30 @@
 package com.hexandria.mechanics.events.logic;
 
 import com.hexandria.mechanics.base.Coordinates;
+import com.hexandria.websocket.Message;
 
 /**
  * Created by root on 25.04.17.
  */
-public class Update {
-    private Integer newMorale;
-    private Coordinates squatCoordinates;
-    private Integer newCount;
 
-    public Update(Integer newMorale, Coordinates squatCoordinates, Integer newCount) {
-        this.newMorale = newMorale;
-        this.squatCoordinates = squatCoordinates;
-        this.newCount = newCount;
+public class Update extends Message {
+    public final Payload payload;
+
+    public Update(Coordinates position, Coordinates newPosition, Integer newCount, Integer newMorale){
+        this.payload = new Payload(position, newPosition, newCount, newMorale);
     }
 
-    public Integer getNewMorale() {
-        return newMorale;
-    }
+    public static class Payload{
+        public final Coordinates position;
+        public final Coordinates newPosition;
+        public final Integer newCount;
+        public final Integer newMorale;
 
-    public void setNewMorale(Integer newMorale) {
-        this.newMorale = newMorale;
-    }
-
-    public Coordinates getSquatCoordinates() {
-        return squatCoordinates;
-    }
-
-    public void setSquatCoordinates(Coordinates squatCoordinates) {
-        this.squatCoordinates = squatCoordinates;
-    }
-
-    public Integer getNewCount() {
-        return newCount;
-    }
-
-    public void setNewCount(Integer newCount) {
-        this.newCount = newCount;
+        public Payload(Coordinates position, Coordinates newPosition, Integer newCount, Integer newMorale){
+            this.position = position;
+            this.newPosition = newPosition;
+            this.newCount = newCount;
+            this.newMorale = newMorale;
+        }
     }
 }

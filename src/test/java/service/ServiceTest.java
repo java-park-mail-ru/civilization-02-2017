@@ -29,12 +29,11 @@ public class ServiceTest {
     private MockMvc mockMvc;
     @Autowired
     private WebApplicationContext webApplicationContext;
-    private static SecureRandom rnd = new SecureRandom();
+    private static final SecureRandom rnd = new SecureRandom();
 
-    @SuppressWarnings("Duplicates")
     @Test
     public void correctRegister() throws Exception {
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
         json.put("login", getRandomString(rnd, 10));
         json.put("password", getRandomString(rnd, 10));
         json.put("email", getRandomString(rnd, 10) + "@yandex.ru");
@@ -44,10 +43,9 @@ public class ServiceTest {
                 .andExpect(status().isOk());
     }
 
-    @SuppressWarnings("Duplicates")
     @Test
     public void userAlreadyExists() throws Exception {
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
         json.put("login", getRandomString(rnd, 10));
         json.put("password", getRandomString(rnd, 10));
         json.put("email", getRandomString(rnd, 10) + "@yandex.ru");
@@ -63,7 +61,7 @@ public class ServiceTest {
 
     @Test
     public void emailFormatError() throws Exception {
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
         json.put("login", getRandomString(rnd, 10));
         json.put("password", getRandomString(rnd, 10));
         json.put("email", getRandomString(rnd, 10));
@@ -75,7 +73,7 @@ public class ServiceTest {
 
     @Test
     public void emptyCredentialsError() throws Exception {
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
         json.put("login", getRandomString(rnd, 10));
         json.put("password", getRandomString(rnd, 10));
         json.put("email", "");
@@ -87,7 +85,7 @@ public class ServiceTest {
 
     @Test
     public void incorrectRequest() throws Exception {
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
         json.put("something", getRandomString(rnd, 10));
         json.put("password", getRandomString(rnd, 10));
         json.put("email", getRandomString(rnd, 10) + "@yandex.ru");
@@ -97,10 +95,9 @@ public class ServiceTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @SuppressWarnings("Duplicates")
     @Test
     public void incorrectNickname() throws Exception {
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
         json.put("login", "&&&&%^^&*^%^&");
         json.put("password", getRandomString(rnd, 10));
         json.put("email", getRandomString(rnd, 10) + "@yandex.ru");
@@ -112,7 +109,7 @@ public class ServiceTest {
 
     public String getRandomString(SecureRandom random, int length){
         final String lettersAndDigits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        StringBuilder stringBuilder = new StringBuilder(length);
+        final StringBuilder stringBuilder = new StringBuilder(length);
         for(int i = 0; i < length; ++i){
             stringBuilder.append(lettersAndDigits.toCharArray()[random.nextInt(lettersAndDigits.length())]);
         }

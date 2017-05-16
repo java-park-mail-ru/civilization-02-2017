@@ -1,22 +1,20 @@
 package com.hexandria.mechanics.avatar;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hexandria.mechanics.base.Capital;
-import com.hexandria.mechanics.base.Squad;
-import com.hexandria.mechanics.base.Town;
-
-import java.util.List;
 
 
 /**
  * Created by root on 23.04.17.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserAvatar {
+    @JsonIgnore
     private Long id;
     private String name;
-    private String color;
+    @JsonIgnore
     private Capital capitalCity;
-    private List<Town> towns;
-    private List<Squad> squads;
 
     public UserAvatar(Long id, String name){
         this.id = id;
@@ -39,35 +37,11 @@ public class UserAvatar {
         this.name = name;
     }
 
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
     public Capital getCapitalCity() {
         return capitalCity;
     }
 
     public void setCapitalCity(Capital capitalCity) {
         this.capitalCity = capitalCity;
-    }
-
-    public List<Town> getTowns() {
-        return towns;
-    }
-
-    public void setTowns(List<Town> towns) {
-        this.towns = towns;
-    }
-
-    public List<Squad> getSquads() {
-        return squads;
-    }
-
-    public void setSquads(List<Squad> squads) {
-        this.squads = squads;
     }
 }

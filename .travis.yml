@@ -8,8 +8,7 @@ sudo: required
 services:
   - postgresql
 
-before_script:
-  - psql --command 'CREATE USER admin WITH SUPERUSER PASSWORD '123456789';'
+before_install:
   - psql -c 'create database hexandriaTest' -U postgres
 
 install:

@@ -2,31 +2,52 @@ package com.hexandria.mechanics;
 
 import com.hexandria.mechanics.avatar.UserAvatar;
 import com.hexandria.mechanics.base.*;
+import com.hexandria.mechanics.events.logic.AttackTown;
+import com.hexandria.mechanics.events.logic.Delete;
 import com.hexandria.mechanics.events.logic.Move;
-import com.hexandria.mechanics.events.service.Error;
+import com.hexandria.mechanics.events.logic.Update;
 import com.hexandria.websocket.Message;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by root on 25.04.17.
  */
-@SuppressWarnings("Duplicates")
+@SuppressWarnings({"MagicNumber"})
 public class Game {
-    private List<UserAvatar> players;
-    private String name;
-    private ArrayList<UserAvatar> users;
+    private final List<UserAvatar> players;
     private int sizeX;
     private int sizeY;
-    private Ceil map [][];
+    private final Ceil[][] map;
+
+    public Ceil[][] getMap() {
+        return map;
+    }
+
+    public int getSizeX() {
+
+        return sizeX;
+    }
+
+    public void setSizeX(int sizeX) {
+        this.sizeX = sizeX;
+    }
+
+    public int getSizeY() {
+        return sizeY;
+    }
+
+    public void setSizeY(int sizeY) {
+        this.sizeY = sizeY;
+    }
 
     public List<UserAvatar> getPlayers() {
         return players;
     }
 
-    public Game(String name, int sizeX, int sizeY, List<UserAvatar> avatars){
-        this.name = name;
+    public Game(int sizeX, int sizeY, List<UserAvatar> avatars){
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.players = avatars;
@@ -34,7 +55,7 @@ public class Game {
 
         for(int i = 0; i < sizeX; ++i){
             for(int j = 0; j < sizeY; ++j){
-                Coordinates coordinates = new Coordinates(i, j);
+                final Coordinates coordinates = new Coordinates(i, j);
                 if(i == j){
                     this.map[i][j] = new Town(coordinates, "Town" + (i * sizeX + j));
                 }
@@ -72,21 +93,100 @@ public class Game {
         this.players = players;
     }
 
-    public Message changeGameMap(Message message) {
+    public List<Message> interact(Message message) {
         if(message.getClass() == Move.class && validate()) {
-            Move move = ((Move) message);
-            int fromX = move.getFrom().getX();
-            int fromY = move.getFrom().getY();
-            int toX = move.getTo().getX();
-            int toY = move.getTo().getY();
-            Squad moveableSquad = map[fromX][fromY].getSquad();
-            map[fromX][fromY].setSquad(null);
-            map[toX][toY].setSquad(moveableSquad);
-            return message;
+            final Move move = ((Move) message);
+            final Ceil toCeil = map[move.getTo().getX()][move.getTo().getY()];
+            final Ceil fromCeil = map[move.getFrom().getX()][move.getFrom().getY()];
+
+            if(toCeil.getSquad() == null && toCeil.getClass() == Ceil.class){
+                return move(move, fromCeil, toCeil);
+            }
+
+            else if(Objects.equals(toCeil.getSquad().getOwner(), fromCeil.getSquad().getOwner())){
+                return mergeSquads(fromCeil, toCeil);
+            }
+            else if(!Objects.equals(toCeil.getSquad().getOwner(), fromCeil.getSquad().getOwner())){
+                return fight(move, fromCeil, toCeil);
+            }
+            else
+                return null;
+
         }
         else{
-            return new Error("Something went wrong in changeGameMap");
+            return null;
         }
+    }
+
+    public List<Message> fight(Move move, Ceil fromCeil, Ceil toCeil){
+        final List<Message> events = new LinkedList<>();
+        //Attacker lost
+        if(fromCeil.getSquad().getCount() < toCeil.getSquad().getCount()){
+            toCeil.getSquad().setCount(toCeil.getSquad().getCount() - fromCeil.getSquad().getCount());
+            fromCeil.setSquad(null);
+            events.add(new Delete(fromCeil.getPosition()));
+            events.add(new Update(
+                    toCeil.getPosition(),
+                    null,
+                    toCeil.getSquad().getCount(),
+                    toCeil.getSquad().getMorale()
+                    )
+            );
+        }
+        //Attacker won
+        else if(fromCeil.getSquad().getCount() > toCeil.getSquad().getCount()){
+            final Squad toSquad = toCeil.getSquad();
+            final Squad fromSquad = fromCeil.getSquad();
+            fromCeil.setSquad(null);
+            toCeil.setSquad(fromSquad);
+            toCeil.getSquad().setCount(fromCeil.getSquad().getCount() - toSquad.getCount());
+            events.add(new Delete(toCeil.getPosition()));
+            events.add(new Update(
+                    fromCeil.getPosition(),
+                    toCeil.getPosition(),
+                    toCeil.getSquad().getCount(),
+                    toCeil.getSquad().getMorale()));
+            if(toCeil.getClass() == Town.class){
+                final Town capturedTown = (Town) toCeil;
+                capturedTown.setOwner(fromSquad.getOwner());
+                events.add(new AttackTown(capturedTown.getPosition(), fromSquad.getOwner()));
+            }
+        }
+        //Draw
+        else {
+            fromCeil.setSquad(null);
+            toCeil.setSquad(null);
+            events.add(new Delete(fromCeil.getPosition()));
+            events.add(new Delete(toCeil.getPosition()));
+        }
+        return events;
+    }
+
+    public List<Message> mergeSquads(Ceil fromCeil, Ceil toCeil){
+        final Squad fromSquad = fromCeil.getSquad();
+        fromCeil.setSquad(null);
+        toCeil.getSquad().mergeSquads(fromSquad);
+        final List<Message> events = new LinkedList<>();
+        events.add(new Update(fromCeil.getPosition(),
+                toCeil.getPosition(),
+                toCeil.getSquad().getCount(),
+                toCeil.getSquad().getMorale()));
+        events.add(new Delete(fromCeil.getPosition()));
+        return events;
+    }
+
+    public List<Message> move(Move move, Ceil fromCeil, Ceil toCeil){
+        final List<Message> events = new LinkedList<>();
+        final Squad moveableSquad = fromCeil.getSquad();
+        fromCeil.setSquad(null);
+        toCeil.setSquad(moveableSquad);
+        events.add(new Update(
+                fromCeil.getPosition(),
+                toCeil.getPosition(),
+                null,
+                null));
+        events.add(new Delete(fromCeil.getPosition()));
+        return events;
     }
 
     public boolean validate(){
