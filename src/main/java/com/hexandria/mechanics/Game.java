@@ -176,10 +176,10 @@ public class Game {
     }
 
     public List<Message> move(Move move, Ceil fromCeil, Ceil toCeil){
-        final List<Message> events = new LinkedList<>();
         final Squad moveableSquad = fromCeil.getSquad();
         fromCeil.setSquad(null);
         toCeil.setSquad(moveableSquad);
+        final List<Message> events = new LinkedList<>();
         events.add(new Update(
                 fromCeil.getPosition(),
                 toCeil.getPosition(),

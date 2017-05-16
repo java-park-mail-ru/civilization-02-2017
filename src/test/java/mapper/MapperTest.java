@@ -75,11 +75,13 @@ public class MapperTest {
         avatars.add(new UserAvatar(2L, "TestAvatar2"));
         final Game game = new Game(avatars);
         final Start start = new Start(game);
-        assertThat(objectMapper.writeValueAsString(start)).isEqualTo("{\"event\":\"EVENTS.GAME.START\"," +
-                "\"payload\":{\"sizeX\":10,\"sizeY\":15,\"towns\":[{\"coordinates\":{\"x\":2,\"y\":3}," +
-                "\"name\":\"Town1\",\"moraleGenerated\":10,\"troopsGenerated\":15}," +
-                "{\"coordinates\":{\"x\":7,\"y\":8},\"name\":\"Town2\",\"moraleGenerated\":10," +
-                "\"troopsGenerated\":15}],\"capitals\":[{\"coordinates\":{\"x\":0,\"y\":0},\"squad\":{\"count\":50,\"morale\":30,\"owner\":{\"name\":\"TestAvatar1\"}},\"name\":\"capital1\",\"owner\":{\"name\":\"TestAvatar1\"},\"moraleGenerated\":10,\"troopsGenerated\":15},{\"coordinates\":{\"x\":9,\"y\":14},\"squad\":{\"count\":50,\"morale\":30,\"owner\":{\"name\":\"TestAvatar2\"}},\"name\":\"capital2\",\"owner\":{\"name\":\"TestAvatar2\"},\"moraleGenerated\":10,\"troopsGenerated\":15}],\"squads\":[{\"count\":50,\"morale\":30,\"owner\":{\"name\":\"TestAvatar1\"}},{\"count\":20,\"morale\":11,\"owner\":{\"name\":\"TestAvatar1\"}},{\"count\":10,\"morale\":5,\"owner\":{\"name\":\"TestAvatar1\"}},{\"count\":17,\"morale\":20,\"owner\":{\"name\":\"TestAvatar2\"}},{\"count\":50,\"morale\":10,\"owner\":{\"name\":\"TestAvatar2\"}},{\"count\":41,\"morale\":7,\"owner\":{\"name\":\"TestAvatar2\"}},{\"count\":50,\"morale\":30,\"owner\":{\"name\":\"TestAvatar2\"}}]}}");
+        assertThat(objectMapper.writeValueAsString(start)).isEqualTo("{\"{\"event\":\"EVENTS.GAME.START\"," +
+                "\"payload\":{\"sizeX\":10,\"sizeY\":15,\"towns\":[{\"position\":{\"x\":2,\"y\":3}," +
+                "\"name\":\"Town1\"},{\"position\":{\"x\":7,\"y\":8},\"name\":\"Town2\"}]," +
+                "\"capitals\":[{\"position\":{\"x\":0,\"y\":0},\"squad\":{\"count\":50,\"morale\":30}," +
+                "\"name\":\"capital1\",\"owner\":{\"name\":\"TestAvatar1\"}},{\"position\":{\"x\":9,\"y\":14}," +
+                "\"squad\":{\"count\":50,\"morale\":30},\"name\":\"capital2\"," +
+                "\"owner\":{\"name\":\"TestAvatar2\"}}]}}");
     }
 
     @Test
@@ -88,6 +90,7 @@ public class MapperTest {
         testTown.setOwner(new UserAvatar((long) 1, "TestOwner"));
         testTown.generateSquads();
         final Create create = new Create(testTown);
-        System.out.println(objectMapper.writeValueAsString(create));
+        assertThat(objectMapper.writeValueAsString(create)).isEqualTo("{\"event\":\"EVENTS.LOGIC.CREATE\"," +
+                "\"payload\":{\"squad\":{\"count\":15,\"morale\":10},\"owner\":{\"name\":\"TestOwner\"}}}");
     }
 }

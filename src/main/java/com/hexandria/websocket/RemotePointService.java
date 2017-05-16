@@ -6,6 +6,7 @@ import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.Game;
 import com.hexandria.mechanics.avatar.UserAvatar;
+import com.hexandria.mechanics.events.game.Start;
 import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -86,6 +87,9 @@ public class RemotePointService {
             avatars.add(new UserAvatar((long) secondUser.getId(), secondUser.getLogin()));
 
             final Game newGame = new Game(new ArrayList<>(avatars));
+            sessions.get(firstUserId).sendMessage(new TextMessage(objectMapper.writeValueAsString(new Start(newGame))));
+            sessions.get(secondUserId).sendMessage(new TextMessage(objectMapper.writeValueAsString(new Start(newGame))));
+            
             games.add(newGame);
             gameMap.put((long) firstUser.getId(), newGame);
             gameMap.put((long) secondUser.getId(), newGame);

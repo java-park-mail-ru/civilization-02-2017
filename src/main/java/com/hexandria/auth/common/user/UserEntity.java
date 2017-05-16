@@ -72,9 +72,7 @@ public class UserEntity {
         if (!Objects.equals(id, that.id)) return false;
         if (login != null ? !login.equals(that.login) : that.login != null) return false;
         if (password != null ? !password.equals(that.password) : that.password != null) return false;
-        if (email != null ? !email.equals(that.email) : that.email != null) return false;
-
-        return true;
+        return email != null ? email.equals(that.email) : that.email == null;
     }
 
     @Override
