@@ -84,12 +84,6 @@ public class Game {
         map[9][14] = new Capital(new Coordinates(9, 14), "capital2", players.get(1));
         map[2][3] = new Town(new Coordinates(2, 3), "Town1");
         map[7][8] = new Town(new Coordinates(7, 8), "Town2");
-        map[2][1].setSquad(new Squad(10, 5, players.get(0)));
-        map[1][1].setSquad(new Squad(20, 11, players.get(0)));
-        map[3][4].setSquad(new Squad(17, 20, players.get(1)));
-        map[4][4].setSquad(new Squad(50, 10, players.get(1)));
-        map[3][4].setSquad(new Squad(17, 20, players.get(1)));
-        map[5][5].setSquad(new Squad(41, 7, players.get(1)));
         this.players = players;
     }
 

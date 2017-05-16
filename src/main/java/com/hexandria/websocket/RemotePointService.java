@@ -89,7 +89,7 @@ public class RemotePointService {
             final Game newGame = new Game(new ArrayList<>(avatars));
             sessions.get(firstUserId).sendMessage(new TextMessage(objectMapper.writeValueAsString(new Start(newGame))));
             sessions.get(secondUserId).sendMessage(new TextMessage(objectMapper.writeValueAsString(new Start(newGame))));
-            
+
             games.add(newGame);
             gameMap.put((long) firstUser.getId(), newGame);
             gameMap.put((long) secondUser.getId(), newGame);
