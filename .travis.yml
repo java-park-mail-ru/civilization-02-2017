@@ -1,20 +1,15 @@
 language: java
 jdk:
   - oraclejdk8
+addons:
+  postgresql: "9.5"
+sudo: required
 
-branches:
-  only:
-  - databases
+services:
+  - postgresql
 
-deploy:
-  provider: heroku
-  api_key:
-    secure: 544077cd-76a1-4d75-9548-5bf338e88bca
-  app: hexandria-tp
-  on:
-    repo: Intaco/civilization-02-2017
-    branch: databases
-  skip_cleanup: true
+before_install:
+  - psql -c 'create database hexandriaTest' -U postgres
 
 install:
-- mvn clean install
+  - mvn clean install

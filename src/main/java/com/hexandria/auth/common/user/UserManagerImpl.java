@@ -4,7 +4,6 @@ import com.hexandria.auth.ErrorState;
 import com.hexandria.auth.common.AuthData;
 import com.hexandria.auth.common.ChangePasswordData;
 import com.hexandria.auth.common.ErrorResponse;
-import com.hexandria.auth.utils.PersistenceManager;
 import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,8 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,22 +23,14 @@ import static com.hexandria.auth.utils.RequestValidator.isValidEmailAddress;
 @Service
 public class UserManagerImpl implements UserManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
-    private EntityManager entityManager;
+    @PersistenceContext
+    protected EntityManager entityManager;
 
     @Override
     public void updateUser(@NotNull UserEntity userEntity) {
-        final EntityTransaction tx = entityManager.getTransaction();
-        try {
-            tx.begin();
-            entityManager.merge(userEntity);
-            tx.commit();
-        }
-        catch (Throwable e){
-            tx.rollback();
-            throw e;
-        }
+        entityManager.merge(userEntity);
     }
 
     @Override
@@ -72,6 +63,7 @@ public class UserManagerImpl implements UserManager {
 
         return errors;
     }
+
     @Override
     @Nullable
     public UserEntity getUserById(@NotNull Integer id) {
@@ -86,22 +78,14 @@ public class UserManagerImpl implements UserManager {
             user = (UserEntity) entityManager.
                     createQuery("select u from UserEntity u where u.login = :login").setParameter("login", login).getSingleResult();
         } catch (NoResultException e) {
-            logger.info("no entity found for login {}", login);
+            LOGGER.info("no entity found for login {}", login);
         }
         return user;
     }
 
     @Override
     public UserEntity createUser(@NotNull UserEntity userEntity) {
-        final EntityTransaction tx = entityManager.getTransaction();
-        try {
-            tx.begin();
-            entityManager.persist(userEntity);
-            tx.commit();
-        } catch (Throwable e) {
-            tx.rollback();
-            throw e;
-        }
+        entityManager.persist(userEntity);
         return userEntity;
     }
 
@@ -114,6 +98,11 @@ public class UserManagerImpl implements UserManager {
     public List<ErrorResponse> register(@NotNull AuthData credentials) {
 
         final List<ErrorResponse> errors = new ArrayList<>();
+
+        if(credentials.getLogin() == null || credentials.getPassword() == null || credentials.getPassword() == null){
+            errors.add(new ErrorResponse("Incorrect JSON", ErrorState.BAD_REQUEST));
+            return errors;
+        }
 
         if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getEmail()) || StringUtils.isEmpty(credentials.getPassword())) {
             errors.add(new ErrorResponse("Empty credentials", ErrorState.BAD_REQUEST));
@@ -158,7 +147,12 @@ public class UserManagerImpl implements UserManager {
         return Either.left(user); //wont be reached if null
     }
 
-    public UserManagerImpl() {
-        entityManager = PersistenceManager.getEm();
+    @Override
+    public void deleteUser(String login) {
+        final UserEntity user = getUserByLogin(login);
+        if (user != null) { //TODO else throw error?
+            entityManager.remove(user);
+        }
     }
+
 }

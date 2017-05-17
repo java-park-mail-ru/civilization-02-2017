@@ -1,0 +1,30 @@
+package com.hexandria.mechanics.base;
+
+/**
+ * Created by root on 23.04.17.
+ */
+public class Ceil {
+    private Coordinates position;
+    public Squad squad;
+
+    public Ceil(Coordinates position){
+        this.position = position;
+        this.squad = null;
+    }
+
+    public Squad getSquad() {
+        return squad;
+    }
+
+    public void setSquad(Squad squad) {
+        this.squad = squad;
+    }
+
+    public void setPosition(Coordinates coordinates){
+        this.position = coordinates;
+    }
+
+    public Coordinates getPosition(){
+        return position;
+    }
+}

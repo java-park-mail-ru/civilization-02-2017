@@ -3,21 +3,32 @@ package com.hexandria.auth.common.user;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 
 @Entity
 @Table(name = "users", schema = "public", catalog = "hexandria")
 public class UserEntity {
     @JsonIgnore
-    private int id;
+    @Id
+    @Column(name = "id", unique = true, columnDefinition = "SERIAL")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Basic
+    @Column(name = "login")
     private String login;
+
     @JsonIgnore
+    @Basic
+    @Column(name = "password")
     private String password;
+
+    @Basic
+    @Column(name = "email")
     private String email;
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+
     public int getId() {
         return id;
     }
@@ -26,8 +37,6 @@ public class UserEntity {
         this.id = id;
     }
 
-    @Basic
-    @Column(name = "login")
     public String getLogin() {
         return login;
     }
@@ -36,8 +45,6 @@ public class UserEntity {
         this.login = login;
     }
 
-    @Basic
-    @Column(name = "password")
     public String getPassword() {
         return password;
     }
@@ -46,8 +53,6 @@ public class UserEntity {
         this.password = password;
     }
 
-    @Basic
-    @Column(name = "email")
     public String getEmail() {
         return email;
     }
@@ -56,7 +61,7 @@ public class UserEntity {
         this.email = email;
     }
 
-    @SuppressWarnings("All")
+    @SuppressWarnings("OverlyComplexMethod")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,12 +69,10 @@ public class UserEntity {
 
         final UserEntity that = (UserEntity) o;
 
-        if (id != that.id) return false;
+        if (!Objects.equals(id, that.id)) return false;
         if (login != null ? !login.equals(that.login) : that.login != null) return false;
         if (password != null ? !password.equals(that.password) : that.password != null) return false;
-        if (email != null ? !email.equals(that.email) : that.email != null) return false;
-
-        return true;
+        return email != null ? email.equals(that.email) : that.email == null;
     }
 
     @Override
