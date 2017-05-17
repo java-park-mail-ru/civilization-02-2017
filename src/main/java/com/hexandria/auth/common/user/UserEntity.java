@@ -3,6 +3,7 @@ package com.hexandria.auth.common.user;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 
 @Entity
@@ -60,7 +61,7 @@ public class UserEntity {
         this.email = email;
     }
 
-    @SuppressWarnings("All")
+    @SuppressWarnings("OverlyComplexMethod")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -68,12 +69,10 @@ public class UserEntity {
 
         final UserEntity that = (UserEntity) o;
 
-        if (id != that.id) return false;
+        if (!Objects.equals(id, that.id)) return false;
         if (login != null ? !login.equals(that.login) : that.login != null) return false;
         if (password != null ? !password.equals(that.password) : that.password != null) return false;
-        if (email != null ? !email.equals(that.email) : that.email != null) return false;
-
-        return true;
+        return email != null ? email.equals(that.email) : that.email == null;
     }
 
     @Override

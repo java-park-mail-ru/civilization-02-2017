@@ -5,8 +5,8 @@ import com.hexandria.auth.common.AuthData;
 import com.hexandria.auth.common.ChangePasswordData;
 import com.hexandria.auth.common.ErrorResponse;
 import com.hexandria.auth.common.SuccessResponseMessage;
-import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.auth.common.user.UserEntity;
+import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.auth.utils.RequestValidator;
 import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
@@ -27,12 +27,12 @@ import java.util.List;
 @Transactional
 public class UserController {
 
-    Logger logger = LoggerFactory.getLogger(UserController.class);
+    final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @NotNull
     private final UserManager userManager;
 
-    @RequestMapping(path = "/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @PostMapping(path = "/signup")
     public ResponseEntity register(@RequestBody AuthData credentials, HttpSession httpSession) {
         logger.debug("/signup called with login: {}", credentials.getLogin());
         final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
@@ -46,7 +46,7 @@ public class UserController {
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully registered user"));
     }
 
-    @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @PostMapping(path = "/login")
     public ResponseEntity login(@RequestBody AuthData credentials, HttpSession httpSession) {
         logger.debug("/login called with login: {}", credentials.getLogin());
         final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
@@ -59,10 +59,11 @@ public class UserController {
         }
         final UserEntity userEntity = result.getLeft();
         httpSession.setAttribute(httpSession.getId(), userEntity.getLogin());
+        httpSession.setAttribute("userId", userEntity.getId());
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully authorized user " + userEntity.getLogin()));
     }
 
-    @RequestMapping(path = "/logout", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @PostMapping(path = "/logout")
     public ResponseEntity logout(HttpSession httpSession) {
         logger.debug("/logout called for id: {}", httpSession.getId());
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
@@ -74,7 +75,7 @@ public class UserController {
     }
 
     // change password
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @PostMapping
     public ResponseEntity changePassword(@RequestBody ChangePasswordData credentials, HttpSession httpSession) {
         logger.debug("/user-change-pass called");
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
@@ -88,7 +89,7 @@ public class UserController {
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully changed password for user "+credentials.getLogin()));
     }
     //get logged user data
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @GetMapping
     public ResponseEntity getCurrentUser(HttpSession httpSession){
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError != null) {
@@ -102,7 +103,7 @@ public class UserController {
         return ResponseEntity.ok(result);
     }
     // delete user
-    @RequestMapping(path = "/delete", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @PostMapping(path = "/delete")
     public ResponseEntity deleteUser(HttpSession httpSession){
         final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError != null) {
