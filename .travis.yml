@@ -8,8 +8,8 @@ sudo: required
 services:
   - postgresql
 
-before_install:
-  - psql -c 'create database hexandriaTest' -U postgres
+before_script:
+  - psql -c "create user admin with superuser password '123456789';" -U postgres
+  - psql -c 'create database hexandriatest' -U postgres
+  - psql -c "grant all on database hexandriatest to admin;" -U postgres
 
-install:
-  - mvn clean install

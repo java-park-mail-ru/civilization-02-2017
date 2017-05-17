@@ -16,6 +16,7 @@ import com.hexandria.mechanics.events.service.Ping;
 import com.hexandria.websocket.Message;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -70,16 +71,16 @@ public class MapperTest {
 
     @Test
     public void testStart() throws JsonProcessingException {
-        @SuppressWarnings("unchecked") final List<UserAvatar> avatars = new LinkedList();
+        final List<UserAvatar> avatars = new ArrayList<>();
         avatars.add(new UserAvatar(1L, "TestAvatar1"));
         avatars.add(new UserAvatar(2L, "TestAvatar2"));
         final Game game = new Game(avatars);
         final Start start = new Start(game);
-        assertThat(objectMapper.writeValueAsString(start)).isEqualTo("{\"{\"event\":\"EVENTS.GAME.START\"," +
+        assertThat(objectMapper.writeValueAsString(start)).isEqualTo("{\"event\":\"EVENTS.GAME.START\"," +
                 "\"payload\":{\"sizeX\":10,\"sizeY\":15,\"towns\":[{\"position\":{\"x\":2,\"y\":3}," +
                 "\"name\":\"Town1\"},{\"position\":{\"x\":7,\"y\":8},\"name\":\"Town2\"}]," +
                 "\"capitals\":[{\"position\":{\"x\":0,\"y\":0},\"squad\":{\"count\":50,\"morale\":30}," +
-                "\"name\":\"capital1\",\"owner\":{\"name\":\"TestAvatar1\"}},{\"position\":{\"x\":9,\"y\":14}," +
+                "\"name\":\"capital1\",\"owner\":{\"name\":\"TestAvatar1\"}},{\"position\":{\"x\":8,\"y\":13}," +
                 "\"squad\":{\"count\":50,\"morale\":30},\"name\":\"capital2\"," +
                 "\"owner\":{\"name\":\"TestAvatar2\"}}]}}");
     }
