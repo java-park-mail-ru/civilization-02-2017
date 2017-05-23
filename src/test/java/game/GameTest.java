@@ -1,7 +1,7 @@
 package game;
 
 import com.hexandria.mechanics.Game;
-import com.hexandria.mechanics.avatar.UserAvatar;
+import com.hexandria.mechanics.avatar.GameAvatar;
 import com.hexandria.mechanics.base.Squad;
 import org.junit.Test;
 
@@ -16,9 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GameTest {
     @Test
     public void mergeTest(){
-        final List<UserAvatar> players = new LinkedList<>();
-        players.add(new UserAvatar((long) 1, "User1"));
-        players.add(new UserAvatar((long) 2, "User2"));
+        final List<GameAvatar> players = new LinkedList<>();
+        players.add(new GameAvatar((long) 1, "User1"));
+        players.add(new GameAvatar((long) 2, "User2"));
         final Game game = new Game(players);
         game.getMap()[2][1].setSquad(new Squad(15, 15, players.get(0)));
         game.getMap()[1][1].setSquad(new Squad(15, 15, players.get(1)));

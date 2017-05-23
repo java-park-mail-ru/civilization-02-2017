@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.Game;
-import com.hexandria.mechanics.avatar.UserAvatar;
+import com.hexandria.mechanics.avatar.GameAvatar;
+import com.hexandria.mechanics.events.game.GameResult;
 import com.hexandria.mechanics.events.game.Start;
 import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -51,11 +51,9 @@ public class RemotePointService {
         final Game game = gameMap.get(userID);
         final List<Message> responces = game.interact(message);
         for(Message responce : responces) {
-            final String jsonResponce = objectMapper.writeValueAsString(responce);
-            final WebSocketMessage webMessage = new TextMessage(jsonResponce);
             for (Map.Entry<Long, Game> entry : gameMap.entrySet()) {
-                if (Objects.equals(entry.getValue(), game)) {
-                    sessions.get(entry.getKey()).sendMessage(webMessage);
+                if (Objects.equals(entry.getValue(), game) && isConnected(entry.getKey())) {
+                    sendMessageToUser(entry.getKey(), responce);
                 }
             }
         }
@@ -82,21 +80,20 @@ public class RemotePointService {
             final UserEntity firstUser = manager.getUserById(firstUserId.intValue());
             final UserEntity secondUser = manager.getUserById(secondUserId.intValue());
 
-            final List<UserAvatar> avatars = new ArrayList<>();
-            avatars.add(new UserAvatar((long) firstUser.getId(), firstUser.getLogin()));
-            avatars.add(new UserAvatar((long) secondUser.getId(), secondUser.getLogin()));
+            final List<GameAvatar> avatars = new ArrayList<>();
+            avatars.add(new GameAvatar((long) firstUser.getId(), firstUser.getLogin()));
+            avatars.add(new GameAvatar((long) secondUser.getId(), secondUser.getLogin()));
 
             final Game newGame = new Game(new ArrayList<>(avatars));
-            sessions.get(firstUserId).sendMessage(new TextMessage(objectMapper.writeValueAsString(new Start(newGame))));
-            sessions.get(secondUserId).sendMessage(new TextMessage(objectMapper.writeValueAsString(new Start(newGame))));
+            sendMessageToUser(firstUserId, new Start(newGame));
+            sendMessageToUser(secondUserId, new Start(newGame));
 
             games.add(newGame);
             gameMap.put((long) firstUser.getId(), newGame);
             gameMap.put((long) secondUser.getId(), newGame);
 
-            waiters.remove(1L);
-            waiters.remove(0L);
-        } else {
+        }
+        else {
             webSocketSession.sendMessage(
                     new TextMessage(objectMapper.writeValueAsString(
                             singletonMap("message", "waiting for new users")
@@ -109,15 +106,33 @@ public class RemotePointService {
         return sessions.containsKey(userId) && sessions.get(userId).isOpen();
     }
 
-    public void removeUser(Long userId) {
-        sessions.remove(userId);
-    }
-
     public void cutDownConnection(Long userId, @NotNull CloseStatus closeStatus) {
         final WebSocketSession webSocketSession = sessions.get(userId);
         if (webSocketSession != null && webSocketSession.isOpen()) {
             try {
-                webSocketSession.close(closeStatus);
+                Game userGame = gameMap.get(userId);
+                for(Map.Entry<Long, Game> entry : gameMap.entrySet()){
+                    if(entry.getValue() == userGame){
+                        GameAvatar winner;
+                        GameAvatar loser;
+
+                        if(userGame.getPlayers().get(0).getId() == userId){
+                            winner = userGame.getPlayers().get(1);
+                            loser = userGame.getPlayers().get(0);
+                        }
+                        else{
+                            winner = userGame.getPlayers().get(0);
+                            loser = userGame.getPlayers().get(1);
+                        }
+
+                        sendMessageToUser(entry.getKey(), new GameResult(
+                                winner, loser, "Your opponent disconnected"
+                        ));
+                        sessions.get(entry.getKey()).close();
+                        sessions.remove(userId);
+                    }
+                }
+                gameMap.remove(userGame);
             } catch (IOException ignore) {
             }
         }

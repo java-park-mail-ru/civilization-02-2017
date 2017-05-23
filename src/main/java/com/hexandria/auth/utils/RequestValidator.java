@@ -12,14 +12,14 @@ public class RequestValidator {
     @Nullable
     public static ErrorResponse validateNotAuthorizedSession(HttpSession session) {
         if (session.getAttribute(session.getId()) != null) {
-            return new ErrorResponse("UserEntity already authorized in this session", ErrorState.FORBIDDEN);
+            return new ErrorResponse("GameAvatar already authorized in this session", ErrorState.FORBIDDEN);
         }
         return null;
     }
     @Nullable
     public static ErrorResponse validateAlreadyAuthorizedSession(HttpSession session) {
         if (session.getAttribute(session.getId()) == null) {
-            return new ErrorResponse("UserEntity not authorized in this session!", ErrorState.FORBIDDEN);
+            return new ErrorResponse("GameAvatar not authorized in this session!", ErrorState.FORBIDDEN);
         }
         return null;
     }

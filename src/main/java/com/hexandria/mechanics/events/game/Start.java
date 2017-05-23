@@ -24,12 +24,10 @@ public class Start extends Message {
         public final int sizeY;
         public final List<Town> towns;
         public final List<Capital> capitals;
-//        public List<Squad> squads;
 
         public Payload(Game game){
             this.towns = new LinkedList<>();
             this.capitals = new LinkedList<>();
-//            this.squads = new LinkedList<>();
             this.sizeX = game.getSizeX();
             this.sizeY = game.getSizeY();
             final Ceil[][] map = game.getMap();
@@ -42,9 +40,6 @@ public class Start extends Message {
                     else if(map[i][j].getClass() == Capital.class){
                         capitals.add((Capital)map[i][j]);
                     }
-//                    if(map[i][j].getSquad() != null){
-//                        squads.add(map[i][j].getSquad());
-//                    }
                 }
             }
         }

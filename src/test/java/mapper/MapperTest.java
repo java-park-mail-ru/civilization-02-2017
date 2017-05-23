@@ -3,7 +3,8 @@ package mapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.mechanics.Game;
-import com.hexandria.mechanics.avatar.UserAvatar;
+import com.hexandria.mechanics.avatar.GameAvatar;
+import com.hexandria.mechanics.base.Capital;
 import com.hexandria.mechanics.base.Coordinates;
 import com.hexandria.mechanics.base.Town;
 import com.hexandria.mechanics.events.game.Start;
@@ -17,7 +18,6 @@ import com.hexandria.websocket.Message;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,9 +71,9 @@ public class MapperTest {
 
     @Test
     public void testStart() throws JsonProcessingException {
-        final List<UserAvatar> avatars = new ArrayList<>();
-        avatars.add(new UserAvatar(1L, "TestAvatar1"));
-        avatars.add(new UserAvatar(2L, "TestAvatar2"));
+        final List<GameAvatar> avatars = new ArrayList<>();
+        avatars.add(new GameAvatar(1L, "TestAvatar1"));
+        avatars.add(new GameAvatar(2L, "TestAvatar2"));
         final Game game = new Game(avatars);
         final Start start = new Start(game);
         assertThat(objectMapper.writeValueAsString(start)).isEqualTo("{\"event\":\"EVENTS.GAME.START\"," +
@@ -88,10 +88,14 @@ public class MapperTest {
     @Test
     public void testCreate() throws JsonProcessingException {
         final Town testTown = new Town(new Coordinates(0, 0), "TestTown");
-        testTown.setOwner(new UserAvatar((long) 1, "TestOwner"));
+        final Capital testCapital = new Capital(new Coordinates(0, 1), "TestCapital", new GameAvatar((long) 2, "TestOwner2"));
+        testTown.setOwner(new GameAvatar((long) 1, "TestOwner"));
         testTown.generateSquads();
+        testCapital.setSquad(null);
+        testCapital.generateSquads();
         final Create create = new Create(testTown);
-        assertThat(objectMapper.writeValueAsString(create)).isEqualTo("{\"event\":\"EVENTS.LOGIC.CREATE\"," +
-                "\"payload\":{\"squad\":{\"count\":15,\"morale\":10},\"owner\":{\"name\":\"TestOwner\"}}}");
+        System.out.println(objectMapper.writeValueAsString(create));
+        assertThat(objectMapper.writeValueAsString(create)).isEqualTo("{\"event\":\"EVENTS.LOGIC.CREATE\",\"payload\":{\"count\":15,\"morale\":10,\"owner\":\"TestOwner\",\"position\":{\"x\":0,\"y\":0}}}");
+        assertThat(objectMapper.writeValueAsString(new Create(testCapital))).isEqualTo("{\"event\":\"EVENTS.LOGIC.CREATE\",\"payload\":{\"count\":50,\"morale\":30,\"owner\":\"TestOwner2\",\"position\":{\"x\":0,\"y\":1}}}");
     }
 }

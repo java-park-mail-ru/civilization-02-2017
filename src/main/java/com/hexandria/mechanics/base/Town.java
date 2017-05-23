@@ -2,7 +2,7 @@ package com.hexandria.mechanics.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.hexandria.mechanics.avatar.UserAvatar;
+import com.hexandria.mechanics.avatar.GameAvatar;
 
 /**
  * Created by root on 23.04.17.
@@ -10,11 +10,13 @@ import com.hexandria.mechanics.avatar.UserAvatar;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Town extends Ceil {
 
-    private static final int troopsGenerated = 15;
-    private static final int moraleGenerated = 10;
+    @JsonIgnore
+    public int TROOPS_GENERATED = 15;
+    @JsonIgnore
+    public int MORALE_GENERATED = 10;
     private String name;
 
-    public UserAvatar owner;
+    public GameAvatar owner;
 
     public Town(Coordinates position, String name){
         super(position);
@@ -24,12 +26,12 @@ public class Town extends Ceil {
 
     @JsonIgnore
     public int getTroopsGenerated() {
-        return troopsGenerated;
+        return TROOPS_GENERATED;
     }
 
     @JsonIgnore
     public int getMoraleGenerated() {
-        return moraleGenerated;
+        return MORALE_GENERATED;
     }
 
     public String getName() {
@@ -40,23 +42,23 @@ public class Town extends Ceil {
         this.name = name;
     }
 
-    public UserAvatar getOwner() {
+    public GameAvatar getOwner() {
         return owner;
     }
 
-    public void setOwner(UserAvatar owner) {
+    public void setOwner(GameAvatar owner) {
         this.owner = owner;
     }
 
-    public void generateSquads(){
+    public void generateSquads(){//Will return message, create or update
         if(this.owner == null){return;}
 
         if (squad == null){
-            squad = new Squad(troopsGenerated, moraleGenerated, owner);
+            squad = new Squad(getTroopsGenerated(), getMoraleGenerated(), owner);
         }
         else{
-            squad.setCount(squad.getCount() + troopsGenerated);
-            squad.setMorale(squad.getMorale() + moraleGenerated);
+            squad.setCount(squad.getCount() + getTroopsGenerated());
+            squad.setMorale(squad.getMorale() + getMoraleGenerated());
         }
     }
 

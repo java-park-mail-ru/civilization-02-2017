@@ -1,6 +1,8 @@
 package com.hexandria.mechanics;
 
-import com.hexandria.mechanics.avatar.UserAvatar;
+
+//TODO Remove hardcode from map generation
+import com.hexandria.mechanics.avatar.GameAvatar;
 import com.hexandria.mechanics.base.*;
 import com.hexandria.mechanics.events.logic.AttackTown;
 import com.hexandria.mechanics.events.logic.Delete;
@@ -17,7 +19,7 @@ import java.util.Objects;
  */
 @SuppressWarnings({"MagicNumber"})
 public class Game {
-    private final List<UserAvatar> players;
+    private final List<GameAvatar> players;
     private int sizeX;
     private int sizeY;
     private final Ceil[][] map;
@@ -43,35 +45,35 @@ public class Game {
         this.sizeY = sizeY;
     }
 
-    public List<UserAvatar> getPlayers() {
+    public List<GameAvatar> getPlayers() {
         return players;
     }
+//
+//    public Game(int sizeX, int sizeY, List<GameAvatar> avatars){
+//        this.sizeX = sizeX;
+//        this.sizeY = sizeY;
+//        this.players = avatars;
+//        this.map = new Ceil[sizeX][sizeY];
+//
+//        for(int i = 0; i < sizeX; ++i){
+//            for(int j = 0; j < sizeY; ++j){
+//                final Coordinates coordinates = new Coordinates(i, j);
+//                if(i == j){
+//                    this.map[i][j] = new Town(coordinates, "Town" + (i * sizeX + j));
+//                }
+//                else{
+//                    this.map[i][j] = new Ceil(coordinates);
+//                }
+//            }
+//        }
+//        this.map[0][0] = new Capital(new Coordinates(0, 0), "Capital1", players.get(0));
+//        this.map[sizeX - 1][sizeY - 1] = new Capital(
+//                new Coordinates(sizeX - 1, sizeY - 1),
+//                "Capital2",
+//                players.get(2));
+//    }
 
-    public Game(int sizeX, int sizeY, List<UserAvatar> avatars){
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
-        this.players = avatars;
-        this.map = new Ceil[sizeX][sizeY];
-
-        for(int i = 0; i < sizeX; ++i){
-            for(int j = 0; j < sizeY; ++j){
-                final Coordinates coordinates = new Coordinates(i, j);
-                if(i == j){
-                    this.map[i][j] = new Town(coordinates, "Town" + (i * sizeX + j));
-                }
-                else{
-                    this.map[i][j] = new Ceil(coordinates);
-                }
-            }
-        }
-        this.map[0][0] = new Capital(new Coordinates(0, 0), "Capital1", players.get(0));
-        this.map[sizeX - 1][sizeY - 1] = new Capital(
-                new Coordinates(sizeX - 1, sizeY - 1),
-                "Capital2",
-                players.get(2));
-    }
-
-    public Game(List<UserAvatar> players){
+    public Game(List<GameAvatar> players){
         this.sizeX = 10;
         this.sizeY = 15;
         this.map = new Ceil[sizeX][sizeY];
@@ -94,7 +96,7 @@ public class Game {
             final Ceil fromCeil = map[move.getFrom().getX()][move.getFrom().getY()];
 
             if(toCeil.getSquad() == null && toCeil.getClass() == Ceil.class){
-                return move(move, fromCeil, toCeil);
+                return move(fromCeil, toCeil);
             }
 
             else if(toCeil.getSquad() == null && toCeil.getClass() == Town.class){
@@ -105,7 +107,7 @@ public class Game {
                 return mergeSquads(fromCeil, toCeil);
             }
             else if(!Objects.equals(toCeil.getSquad().getOwner(), fromCeil.getSquad().getOwner())){
-                return fight(move, fromCeil, toCeil);
+                return fight(fromCeil, toCeil);
             }
             else
                 return null;
@@ -127,7 +129,7 @@ public class Game {
         return messages;
     }
 
-    public List<Message> fight(Move move, Ceil fromCeil, Ceil toCeil){
+    public List<Message> fight(Ceil fromCeil, Ceil toCeil){
         final List<Message> events = new LinkedList<>();
         //Attacker lost
         if(fromCeil.getSquad().getCount() < toCeil.getSquad().getCount()){
@@ -155,6 +157,7 @@ public class Game {
                     toCeil.getPosition(),
                     toCeil.getSquad().getCount(),
                     toCeil.getSquad().getMorale()));
+            //If attacker attacked town - set new owner of town;
             if(toCeil.getClass() == Town.class){
                 final Town capturedTown = (Town) toCeil;
                 capturedTown.setOwner(fromSquad.getOwner());
@@ -184,7 +187,7 @@ public class Game {
         return events;
     }
 
-    public List<Message> move(Move move, Ceil fromCeil, Ceil toCeil){
+    public List<Message> move(Ceil fromCeil, Ceil toCeil){
         final Squad moveableSquad = fromCeil.getSquad();
         toCeil.setSquad(moveableSquad);
         final List<Message> events = new LinkedList<>();

@@ -9,14 +9,14 @@ import com.hexandria.mechanics.base.Capital;
  * Created by root on 23.04.17.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserAvatar {
+public class GameAvatar {
     @JsonIgnore
     private Long id;
     private String name;
     @JsonIgnore
     private Capital capitalCity;
 
-    public UserAvatar(Long id, String name){
+    public GameAvatar(Long id, String name){
         this.id = id;
         this.name = name;
     }
