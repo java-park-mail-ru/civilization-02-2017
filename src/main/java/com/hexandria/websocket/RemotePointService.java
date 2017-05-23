@@ -52,9 +52,63 @@ public class RemotePointService {
         final List<Message> responces = game.interact(message);
         for(Message responce : responces) {
             for (Map.Entry<Long, Game> entry : gameMap.entrySet()) {
+                if(responce.getClass() == GameResult.class){
+                    finishGame(game, (GameResult) responce);
+                    return;
+                }
                 if (Objects.equals(entry.getValue(), game) && isConnected(entry.getKey())) {
                     sendMessageToUser(entry.getKey(), responce);
                 }
+            }
+        }
+    }
+
+    public void finishGame(Game game, GameResult gameResult) throws IOException {
+        final Long winnerId = gameResult.payload.winner.getId();
+        final Long loserId = gameResult.payload.loser.getId();
+        sendMessageToUser(winnerId, gameResult);
+        sendMessageToUser(loserId, gameResult);
+        sessions.get(winnerId).close();
+        sessions.get(loserId).close();
+        sessions.remove(winnerId);
+        sessions.remove(loserId);
+        games.remove(game);
+        gameMap.remove(loserId);
+        gameMap.remove(winnerId);
+    }
+
+    public void disconnectedHandler(Long userId, @NotNull CloseStatus closeStatus) {
+        final WebSocketSession webSocketSession = sessions.get(userId);
+
+        if (webSocketSession != null && webSocketSession.isOpen()) {
+            try {
+                Game userGame = gameMap.get(userId);
+                for(Map.Entry<Long, Game> entry : gameMap.entrySet()){
+                    if(entry.getValue() == userGame){
+                        GameAvatar winner;
+                        GameAvatar loser;
+
+                        if(userGame.getPlayers().get(0).getId() == userId){
+                            winner = userGame.getPlayers().get(1);
+                            loser = userGame.getPlayers().get(0);
+                        }
+                        else{
+                            winner = userGame.getPlayers().get(0);
+                            loser = userGame.getPlayers().get(1);
+                        }
+
+                        sendMessageToUser(entry.getKey(), new GameResult(
+                                winner, loser, "Your opponent disconnected"
+                        ));
+                        sessions.get(entry.getKey()).close();
+                        sessions.remove(userId);
+                        gameMap.remove(winner.getId());
+                        gameMap.remove(loser.getId());
+                        break;
+                    }
+                }
+                games.remove(userGame);
+            } catch (IOException ignore) {
             }
         }
     }
@@ -104,38 +158,6 @@ public class RemotePointService {
 
     public boolean isConnected(Long userId) {
         return sessions.containsKey(userId) && sessions.get(userId).isOpen();
-    }
-
-    public void cutDownConnection(Long userId, @NotNull CloseStatus closeStatus) {
-        final WebSocketSession webSocketSession = sessions.get(userId);
-        if (webSocketSession != null && webSocketSession.isOpen()) {
-            try {
-                Game userGame = gameMap.get(userId);
-                for(Map.Entry<Long, Game> entry : gameMap.entrySet()){
-                    if(entry.getValue() == userGame){
-                        GameAvatar winner;
-                        GameAvatar loser;
-
-                        if(userGame.getPlayers().get(0).getId() == userId){
-                            winner = userGame.getPlayers().get(1);
-                            loser = userGame.getPlayers().get(0);
-                        }
-                        else{
-                            winner = userGame.getPlayers().get(0);
-                            loser = userGame.getPlayers().get(1);
-                        }
-
-                        sendMessageToUser(entry.getKey(), new GameResult(
-                                winner, loser, "Your opponent disconnected"
-                        ));
-                        sessions.get(entry.getKey()).close();
-                        sessions.remove(userId);
-                    }
-                }
-                gameMap.remove(userGame);
-            } catch (IOException ignore) {
-            }
-        }
     }
 
     public void sendMessageToUser(Long userId, @NotNull Message message) throws IOException {

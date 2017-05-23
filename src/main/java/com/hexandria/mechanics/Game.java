@@ -4,6 +4,7 @@ package com.hexandria.mechanics;
 //TODO Remove hardcode from map generation
 import com.hexandria.mechanics.avatar.GameAvatar;
 import com.hexandria.mechanics.base.*;
+import com.hexandria.mechanics.events.game.GameResult;
 import com.hexandria.mechanics.events.logic.AttackTown;
 import com.hexandria.mechanics.events.logic.Delete;
 import com.hexandria.mechanics.events.logic.Move;
@@ -48,30 +49,6 @@ public class Game {
     public List<GameAvatar> getPlayers() {
         return players;
     }
-//
-//    public Game(int sizeX, int sizeY, List<GameAvatar> avatars){
-//        this.sizeX = sizeX;
-//        this.sizeY = sizeY;
-//        this.players = avatars;
-//        this.map = new Ceil[sizeX][sizeY];
-//
-//        for(int i = 0; i < sizeX; ++i){
-//            for(int j = 0; j < sizeY; ++j){
-//                final Coordinates coordinates = new Coordinates(i, j);
-//                if(i == j){
-//                    this.map[i][j] = new Town(coordinates, "Town" + (i * sizeX + j));
-//                }
-//                else{
-//                    this.map[i][j] = new Ceil(coordinates);
-//                }
-//            }
-//        }
-//        this.map[0][0] = new Capital(new Coordinates(0, 0), "Capital1", players.get(0));
-//        this.map[sizeX - 1][sizeY - 1] = new Capital(
-//                new Coordinates(sizeX - 1, sizeY - 1),
-//                "Capital2",
-//                players.get(2));
-//    }
 
     public Game(List<GameAvatar> players){
         this.sizeX = 10;
@@ -83,6 +60,7 @@ public class Game {
             }
         }
         map[0][0] = new Capital(new Coordinates(0, 0), "capital1", players.get(0));
+        map[0][0].getSquad().setCount(40);
         map[8][13] = new Capital(new Coordinates(8, 13), "capital2", players.get(1));
         map[2][3] = new Town(new Coordinates(2, 3), "Town1");
         map[7][8] = new Town(new Coordinates(7, 8), "Town2");
@@ -109,9 +87,14 @@ public class Game {
             else if(!Objects.equals(toCeil.getSquad().getOwner(), fromCeil.getSquad().getOwner())){
                 return fight(fromCeil, toCeil);
             }
-            else
+            else if(toCeil.getClass() == Capital.class && ((Capital)toCeil).getOwner() != fromCeil.getSquad().getOwner()){
+                List<Message> events = new LinkedList<>();
+                events.add(new GameResult(fromCeil.getSquad().getOwner(), toCeil.getSquad().getOwner(), "Capital captured"));
+                return events;
+            }
+            else {
                 return null;
-
+            }
         }
         else{
             return null;
@@ -126,6 +109,7 @@ public class Game {
         List<Message> messages = new LinkedList<>();
         messages.add(new AttackTown(toCeil.getPosition(), toCeil.getSquad().getOwner()));
         messages.add(new Update(fromCeil.getPosition(), toCeil.getPosition(), null, null));
+        toCeil.getSquad().setMoved(true);
         return messages;
     }
 
@@ -150,7 +134,12 @@ public class Game {
             final Squad fromSquad = fromCeil.getSquad();
             fromCeil.setSquad(null);
             toCeil.setSquad(fromSquad);
-            toCeil.getSquad().setCount(fromCeil.getSquad().getCount() - toSquad.getCount());
+            toCeil.getSquad().setCount(fromSquad.getCount() - toSquad.getCount());
+            toCeil.getSquad().setMoved(true);
+            if(toCeil.getClass() == Capital.class){
+                events.add(new GameResult(fromSquad.getOwner(), toSquad.getOwner(), "Capital captured"));
+                return events;
+            }
             events.add(new Delete(toCeil.getPosition()));
             events.add(new Update(
                     fromCeil.getPosition(),
@@ -178,6 +167,7 @@ public class Game {
         final Squad fromSquad = fromCeil.getSquad();
         fromCeil.setSquad(null);
         toCeil.getSquad().mergeSquads(fromSquad);
+        toCeil.getSquad().setMoved(true);
         final List<Message> events = new LinkedList<>();
         events.add(new Update(fromCeil.getPosition(),
                 toCeil.getPosition(),
@@ -198,6 +188,7 @@ public class Game {
                 null));
         events.add(new Delete(fromCeil.getPosition()));
         fromCeil.setSquad(null);
+        toCeil.getSquad().setMoved(true);
         return events;
     }
 

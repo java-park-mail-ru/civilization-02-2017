@@ -42,8 +42,8 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         LOGGER.info("Disconnected user with id  " + session.getAttributes().get("userId"));
-        service.cutDownConnection(new Long(session.getAttributes().get("userId").toString()), CloseStatus.NORMAL);
-    }
+        service.disconnectedHandler(new Long(session.getAttributes().get("userId").toString()), CloseStatus.NORMAL);
+        }
 
     @SuppressWarnings("OverlyBroadThrowsClause")
     @Override

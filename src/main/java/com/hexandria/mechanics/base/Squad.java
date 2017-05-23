@@ -10,11 +10,13 @@ public class Squad {
     private int count;
     private int morale;
     private final GameAvatar owner;
+    private boolean isMoved;
 
     public Squad(int count, int morale, GameAvatar owner){
         this.count = count;
         this.morale = morale;
         this.owner = owner;
+        this.isMoved = false;
     }
 
     public void mergeSquads(Squad squad){
@@ -40,5 +42,15 @@ public class Squad {
 
     public void setMorale(int morale) {
         this.morale = morale;
+    }
+
+    @JsonIgnore
+    public void setMoved(boolean isMoved){
+        this.isMoved = isMoved;
+    }
+
+    @JsonIgnore
+    public boolean getMoved(){
+        return isMoved;
     }
 }
