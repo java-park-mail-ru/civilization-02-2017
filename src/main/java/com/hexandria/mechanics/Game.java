@@ -60,7 +60,6 @@ public class Game {
             }
         }
         map[0][0] = new Capital(new Coordinates(0, 0), "capital1", players.get(0));
-        map[0][0].getSquad().setCount(40);
         map[8][13] = new Capital(new Coordinates(8, 13), "capital2", players.get(1));
         map[2][3] = new Town(new Coordinates(2, 3), "Town1");
         map[7][8] = new Town(new Coordinates(7, 8), "Town2");
