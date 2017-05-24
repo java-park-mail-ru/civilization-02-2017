@@ -34,7 +34,7 @@ public class Game {
     }
 
     public void finishTurn() {
-        currentPlayerId += 1 % players.size();
+        currentPlayerId += 1 % (players.size() - 1);
         latestTurnStart.setTime(System.currentTimeMillis());
     }
 

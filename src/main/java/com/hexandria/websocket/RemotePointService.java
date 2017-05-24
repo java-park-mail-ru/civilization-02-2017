@@ -40,18 +40,25 @@ public class RemotePointService {
     private final Queue<Long> waiters = new ConcurrentLinkedDeque<>();
     private final List<Game> games = new ArrayList<>();
     private final Map<Long, Game> gameMap = new ConcurrentHashMap<>();
-    public final static int TURN_DURATION_MILLIS = 60 * 1000;
+    public final static int TURN_DURATION_MILLIS = 10 * 1000;
+    private final Thread dispatcher;
 
     public RemotePointService(@NotNull UserManager manager, @NotNull ObjectMapper objectMapper) {
         this.manager = manager;
         this.objectMapper = objectMapper;
+        this.dispatcher = new Thread(new GameDispatcher());
+        dispatcher.start();
     }
+
     private class GameDispatcher implements Runnable {
         @Override
         public void run() {
-            for (Game game: games){
-                if (game.getLatestTurnStart().getTime() + TURN_DURATION_MILLIS > System.currentTimeMillis()){
-                    game.finishTurn();
+            while(!Thread.currentThread().isInterrupted()) {
+                for (Game game : games) {
+                        if (game.getLatestTurnStart().getTime() + TURN_DURATION_MILLIS > System.currentTimeMillis()) {
+                        LOGGER.warn("Switching game turn on game" + game);
+                        game.finishTurn();
+                    }
                 }
             }
         }
