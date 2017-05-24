@@ -1,7 +1,7 @@
 package com.hexandria.mechanics.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.hexandria.mechanics.avatar.GameAvatar;
+import com.hexandria.mechanics.player.GamePlayer;
 
 /**
  * Created by root on 23.04.17.
@@ -9,10 +9,10 @@ import com.hexandria.mechanics.avatar.GameAvatar;
 public class Squad {
     private int count;
     private int morale;
-    private final GameAvatar owner;
+    private final GamePlayer owner;
     private boolean isMoved;
 
-    public Squad(int count, int morale, GameAvatar owner){
+    public Squad(int count, int morale, GamePlayer owner){
         this.count = count;
         this.morale = morale;
         this.owner = owner;
@@ -24,7 +24,7 @@ public class Squad {
     }
 
     @JsonIgnore
-    public GameAvatar getOwner(){
+    public GamePlayer getOwner(){
         return owner;
     }
 

@@ -2,7 +2,7 @@ package com.hexandria.mechanics.events.game;
 
 import com.hexandria.mechanics.Game;
 import com.hexandria.mechanics.base.Capital;
-import com.hexandria.mechanics.base.Ceil;
+import com.hexandria.mechanics.base.Cell;
 import com.hexandria.mechanics.base.Town;
 import com.hexandria.websocket.Message;
 
@@ -30,7 +30,7 @@ public class Start extends Message {
             this.capitals = new LinkedList<>();
             this.sizeX = game.getSizeX();
             this.sizeY = game.getSizeY();
-            final Ceil[][] map = game.getMap();
+            final Cell[][] map = game.getMap();
             for(int i = 0; i < sizeX; ++ i){
                 for(int j = 0; j < sizeY; ++j){
 

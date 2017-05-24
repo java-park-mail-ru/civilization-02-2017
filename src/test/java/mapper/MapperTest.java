@@ -3,7 +3,7 @@ package mapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.mechanics.Game;
-import com.hexandria.mechanics.avatar.GameAvatar;
+import com.hexandria.mechanics.player.GamePlayer;
 import com.hexandria.mechanics.base.Capital;
 import com.hexandria.mechanics.base.Coordinates;
 import com.hexandria.mechanics.base.Town;
@@ -71,9 +71,9 @@ public class MapperTest {
 
     @Test
     public void testStart() throws JsonProcessingException {
-        final List<GameAvatar> avatars = new ArrayList<>();
-        avatars.add(new GameAvatar(1L, "TestAvatar1"));
-        avatars.add(new GameAvatar(2L, "TestAvatar2"));
+        final List<GamePlayer> avatars = new ArrayList<>();
+        avatars.add(new GamePlayer(1L, "TestAvatar1"));
+        avatars.add(new GamePlayer(2L, "TestAvatar2"));
         final Game game = new Game(avatars);
         final Start start = new Start(game);
         assertThat(objectMapper.writeValueAsString(start)).isEqualTo("{\"event\":\"EVENTS.GAME.START\"," +
@@ -88,8 +88,8 @@ public class MapperTest {
     @Test
     public void testCreate() throws JsonProcessingException {
         final Town testTown = new Town(new Coordinates(0, 0), "TestTown");
-        final Capital testCapital = new Capital(new Coordinates(0, 1), "TestCapital", new GameAvatar((long) 2, "TestOwner2"));
-        testTown.setOwner(new GameAvatar((long) 1, "TestOwner"));
+        final Capital testCapital = new Capital(new Coordinates(0, 1), "TestCapital", new GamePlayer((long) 2, "TestOwner2"));
+        testTown.setOwner(new GamePlayer((long) 1, "TestOwner"));
         testTown.generateSquads();
         testCapital.setSquad(null);
         testCapital.generateSquads();

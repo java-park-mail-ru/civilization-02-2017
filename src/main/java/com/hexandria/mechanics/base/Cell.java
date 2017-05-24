@@ -3,11 +3,11 @@ package com.hexandria.mechanics.base;
 /**
  * Created by root on 23.04.17.
  */
-public class Ceil {
+public class Cell {
     private Coordinates position;
     public Squad squad;
 
-    public Ceil(Coordinates position){
+    public Cell(Coordinates position){
         this.position = position;
         this.squad = null;
     }

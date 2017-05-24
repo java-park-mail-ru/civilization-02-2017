@@ -1,6 +1,6 @@
 package com.hexandria.mechanics.events.game;
 
-import com.hexandria.mechanics.avatar.GameAvatar;
+import com.hexandria.mechanics.player.GamePlayer;
 import com.hexandria.websocket.Message;
 
 /**
@@ -9,16 +9,16 @@ import com.hexandria.websocket.Message;
 public class GameResult extends Message {
     public final Payload payload;
 
-    public GameResult(GameAvatar winner, GameAvatar loser, String reason){
+    public GameResult(GamePlayer winner, GamePlayer loser, String reason){
         this.payload = new Payload(winner, loser, reason);
     }
 
     public static class Payload{
-        public GameAvatar winner;
-        public GameAvatar loser;
+        public GamePlayer winner;
+        public GamePlayer loser;
         public String reason;
 
-        public Payload(GameAvatar winner, GameAvatar loser, String reason){
+        public Payload(GamePlayer winner, GamePlayer loser, String reason){
             this.loser = loser;
             this.winner = winner;
             this.reason = reason;

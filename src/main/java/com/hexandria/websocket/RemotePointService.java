@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.Game;
-import com.hexandria.mechanics.avatar.GameAvatar;
+import com.hexandria.mechanics.player.GamePlayer;
 import com.hexandria.mechanics.events.game.GameResult;
 import com.hexandria.mechanics.events.game.Start;
 import org.eclipse.jetty.websocket.api.WebSocketException;
@@ -85,8 +85,8 @@ public class RemotePointService {
                 Game userGame = gameMap.get(userId);
                 for(Map.Entry<Long, Game> entry : gameMap.entrySet()){
                     if(entry.getValue() == userGame){
-                        GameAvatar winner;
-                        GameAvatar loser;
+                        GamePlayer winner;
+                        GamePlayer loser;
 
                         if(userGame.getPlayers().get(0).getId() == userId){
                             winner = userGame.getPlayers().get(1);
@@ -134,9 +134,9 @@ public class RemotePointService {
             final UserEntity firstUser = manager.getUserById(firstUserId.intValue());
             final UserEntity secondUser = manager.getUserById(secondUserId.intValue());
 
-            final List<GameAvatar> avatars = new ArrayList<>();
-            avatars.add(new GameAvatar((long) firstUser.getId(), firstUser.getLogin()));
-            avatars.add(new GameAvatar((long) secondUser.getId(), secondUser.getLogin()));
+            final List<GamePlayer> avatars = new ArrayList<>();
+            avatars.add(new GamePlayer((long) firstUser.getId(), firstUser.getLogin()));
+            avatars.add(new GamePlayer((long) secondUser.getId(), secondUser.getLogin()));
 
             final Game newGame = new Game(new ArrayList<>(avatars));
             sendMessageToUser(firstUserId, new Start(newGame));

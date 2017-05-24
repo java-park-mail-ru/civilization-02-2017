@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = Application.class)
 @Profile("test")
 @Transactional
-public class ApplicationTest {
+public class ControllerTest {
 
     private static final int LOGIN_LENGTH = 12;
     private static final int PASSWORD_LENGTH = 12;
@@ -46,7 +46,7 @@ public class ApplicationTest {
     private JdbcTemplate jdbcTemplate;
 
 
-    public ApplicationTest() throws URISyntaxException {
+    public ControllerTest() throws URISyntaxException {
     }
 
     @Before

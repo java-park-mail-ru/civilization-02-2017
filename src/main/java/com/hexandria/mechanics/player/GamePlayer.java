@@ -1,4 +1,4 @@
-package com.hexandria.mechanics.avatar;
+package com.hexandria.mechanics.player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,14 +9,14 @@ import com.hexandria.mechanics.base.Capital;
  * Created by root on 23.04.17.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GameAvatar {
+public class GamePlayer {
     @JsonIgnore
     private Long id;
     private String name;
     @JsonIgnore
     private Capital capitalCity;
 
-    public GameAvatar(Long id, String name){
+    public GamePlayer(Long id, String name){
         this.id = id;
         this.name = name;
     }

@@ -2,13 +2,13 @@ package com.hexandria.mechanics.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.hexandria.mechanics.avatar.GameAvatar;
+import com.hexandria.mechanics.player.GamePlayer;
 
 /**
  * Created by root on 23.04.17.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Town extends Ceil {
+public class Town extends Cell {
 
     @JsonIgnore
     public int TROOPS_GENERATED = 15;
@@ -16,7 +16,7 @@ public class Town extends Ceil {
     public int MORALE_GENERATED = 10;
     private String name;
 
-    public GameAvatar owner;
+    public GamePlayer owner;
 
     public Town(Coordinates position, String name){
         super(position);
@@ -42,11 +42,11 @@ public class Town extends Ceil {
         this.name = name;
     }
 
-    public GameAvatar getOwner() {
+    public GamePlayer getOwner() {
         return owner;
     }
 
-    public void setOwner(GameAvatar owner) {
+    public void setOwner(GamePlayer owner) {
         this.owner = owner;
     }
 
