@@ -2,6 +2,7 @@ package com.hexandria.mechanics.events.logic;
 
 import com.hexandria.mechanics.base.Coordinates;
 import com.hexandria.websocket.Message;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by root on 25.04.17.
@@ -10,7 +11,7 @@ import com.hexandria.websocket.Message;
 public class Update extends Message {
     public final Payload payload;
 
-    public Update(Coordinates position, Coordinates newPosition, Integer newCount, Integer newMorale){
+    public Update(Coordinates position, @Nullable Coordinates newPosition, @Nullable Integer newCount, @Nullable Integer newMorale){
         this.payload = new Payload(position, newPosition, newCount, newMorale);
     }
 

@@ -1,5 +1,7 @@
 package com.hexandria.mechanics.base;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Created by root on 23.04.17.
  */
@@ -16,7 +18,7 @@ public class Cell {
         return squad;
     }
 
-    public void setSquad(Squad squad) {
+    public void setSquad(@Nullable Squad squad) {
         this.squad = squad;
     }
 

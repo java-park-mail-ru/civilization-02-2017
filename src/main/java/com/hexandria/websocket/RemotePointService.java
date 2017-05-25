@@ -40,7 +40,7 @@ public class RemotePointService {
     private final Queue<Long> waiters = new ConcurrentLinkedDeque<>();
     private final List<Game> games = new ArrayList<>();
     private final Map<Long, Game> gameMap = new ConcurrentHashMap<>();
-    public final static int TURN_DURATION_MILLIS = 10 * 1000;
+    public static final int TURN_DURATION_MILLIS = 10 * 1000;
     private final Thread dispatcher;
 
     public RemotePointService(@NotNull UserManager manager, @NotNull ObjectMapper objectMapper) {
@@ -67,15 +67,15 @@ public class RemotePointService {
     @SuppressWarnings("OverlyBroadThrowsClause")
     public void handleGameMessage(Message message, Long userID) throws IOException {
         final Game game = gameMap.get(userID);
-        final List<Message> responces = game.interact(message);
+        final List<Message> responces = game.interact(message, userID);
         for(Message responce : responces) {
-            for (Map.Entry<Long, Game> entry : gameMap.entrySet()) {
+            for (GamePlayer player : game.getPlayers()) {
                 if(responce.getClass() == GameResult.class){
                     finishGame(game, (GameResult) responce);
                     return;
                 }
-                if (Objects.equals(entry.getValue(), game) && isConnected(entry.getKey())) {
-                    sendMessageToUser(entry.getKey(), responce);
+                if (isConnected(player.getId())) {
+                    sendMessageToUser(player.getId(), responce);
                 }
             }
         }
@@ -106,7 +106,7 @@ public class RemotePointService {
                         GamePlayer winner;
                         GamePlayer loser;
 
-                        if(userGame.getPlayers().get(0).getId() == userId){
+                        if(Objects.equals(userGame.getPlayers().get(0).getId(), userId)){
                             winner = userGame.getPlayers().get(1);
                             loser = userGame.getPlayers().get(0);
                         }

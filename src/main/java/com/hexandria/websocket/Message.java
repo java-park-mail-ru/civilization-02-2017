@@ -27,6 +27,7 @@ import com.hexandria.mechanics.events.service.Ping;
         @JsonSubTypes.Type(value = Delete.class, name = "EVENTS.LOGIC.DELETE"),
         @JsonSubTypes.Type(value = Create.class, name = "EVENTS.LOGIC.CREATE"),
         @JsonSubTypes.Type(value = AttackTown.class, name = "EVENTS.LOGIC.ATTACK_TOWN"),
+        @JsonSubTypes.Type(value = Turn.class, name = "EVENTS.LOGIC.TURN"),
 
 })
 public abstract class Message {
