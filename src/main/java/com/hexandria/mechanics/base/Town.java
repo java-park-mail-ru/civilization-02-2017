@@ -11,9 +11,9 @@ import com.hexandria.mechanics.player.GamePlayer;
 public class Town extends Cell {
 
     @JsonIgnore
-    public int TROOPS_GENERATED = 15;
+    public static final int TROOPS_GENERATED = 15;
     @JsonIgnore
-    public int MORALE_GENERATED = 10;
+    public static final int MORALE_GENERATED = 10;
     private String name;
 
     public GamePlayer owner;
@@ -52,6 +52,9 @@ public class Town extends Cell {
 
     public void generateSquads(){
         if(this.owner == null){return;}
+        if(getSquad() != null && getSquad().getCount() >= getTroopsGenerated() * 3){
+            return;
+        }
 
         if (squad == null){
             squad = new Squad(getTroopsGenerated(), getMoraleGenerated(), owner);

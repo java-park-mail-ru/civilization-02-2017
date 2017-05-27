@@ -6,8 +6,8 @@ import org.jetbrains.annotations.Nullable;
  * Created by root on 23.04.17.
  */
 public class Cell {
-    private Coordinates position;
-    public Squad squad;
+    private final Coordinates position;
+    protected Squad squad;
 
     public Cell(Coordinates position){
         this.position = position;
@@ -20,10 +20,6 @@ public class Cell {
 
     public void setSquad(@Nullable Squad squad) {
         this.squad = squad;
-    }
-
-    public void setPosition(Coordinates coordinates){
-        this.position = coordinates;
     }
 
     public Coordinates getPosition(){

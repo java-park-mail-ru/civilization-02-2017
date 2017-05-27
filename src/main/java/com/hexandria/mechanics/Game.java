@@ -11,7 +11,6 @@ import com.hexandria.mechanics.player.GamePlayer;
 import com.hexandria.websocket.Message;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -25,18 +24,18 @@ public class Game {
     private int sizeX;
     private int sizeY;
     private final Cell[][] map;
-    private Date latestTurnStart;
+    private long latestTurnStart;
     private int currentPlayerId;
 
-    public Date getLatestTurnStart() {
+    public synchronized long getLatestTurnStart() {
         return latestTurnStart;
     }
 
-    public List<Message> finishTurn() {
+    public synchronized List<Message> finishTurn() {
         currentPlayerId = (currentPlayerId + 1) % players.size() ;
-        latestTurnStart.setTime(System.currentTimeMillis());
+        latestTurnStart = System.currentTimeMillis();
         final List<Message> newTurnMessages = new LinkedList<>();
-        newTurnMessages.add(new Turn(new Turn.Payload("test")));
+        newTurnMessages.add(new Turn(new Turn.Payload()));
         for(int i = 0; i < sizeX; ++i){
             for(int j = 0; j < sizeY; ++j){
                 if(map[i][j].getClass() == Town.class && ((Town) map[i][j]).getOwner() != null){
@@ -108,12 +107,12 @@ public class Game {
         map[2][3] = new Town(new Coordinates(2, 3), "Town1");
         map[7][8] = new Town(new Coordinates(7, 8), "Town2");
         this.players = players;
-        latestTurnStart = new Date();
+        latestTurnStart = System.currentTimeMillis();
         currentPlayerId = 0;
     }
 
     @Nullable
-    public List<Message> interact(Message message, Long userID) {
+    public synchronized List<Message> interact(Message message, Long userID) {
         if (message.getClass() == Move.class && validate(userID, (Move) message)) {
             final Move move = ((Move) message);
             final Cell toCell = map[move.getTo().getX()][move.getTo().getY()];
@@ -135,7 +134,7 @@ public class Game {
                 return null;
             }
         }
-        else if(message.getClass() == Turn.class) {
+        else if(message.getClass() == Turn.class && Objects.equals(userID, players.get(currentPlayerId).getId())) {
             return finishTurn();
         }
         else{
@@ -211,8 +210,8 @@ public class Game {
         toCell.getSquad().mergeSquads(fromSquad);
         toCell.getSquad().setMoved(true);
         final List<Message> events = new LinkedList<>();
-        events.add(new Update(fromCell.getPosition(),
-                toCell.getPosition(),
+        events.add(new Update(toCell.getPosition(),
+                null,
                 toCell.getSquad().getCount(),
                 toCell.getSquad().getMorale()));
         events.add(new Delete(fromCell.getPosition()));
@@ -235,9 +234,11 @@ public class Game {
     public boolean validate(Long userID, Move move) {
         final Coordinates from = move.getFrom();
         final Coordinates to = move.getTo();
+        //noinspection OverlyComplexBooleanExpression
         if(from.getX() < 0 || from.getY() < 0 || to.getX() < 0 || to.getY() < 0){
             return false;
         }
+        //noinspection OverlyComplexBooleanExpression
         if(from.getX() >= sizeX || from.getY() >= sizeY || to.getX() >= sizeX || from.getY() >= sizeY){
             return false;
         }
@@ -247,10 +248,7 @@ public class Game {
         if(!(Objects.equals(userID, players.get(currentPlayerId).getId()))){
             return false;
         }
-        if(map[from.getX()][from.getY()].getSquad() == null
-                || map[from.getX()][from.getY()].getSquad().getMoved()){
-            return false;
-        }
-        return true;
+        return !(map[from.getX()][from.getY()].getSquad() == null
+                || map[from.getX()][from.getY()].getSquad().getMoved());
     }
 }

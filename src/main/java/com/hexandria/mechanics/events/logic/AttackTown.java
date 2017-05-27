@@ -10,8 +10,6 @@ import com.hexandria.websocket.Message;
 public class AttackTown extends Message {
     public final Payload payload;
 
-
-
     public AttackTown(Coordinates position, GamePlayer owner){
         this.payload = new Payload(position, owner);
     }

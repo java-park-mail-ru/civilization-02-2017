@@ -23,15 +23,12 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MyWebSocketHandler.class);
     @NotNull
-    private final UserManager userManager;
-    @NotNull
     private final RemotePointService service;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public MyWebSocketHandler(@NotNull UserManager userManager, @NotNull RemotePointService service){
         this.service = service;
-        this.userManager = userManager;
     }
 
     @Override
@@ -43,7 +40,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         LOGGER.info("Disconnected user with id  " + session.getAttributes().get("userId"));
-        service.disconnectedHandler(new Long(session.getAttributes().get("userId").toString()), CloseStatus.NORMAL);
+        service.disconnectedHandler(new Long(session.getAttributes().get("userId").toString()));
         }
 
     @SuppressWarnings("OverlyBroadThrowsClause")

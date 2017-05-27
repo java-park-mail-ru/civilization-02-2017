@@ -40,7 +40,7 @@ public class GameTest {
     @Test
     public void wrongPlayerTest(){
         final Game game = new Game(players);
-        boolean result = game.validate(2L, new Move(new Move.Payload(new Coordinates(0, 0), new Coordinates(0, 1))));
+        final boolean result = game.validate(2L, new Move(new Move.Payload(new Coordinates(0, 0), new Coordinates(0, 1))));
         assertThat(result).isEqualTo(false);
         game.finishTurn();
         assertThat(game.validate(
@@ -65,7 +65,7 @@ public class GameTest {
     @Test
     public void nonNegativeCoordinates(){
         final Game game = new Game(players);
-        boolean result = game.validate(1L,
+        final boolean result = game.validate(1L,
                 new Move(new Move.Payload(new Coordinates(-1, 0), new Coordinates(0, 1)
                 )));
         assertThat(result).isEqualTo(false);

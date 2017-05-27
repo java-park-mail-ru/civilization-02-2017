@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ChangePasswordData extends AuthData {
     private final String newPassword;
 
+    @SuppressWarnings("unused")
     public ChangePasswordData(@JsonProperty("login") String login, @JsonProperty("password") String password,
                               @JsonProperty("email") String email, @JsonProperty("newPassword") String newPassword) {
         super(login, password, email);

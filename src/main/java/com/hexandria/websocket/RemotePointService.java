@@ -10,17 +10,16 @@ import com.hexandria.mechanics.events.game.GameResult;
 import com.hexandria.mechanics.events.game.Start;
 import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.*;
 
 import static java.util.Collections.singletonMap;
 
@@ -40,42 +39,44 @@ public class RemotePointService {
     private final Queue<Long> waiters = new ConcurrentLinkedDeque<>();
     private final List<Game> games = new ArrayList<>();
     private final Map<Long, Game> gameMap = new ConcurrentHashMap<>();
-    public static final int TURN_DURATION_MILLIS = 10 * 1000;
-//    private final Thread dispatcher;
+    public static final long TURN_DURATION_MILLIS = 40 * 1000;
 
     public RemotePointService(@NotNull UserManager manager, @NotNull ObjectMapper objectMapper) {
         this.manager = manager;
         this.objectMapper = objectMapper;
-//        this.dispatcher = new Thread(new GameDispatcher());
-//        dispatcher.start();
+    }
+    final ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+    ScheduledFuture future = service.scheduleAtFixedRate(new GameDispatcher(), 0, 1, TimeUnit.SECONDS);
+
+    private class GameDispatcher implements Runnable {
+        @Override
+        public void run() {
+                for (Game game : games) {
+                    if (game.getLatestTurnStart() + TURN_DURATION_MILLIS < System.currentTimeMillis()) {
+                        try {
+                            sendGameMessages(game.finishTurn(), game);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        }
     }
 
-//    private class GameDispatcher implements Runnable {
-//        @Override
-//        public void run() {
-//            while(games.size()) {
-//                for (Game game : games) {
-//                        if (game.getLatestTurnStart().getTime() + TURN_DURATION_MILLIS > System.currentTimeMillis()) {
-//                        LOGGER.warn("Switching game turn on game" + game);
-//                        game.finishTurn();
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-    @SuppressWarnings("OverlyBroadThrowsClause")
     public void handleGameMessage(Message message, Long userID) throws IOException {
         final Game game = gameMap.get(userID);
-        final List<Message> responces = game.interact(message, userID);
-        for(Message responce : responces) {
+        sendGameMessages(game.interact(message, userID), game);
+    }
+
+    public void sendGameMessages(@Nullable List<Message> messages, Game game) throws IOException {
+        for(Message message : messages) {
             for (GamePlayer player : game.getPlayers()) {
-                if(responce.getClass() == GameResult.class){
-                    finishGame(game, (GameResult) responce);
+                if(message.getClass() == GameResult.class){
+                    finishGame(game, (GameResult) message);
                     return;
                 }
                 if (isConnected(player.getId())) {
-                    sendMessageToUser(player.getId(), responce);
+                    sendMessageToUser(player.getId(), message);
                 }
             }
         }
@@ -95,16 +96,16 @@ public class RemotePointService {
         gameMap.remove(winnerId);
     }
 
-    public void disconnectedHandler(Long userId, @NotNull CloseStatus closeStatus) {
+    public void disconnectedHandler(Long userId) {
         final WebSocketSession webSocketSession = sessions.get(userId);
 
         if (webSocketSession != null && webSocketSession.isOpen()) {
             try {
-                Game userGame = gameMap.get(userId);
+                final Game userGame = gameMap.get(userId);
                 for(Map.Entry<Long, Game> entry : gameMap.entrySet()){
-                    if(entry.getValue() == userGame){
-                        GamePlayer winner;
-                        GamePlayer loser;
+                    if(Objects.equals(entry.getValue(), userGame)){
+                        final GamePlayer winner;
+                        final GamePlayer loser;
 
                         if(Objects.equals(userGame.getPlayers().get(0).getId(), userId)){
                             winner = userGame.getPlayers().get(1);

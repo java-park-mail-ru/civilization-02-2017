@@ -14,9 +14,9 @@ public class GameResult extends Message {
     }
 
     public static class Payload{
-        public GamePlayer winner;
-        public GamePlayer loser;
-        public String reason;
+        public final GamePlayer winner;
+        public final GamePlayer loser;
+        public final String reason;
 
         public Payload(GamePlayer winner, GamePlayer loser, String reason){
             this.loser = loser;

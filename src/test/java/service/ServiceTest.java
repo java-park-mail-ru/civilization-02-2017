@@ -29,14 +29,14 @@ public class ServiceTest {
     private MockMvc mockMvc;
     @Autowired
     private WebApplicationContext webApplicationContext;
-    private static final SecureRandom rnd = new SecureRandom();
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Test
     public void correctRegister() throws Exception {
         final JSONObject json = new JSONObject();
-        json.put("login", getRandomString(rnd, 10));
-        json.put("password", getRandomString(rnd, 10));
-        json.put("email", getRandomString(rnd, 10) + "@yandex.ru");
+        json.put("login", getRandomString(SECURE_RANDOM, 10));
+        json.put("password", getRandomString(SECURE_RANDOM, 10));
+        json.put("email", getRandomString(SECURE_RANDOM, 10) + "@yandex.ru");
         mockMvc.perform(post("/api/user/signup")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(json.toString()))
@@ -46,9 +46,9 @@ public class ServiceTest {
     @Test
     public void userAlreadyExists() throws Exception {
         final JSONObject json = new JSONObject();
-        json.put("login", getRandomString(rnd, 10));
-        json.put("password", getRandomString(rnd, 10));
-        json.put("email", getRandomString(rnd, 10) + "@yandex.ru");
+        json.put("login", getRandomString(SECURE_RANDOM, 10));
+        json.put("password", getRandomString(SECURE_RANDOM, 10));
+        json.put("email", getRandomString(SECURE_RANDOM, 10) + "@yandex.ru");
         mockMvc.perform(post("/api/user/signup")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(json.toString()))
@@ -62,9 +62,9 @@ public class ServiceTest {
     @Test
     public void emailFormatError() throws Exception {
         final JSONObject json = new JSONObject();
-        json.put("login", getRandomString(rnd, 10));
-        json.put("password", getRandomString(rnd, 10));
-        json.put("email", getRandomString(rnd, 10));
+        json.put("login", getRandomString(SECURE_RANDOM, 10));
+        json.put("password", getRandomString(SECURE_RANDOM, 10));
+        json.put("email", getRandomString(SECURE_RANDOM, 10));
         mockMvc.perform(post("/api/user/signup")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(json.toString()))
@@ -74,8 +74,8 @@ public class ServiceTest {
     @Test
     public void emptyCredentialsError() throws Exception {
         final JSONObject json = new JSONObject();
-        json.put("login", getRandomString(rnd, 10));
-        json.put("password", getRandomString(rnd, 10));
+        json.put("login", getRandomString(SECURE_RANDOM, 10));
+        json.put("password", getRandomString(SECURE_RANDOM, 10));
         json.put("email", "");
         mockMvc.perform(post("/api/user/signup")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -86,9 +86,9 @@ public class ServiceTest {
     @Test
     public void incorrectRequest() throws Exception {
         final JSONObject json = new JSONObject();
-        json.put("something", getRandomString(rnd, 10));
-        json.put("password", getRandomString(rnd, 10));
-        json.put("email", getRandomString(rnd, 10) + "@yandex.ru");
+        json.put("something", getRandomString(SECURE_RANDOM, 10));
+        json.put("password", getRandomString(SECURE_RANDOM, 10));
+        json.put("email", getRandomString(SECURE_RANDOM, 10) + "@yandex.ru");
         mockMvc.perform(post("/api/user/signup")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(json.toString()))
@@ -99,8 +99,8 @@ public class ServiceTest {
     public void incorrectNickname() throws Exception {
         final JSONObject json = new JSONObject();
         json.put("login", "&&&&%^^&*^%^&");
-        json.put("password", getRandomString(rnd, 10));
-        json.put("email", getRandomString(rnd, 10) + "@yandex.ru");
+        json.put("password", getRandomString(SECURE_RANDOM, 10));
+        json.put("email", getRandomString(SECURE_RANDOM, 10) + "@yandex.ru");
         mockMvc.perform(post("/api/user/signup")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(json.toString()))

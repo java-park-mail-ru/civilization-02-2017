@@ -16,8 +16,8 @@ public class Turn extends Message {
         public final String name;
 
         @JsonCreator
-        public Payload(@JsonProperty("name") String name){
-            this.name = name;
+        public Payload(){
+            this.name = "test";
         }
     }
 }
