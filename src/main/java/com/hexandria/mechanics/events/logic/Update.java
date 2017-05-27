@@ -1,6 +1,7 @@
 package com.hexandria.mechanics.events.logic;
 
 import com.hexandria.mechanics.base.Coordinates;
+import com.hexandria.mechanics.base.Town;
 import com.hexandria.websocket.Message;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +14,10 @@ public class Update extends Message {
 
     public Update(Coordinates position, @Nullable Coordinates newPosition, @Nullable Integer newCount, @Nullable Integer newMorale){
         this.payload = new Payload(position, newPosition, newCount, newMorale);
+    }
+
+    public Update(Town town){
+        this.payload = new Payload(town.getPosition(), null, town.getSquad().getCount(), town.getSquad().getMorale());
     }
 
     public static class Payload{

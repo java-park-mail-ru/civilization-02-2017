@@ -50,7 +50,7 @@ public class Town extends Cell {
         this.owner = owner;
     }
 
-    public void generateSquads(){//Will return message, create or update
+    public void generateSquads(){
         if(this.owner == null){return;}
 
         if (squad == null){

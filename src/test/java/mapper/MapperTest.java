@@ -3,7 +3,6 @@ package mapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.mechanics.Game;
-import com.hexandria.mechanics.player.GamePlayer;
 import com.hexandria.mechanics.base.Capital;
 import com.hexandria.mechanics.base.Coordinates;
 import com.hexandria.mechanics.base.Town;
@@ -14,6 +13,7 @@ import com.hexandria.mechanics.events.logic.Move;
 import com.hexandria.mechanics.events.logic.Update;
 import com.hexandria.mechanics.events.service.Connect;
 import com.hexandria.mechanics.events.service.Ping;
+import com.hexandria.mechanics.player.GamePlayer;
 import com.hexandria.websocket.Message;
 import org.junit.Test;
 
@@ -84,6 +84,11 @@ public class MapperTest {
                 "\"squad\":{\"count\":50,\"morale\":30},\"name\":\"capital2\"," +
                 "\"owner\":{\"name\":\"TestAvatar2\"}}]}}");
     }
+
+//    @Test
+//    public void testStep() throws JsonProcessingException {
+//        assertThat(objectMapper.writeValueAsString(new Turn())).isEqualTo("{\"event\":\"EVENTS.GAME.TURN\"}");
+//    }
 
     @Test
     public void testCreate() throws JsonProcessingException {

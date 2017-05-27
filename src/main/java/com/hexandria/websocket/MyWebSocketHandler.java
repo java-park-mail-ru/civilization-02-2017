@@ -3,6 +3,7 @@ package com.hexandria.websocket;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.auth.common.user.UserManager;
+import com.hexandria.mechanics.events.game.Turn;
 import com.hexandria.mechanics.events.logic.Move;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         final Long userId = new Long((Integer) session.getAttributes().get("userId"));
         try {
             final Message message = objectMapper.readValue(jsonTextMessage.getPayload(), Message.class);
-            if(message.getClass() == Move.class) {
+            if(message.getClass() == Move.class || message.getClass() == Turn.class) {
                 service.handleGameMessage(message, userId);
             }
         } catch (JsonParseException e) {

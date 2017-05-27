@@ -5,6 +5,7 @@ package com.hexandria.mechanics;
 
 import com.hexandria.mechanics.base.*;
 import com.hexandria.mechanics.events.game.GameResult;
+import com.hexandria.mechanics.events.game.Turn;
 import com.hexandria.mechanics.events.logic.*;
 import com.hexandria.mechanics.player.GamePlayer;
 import com.hexandria.websocket.Message;
@@ -32,18 +33,31 @@ public class Game {
     }
 
     public List<Message> finishTurn() {
-        final List<Message> newTurnMessages = new LinkedList<>();
-        currentPlayerId += 1 % (players.size());
+        currentPlayerId = (currentPlayerId + 1) % players.size() ;
         latestTurnStart.setTime(System.currentTimeMillis());
+        final List<Message> newTurnMessages = new LinkedList<>();
+        newTurnMessages.add(new Turn(new Turn.Payload("test")));
         for(int i = 0; i < sizeX; ++i){
             for(int j = 0; j < sizeY; ++j){
                 if(map[i][j].getClass() == Town.class && ((Town) map[i][j]).getOwner() != null){
-                    ((Town) map[i][j]).generateSquads();
-                    newTurnMessages.add(new Create((Town) map[i][j]));
+                    if(map[i][j].getSquad() != null){
+                        ((Town) map[i][j]).generateSquads();
+                        newTurnMessages.add(new Update((Town)map[i][j]));
+                    }
+                    else{
+                        ((Town) map[i][j]).generateSquads();
+                        newTurnMessages.add(new Create((Town) map[i][j]));
+                    }
                 }
                 else if(map[i][j].getClass() == Capital.class){
-                    ((Capital) map[i][j]).generateSquads();
-                    newTurnMessages.add(new Create((Capital) map[i][j]));
+                    if(map[i][j].getSquad() != null){
+                        ((Capital) map[i][j]).generateSquads();
+                        newTurnMessages.add(new Update((Capital)map[i][j]));
+                    }
+                    else{
+                        ((Capital) map[i][j]).generateSquads();
+                        newTurnMessages.add(new Create((Capital) map[i][j]));
+                    }
                 }
 
                 if(map[i][j].getSquad() != null){
@@ -90,6 +104,7 @@ public class Game {
         }
         map[0][0] = new Capital(new Coordinates(0, 0), "capital1", players.get(0));
         map[8][13] = new Capital(new Coordinates(8, 13), "capital2", players.get(1));
+        System.out.println(players.get(0).getName());
         map[2][3] = new Town(new Coordinates(2, 3), "Town1");
         map[7][8] = new Town(new Coordinates(7, 8), "Town2");
         this.players = players;
@@ -124,7 +139,7 @@ public class Game {
             return finishTurn();
         }
         else{
-            return null;
+            return new LinkedList<>();
         }
     }
 
@@ -205,15 +220,14 @@ public class Game {
     }
 
     public List<Message> move(Cell fromCell, Cell toCell) {
-        final Squad moveableSquad = fromCell.getSquad();
-        toCell.setSquad(moveableSquad);
+        toCell.setSquad(fromCell.getSquad());
+        fromCell.setSquad(null);
         final List<Message> events = new LinkedList<>();
         events.add(new Update(
                 fromCell.getPosition(),
                 toCell.getPosition(),
                 null,
                 null));
-        fromCell.setSquad(null);
         toCell.getSquad().setMoved(true);
         return events;
     }
