@@ -41,7 +41,7 @@ public interface UserManager {
     List<ErrorResponse> changeUserPassword(@NotNull ChangePasswordData credentials);
 
     @NotNull
-    List<ErrorResponse> register(@NotNull AuthData credentials);
+    Either<UserEntity, List<ErrorResponse>> register(@NotNull AuthData credentials);
 
     void deleteUser(String login);
 }

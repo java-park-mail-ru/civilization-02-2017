@@ -39,10 +39,13 @@ public class UserController {
         if (sessionError != null) {
             return buildErrorResponse(sessionError);
         }
-        final List<ErrorResponse> registrationError = userManager.register(credentials);
-        if (!registrationError.isEmpty()){ // if errors returned
-            return buildErrorResponse(registrationError);
+        final Either<UserEntity, List<ErrorResponse>> result = userManager.register(credentials);
+        if (!result.isLeft()){ //if error
+            return buildErrorResponse(result.getRight());
         }
+        final UserEntity userEntity = result.getLeft();
+        httpSession.setAttribute(httpSession.getId(), userEntity.getLogin());
+        httpSession.setAttribute("userId", userEntity.getId());
         return ResponseEntity.ok(new SuccessResponseMessage("Successfully registered user"));
     }
 

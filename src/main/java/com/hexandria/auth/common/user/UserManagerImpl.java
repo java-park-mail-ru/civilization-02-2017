@@ -95,13 +95,13 @@ public class UserManagerImpl implements UserManager {
     @Override
     @SuppressWarnings("OverlyComplexMethod")
     @NotNull
-    public List<ErrorResponse> register(@NotNull AuthData credentials) {
+    public Either<UserEntity, List<ErrorResponse>> register(@NotNull AuthData credentials) {
 
         final List<ErrorResponse> errors = new ArrayList<>();
 
         if(credentials.getLogin() == null || credentials.getPassword() == null || credentials.getPassword() == null){
             errors.add(new ErrorResponse("Incorrect JSON", ErrorState.BAD_REQUEST));
-            return errors;
+            return Either.right(errors);
         }
 
         if (StringUtils.isEmpty(credentials.getLogin()) || StringUtils.isEmpty(credentials.getEmail()) || StringUtils.isEmpty(credentials.getPassword())) {
@@ -122,8 +122,9 @@ public class UserManagerImpl implements UserManager {
         if (errors.isEmpty()) {
             final UserEntity newUserEntity = new UserEntity(credentials.getLogin(), credentials.getPassword(), credentials.getEmail());
             createUser(newUserEntity);
+            return Either.left(newUserEntity);
         }
-        return errors;
+        return Either.right(errors);
     }
 
     @Override
