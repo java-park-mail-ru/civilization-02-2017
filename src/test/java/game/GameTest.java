@@ -2,12 +2,12 @@ package game;
 
 import com.hexandria.mechanics.Game;
 import com.hexandria.mechanics.base.Coordinates;
+import com.hexandria.mechanics.base.Squad;
 import com.hexandria.mechanics.events.logic.Move;
 import com.hexandria.mechanics.player.GamePlayer;
-import com.hexandria.mechanics.base.Squad;
 import org.junit.Test;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +20,7 @@ public class GameTest {
     public final List<GamePlayer> players;
 
     public GameTest(){
-        this.players = new LinkedList<>();
+        this.players = new ArrayList<>();
         players.add(new GamePlayer((long) 1, "User1"));
         players.add(new GamePlayer((long) 2, "User2"));
     }

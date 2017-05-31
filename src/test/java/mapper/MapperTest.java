@@ -99,7 +99,6 @@ public class MapperTest {
         testCapital.setSquad(null);
         testCapital.generateSquads();
         final Create create = new Create(testTown);
-        System.out.println(objectMapper.writeValueAsString(create));
         assertThat(objectMapper.writeValueAsString(create)).isEqualTo("{\"event\":\"EVENTS.LOGIC.CREATE\",\"payload\":{\"count\":15,\"morale\":10,\"owner\":\"TestOwner\",\"position\":{\"x\":0,\"y\":0}}}");
         assertThat(objectMapper.writeValueAsString(new Create(testCapital))).isEqualTo("{\"event\":\"EVENTS.LOGIC.CREATE\",\"payload\":{\"count\":50,\"morale\":30,\"owner\":\"TestOwner2\",\"position\":{\"x\":0,\"y\":1}}}");
     }

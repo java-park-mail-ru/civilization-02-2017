@@ -6,7 +6,7 @@ import com.hexandria.mechanics.base.Cell;
 import com.hexandria.mechanics.base.Town;
 import com.hexandria.websocket.Message;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,8 +26,8 @@ public class Start extends Message {
         public final List<Capital> capitals;
 
         public Payload(Game game){
-            this.towns = new LinkedList<>();
-            this.capitals = new LinkedList<>();
+            this.towns = new ArrayList<>();
+            this.capitals = new ArrayList<>();
             this.sizeX = game.getSizeX();
             this.sizeY = game.getSizeY();
             final Cell[][] map = game.getMap();

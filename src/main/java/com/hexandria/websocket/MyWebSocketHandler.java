@@ -2,12 +2,12 @@ package com.hexandria.websocket;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.events.game.Turn;
 import com.hexandria.mechanics.events.logic.Move;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -25,10 +25,12 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     @NotNull
     private final RemotePointService service;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private final ObjectMapper objectMapper;
 
-    public MyWebSocketHandler(@NotNull UserManager userManager, @NotNull RemotePointService service){
+    public MyWebSocketHandler(@NotNull RemotePointService service, ObjectMapper objectMapper){
         this.service = service;
+        this.objectMapper = objectMapper;
     }
 
     @Override

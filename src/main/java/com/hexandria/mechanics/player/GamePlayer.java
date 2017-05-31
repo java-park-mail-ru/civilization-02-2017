@@ -11,8 +11,8 @@ import com.hexandria.mechanics.base.Capital;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GamePlayer {
     @JsonIgnore
-    private Long id;
-    private String name;
+    private final Long id;
+    private final String name;
     @JsonIgnore
     private Capital capitalCity;
 
@@ -25,23 +25,7 @@ public class GamePlayer {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Capital getCapitalCity() {
-        return capitalCity;
-    }
-
-    public void setCapitalCity(Capital capitalCity) {
-        this.capitalCity = capitalCity;
     }
 }

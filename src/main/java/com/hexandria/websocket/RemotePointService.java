@@ -56,7 +56,7 @@ public class RemotePointService {
                         try {
                             sendGameMessages(game.finishTurn(), game);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LOGGER.warn("ERROR SENDING MESSAGE FROM GAMEDISPATCHER");
                         }
                     }
                 }
@@ -128,6 +128,7 @@ public class RemotePointService {
                 }
                 games.remove(userGame);
             } catch (IOException ignore) {
+                LOGGER.error("ERROR CLOSING WEBSOCKET");
             }
         }
     }

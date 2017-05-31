@@ -3,7 +3,6 @@ package com.hexandria.auth.common;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@SuppressWarnings("unused")
 public class AuthData {
     protected final String login;
     protected final String password;
