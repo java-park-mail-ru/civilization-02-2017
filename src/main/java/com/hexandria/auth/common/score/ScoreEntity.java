@@ -37,4 +37,10 @@ public class ScoreEntity {
     public void setScore(int score) {
         this.score = score;
     }
+
+    public ScoreEntity(UserEntity userEntity, int score){
+        System.out.println("New score created for user" + userEntity.getLogin());
+        this.userEntity = userEntity;
+        this.score = score;
+    }
 }

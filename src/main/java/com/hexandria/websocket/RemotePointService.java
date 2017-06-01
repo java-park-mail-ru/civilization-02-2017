@@ -2,6 +2,7 @@ package com.hexandria.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hexandria.auth.common.score.ScoreManager;
 import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.Game;
@@ -31,7 +32,8 @@ import static java.util.Collections.singletonMap;
 @Service
 public class RemotePointService {
     @NotNull
-    private final UserManager manager;
+    private final UserManager userManager;
+    private final ScoreManager scoreManager;
     private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
     private final Logger LOGGER = LoggerFactory.getLogger(RemotePointService.class);
@@ -41,13 +43,12 @@ public class RemotePointService {
     private final Map<Long, Game> gameMap = new ConcurrentHashMap<>();
     public static final long TURN_DURATION_MILLIS = 30 * 1000;
 
-    public synchronized List<Game> getGames(){
-        return this.games;
-    }
-
-    public RemotePointService(@NotNull UserManager manager, @NotNull ObjectMapper objectMapper) {
-        this.manager = manager;
+    public RemotePointService(@NotNull UserManager userManager,
+                              @NotNull ObjectMapper objectMapper,
+                              @NotNull ScoreManager scoreManager) {
+        this.userManager = userManager;
         this.objectMapper = objectMapper;
+        this.scoreManager = scoreManager;
     }
 
     final ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
@@ -94,6 +95,7 @@ public class RemotePointService {
     public void finishGame(Game game, GameResult gameResult) throws IOException {
         final Long winnerId = gameResult.payload.winner.getId();
         final Long loserId = gameResult.payload.loser.getId();
+        scoreManager.incrementScore(winnerId);
         sendMessageToUser(winnerId, gameResult);
         sendMessageToUser(loserId, gameResult);
         sessions.get(winnerId).close();
@@ -135,6 +137,7 @@ public class RemotePointService {
                         sendMessageToUser(winner.getId(), new GameResult(
                                 winner, loser, "Your opponent disconnected"
                         ));
+                        scoreManager.incrementScore(winner.getId());
 
                         webSocketSession.close();
 
@@ -175,8 +178,8 @@ public class RemotePointService {
             sessions.get(firstUserId).sendMessage(message);
             sessions.get(secondUserId).sendMessage(message);
 
-            final UserEntity firstUser = manager.getUserById(firstUserId.intValue());
-            final UserEntity secondUser = manager.getUserById(secondUserId.intValue());
+            final UserEntity firstUser = userManager.getUserById(firstUserId.intValue());
+            final UserEntity secondUser = userManager.getUserById(secondUserId.intValue());
 
             final List<GamePlayer> avatars = new ArrayList<>();
             avatars.add(new GamePlayer((long) firstUser.getId(), firstUser.getLogin()));

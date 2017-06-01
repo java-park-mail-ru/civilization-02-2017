@@ -7,4 +7,5 @@ import java.util.List;
  */
 public interface ScoreManager {
     public List<ScoreEntity> getTopScore(int size);
+    public void incrementScore(Long userId);
 }

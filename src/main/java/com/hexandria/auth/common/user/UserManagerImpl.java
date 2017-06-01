@@ -4,6 +4,7 @@ import com.hexandria.auth.ErrorState;
 import com.hexandria.auth.common.AuthData;
 import com.hexandria.auth.common.ChangePasswordData;
 import com.hexandria.auth.common.ErrorResponse;
+import com.hexandria.auth.common.score.ScoreEntity;
 import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -86,6 +87,7 @@ public class UserManagerImpl implements UserManager {
     @Override
     public UserEntity createUser(@NotNull UserEntity userEntity) {
         entityManager.persist(userEntity);
+        entityManager.persist(new ScoreEntity(userEntity, 0));
         return userEntity;
     }
 
