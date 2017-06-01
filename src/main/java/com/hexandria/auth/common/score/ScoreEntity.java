@@ -1,6 +1,5 @@
 package com.hexandria.auth.common.score;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hexandria.auth.common.user.UserEntity;
 
 import javax.persistence.*;
@@ -12,8 +11,12 @@ import javax.persistence.*;
 @Entity
 @Table(name = "score", schema = "public", catalog = "hexandria")
 public class ScoreEntity {
-    @JsonIgnore
+    @Id
+    @Column(name = "id")
+    private int id;
+
     @OneToOne
+    @JoinColumn(name = "user_")
     private UserEntity userEntity;
 
     @Column(name = "score")
