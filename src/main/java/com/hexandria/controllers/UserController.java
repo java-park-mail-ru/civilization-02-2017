@@ -1,4 +1,4 @@
-package com.hexandria;
+package com.hexandria.controllers;
 
 import com.hexandria.auth.ErrorState;
 import com.hexandria.auth.common.AuthData;
