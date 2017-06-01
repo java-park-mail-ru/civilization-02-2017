@@ -178,8 +178,8 @@ public class RemotePointService {
             sessions.get(firstUserId).sendMessage(message);
             sessions.get(secondUserId).sendMessage(message);
 
-            final UserEntity firstUser = userManager.getUserById(firstUserId.intValue());
-            final UserEntity secondUser = userManager.getUserById(secondUserId.intValue());
+            final UserEntity firstUser = userManager.getUserById(firstUserId);
+            final UserEntity secondUser = userManager.getUserById(secondUserId);
 
             final List<GamePlayer> avatars = new ArrayList<>();
             avatars.add(new GamePlayer((long) firstUser.getId(), firstUser.getLogin()));

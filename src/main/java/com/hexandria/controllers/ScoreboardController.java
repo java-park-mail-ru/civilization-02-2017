@@ -28,6 +28,12 @@ public class ScoreboardController {
 
     @GetMapping
     public ResponseEntity getBestPlayers(){
-        return ResponseEntity.ok(scoreManager.getTopScore(10));
+        return ResponseEntity.ok(scoreManager.getTopScore());
+    }
+
+    @GetMapping(path = "/test")
+    public ResponseEntity test(){
+        scoreManager.incrementScore(new Long(1));
+        return ResponseEntity.ok("");
     }
 }
