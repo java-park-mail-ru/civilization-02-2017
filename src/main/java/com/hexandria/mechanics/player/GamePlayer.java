@@ -2,7 +2,6 @@ package com.hexandria.mechanics.player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.hexandria.mechanics.base.Capital;
 
 
 /**
@@ -13,8 +12,6 @@ public class GamePlayer {
     @JsonIgnore
     private final Long id;
     private final String name;
-    @JsonIgnore
-    private Capital capitalCity;
 
     public GamePlayer(Long id, String name){
         this.id = id;

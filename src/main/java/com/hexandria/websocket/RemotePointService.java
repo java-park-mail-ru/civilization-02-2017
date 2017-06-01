@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.Game;
-import com.hexandria.mechanics.player.GamePlayer;
 import com.hexandria.mechanics.events.game.GameResult;
 import com.hexandria.mechanics.events.game.Start;
+import com.hexandria.mechanics.player.GamePlayer;
 import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,14 +39,19 @@ public class RemotePointService {
     private final Queue<Long> waiters = new ConcurrentLinkedDeque<>();
     private final List<Game> games = new ArrayList<>();
     private final Map<Long, Game> gameMap = new ConcurrentHashMap<>();
-    public static final long TURN_DURATION_MILLIS = 40 * 1000;
+    public static final long TURN_DURATION_MILLIS = 30 * 1000;
+
+    public synchronized List<Game> getGames(){
+        return this.games;
+    }
 
     public RemotePointService(@NotNull UserManager manager, @NotNull ObjectMapper objectMapper) {
         this.manager = manager;
         this.objectMapper = objectMapper;
     }
+
     final ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
-    ScheduledFuture future = service.scheduleAtFixedRate(new GameDispatcher(), 0, 1, TimeUnit.SECONDS);
+    private ScheduledFuture future = service.scheduleAtFixedRate(new GameDispatcher(), 0, 1, TimeUnit.SECONDS);
 
     private class GameDispatcher implements Runnable {
         @Override
@@ -60,6 +65,10 @@ public class RemotePointService {
                         }
                     }
                 }
+        }
+
+        public void destroy (){
+            service.shutdown();
         }
     }
 
@@ -100,7 +109,14 @@ public class RemotePointService {
         final WebSocketSession webSocketSession = sessions.get(userId);
 
         if (webSocketSession != null && webSocketSession.isOpen()) {
+
             try {
+                if(waiters.contains(userId)){
+                    waiters.remove(userId);
+                    webSocketSession.close();
+                    return;
+                }
+
                 final Game userGame = gameMap.get(userId);
                 for(Map.Entry<Long, Game> entry : gameMap.entrySet()){
                     if(Objects.equals(entry.getValue(), userGame)){
@@ -116,10 +132,17 @@ public class RemotePointService {
                             loser = userGame.getPlayers().get(1);
                         }
 
-                        sendMessageToUser(entry.getKey(), new GameResult(
+                        sendMessageToUser(winner.getId(), new GameResult(
                                 winner, loser, "Your opponent disconnected"
                         ));
-                        sessions.get(entry.getKey()).close();
+
+                        webSocketSession.close();
+
+                        WebSocketSession secondUserSesion = sessions.get(entry.getKey());
+                        if(secondUserSesion != null && secondUserSesion.isOpen()) {
+                            sessions.get(entry.getKey()).close();
+                        }
+
                         sessions.remove(userId);
                         gameMap.remove(winner.getId());
                         gameMap.remove(loser.getId());
@@ -128,6 +151,7 @@ public class RemotePointService {
                 }
                 games.remove(userGame);
             } catch (IOException ignore) {
+                ignore.printStackTrace();
                 LOGGER.error("ERROR CLOSING WEBSOCKET");
             }
         }

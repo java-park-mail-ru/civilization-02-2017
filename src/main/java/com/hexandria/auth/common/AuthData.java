@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AuthData {
-    protected final String login;
-    protected final String password;
-    protected final String email;
+    private final String login;
+    private final String password;
+    private final String email;
     @JsonCreator
     public AuthData(@JsonProperty("login") String login, @JsonProperty("password") String password, @JsonProperty("email") String email) {
         this.login = login;
