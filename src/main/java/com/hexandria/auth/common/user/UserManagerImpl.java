@@ -4,6 +4,7 @@ import com.hexandria.auth.ErrorState;
 import com.hexandria.auth.common.AuthData;
 import com.hexandria.auth.common.ChangePasswordData;
 import com.hexandria.auth.common.ErrorResponse;
+import com.hexandria.auth.utils.ValidationUtil;
 import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +19,7 @@ import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hexandria.auth.utils.RequestValidator.isValidEmailAddress;
+import static com.hexandria.auth.utils.ValidationUtil.isValidEmailAddress;
 
 @Service
 public class UserManagerImpl implements UserManager {
@@ -46,7 +47,7 @@ public class UserManagerImpl implements UserManager {
         if (!StringUtils.isEmpty(credentials.getLogin())) {
             user = getUserByLogin(credentials.getLogin());
             if (user != null) {
-                if (!user.getPassword().equals(credentials.getPassword())
+                if (!ValidationUtil.passwordMatches(credentials.getPassword(),user.getPassword())
                         || StringUtils.isEmpty(credentials.getNewPassword())) {
                     errors.add(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
                 }
@@ -57,7 +58,7 @@ public class UserManagerImpl implements UserManager {
 
         if (errors.isEmpty()) {
             //noinspection ConstantConditions
-            user.setPassword(credentials.getNewPassword()); // errors wont be empty if password is invalid
+            user.setPassword(ValidationUtil.encodePassword(credentials.getNewPassword())); // errors wont be empty if password is invalid
             updateUser(user);
         }
 
@@ -120,7 +121,7 @@ public class UserManagerImpl implements UserManager {
         }
 
         if (errors.isEmpty()) {
-            final UserEntity newUserEntity = new UserEntity(credentials.getLogin(), credentials.getPassword(), credentials.getEmail());
+            final UserEntity newUserEntity = new UserEntity(credentials.getLogin(), ValidationUtil.encodePassword(credentials.getPassword()), credentials.getEmail());
             createUser(newUserEntity);
             return Either.left(newUserEntity);
         }
@@ -138,7 +139,7 @@ public class UserManagerImpl implements UserManager {
 
         if (user == null) {
             errors.add(new ErrorResponse("User with that login does not exist", ErrorState.FORBIDDEN));
-        } else if (!user.getPassword().equals(credentials.getPassword())) {
+        } else if (!ValidationUtil.passwordMatches(credentials.getPassword(), user.getPassword())) {
             errors.add(new ErrorResponse("Incorrect password!", ErrorState.FORBIDDEN));
         }
         if (!errors.isEmpty()) {

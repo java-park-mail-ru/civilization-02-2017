@@ -7,7 +7,7 @@ import com.hexandria.auth.common.ErrorResponse;
 import com.hexandria.auth.common.SuccessResponseMessage;
 import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
-import com.hexandria.auth.utils.RequestValidator;
+import com.hexandria.auth.utils.ValidationUtil;
 import com.msiops.ground.either.Either;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class UserController {
     @PostMapping(path = "/signup")
     public ResponseEntity register(@RequestBody AuthData credentials, HttpSession httpSession) {
         logger.debug("/signup called with login: {}", credentials.getLogin());
-        final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
+        final ErrorResponse sessionError = ValidationUtil.validateNotAuthorizedSession(httpSession);
         if (sessionError != null) {
             return buildErrorResponse(sessionError);
         }
@@ -52,7 +52,7 @@ public class UserController {
     @PostMapping(path = "/login")
     public ResponseEntity login(@RequestBody AuthData credentials, HttpSession httpSession) {
         logger.debug("/login called with login: {}", credentials.getLogin());
-        final ErrorResponse sessionError = RequestValidator.validateNotAuthorizedSession(httpSession);
+        final ErrorResponse sessionError = ValidationUtil.validateNotAuthorizedSession(httpSession);
         if (sessionError !=null) {
             return buildErrorResponse(sessionError);
         }
@@ -69,7 +69,7 @@ public class UserController {
     @PostMapping(path = "/logout")
     public ResponseEntity logout(HttpSession httpSession) {
         logger.debug("/logout called for id: {}", httpSession.getId());
-        final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
+        final ErrorResponse sessionError = ValidationUtil.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError != null) {
             return buildErrorResponse(sessionError);
         }
@@ -81,7 +81,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity changePassword(@RequestBody ChangePasswordData credentials, HttpSession httpSession) {
         logger.debug("/user-change-pass called");
-        final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
+        final ErrorResponse sessionError = ValidationUtil.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError !=null) {
             return buildErrorResponse(sessionError);
         }
@@ -94,7 +94,7 @@ public class UserController {
     //get logged user data
     @GetMapping
     public ResponseEntity getCurrentUser(HttpSession httpSession){
-        final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
+        final ErrorResponse sessionError = ValidationUtil.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError != null) {
             return buildErrorResponse(sessionError);
         }
@@ -108,7 +108,7 @@ public class UserController {
     // delete user
     @PostMapping(path = "/delete")
     public ResponseEntity deleteUser(HttpSession httpSession){
-        final ErrorResponse sessionError = RequestValidator.validateAlreadyAuthorizedSession(httpSession);
+        final ErrorResponse sessionError = ValidationUtil.validateAlreadyAuthorizedSession(httpSession);
         if (sessionError != null) {
             return buildErrorResponse(sessionError);
         }

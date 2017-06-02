@@ -4,10 +4,12 @@ import com.hexandria.auth.ErrorState;
 import com.hexandria.auth.common.ErrorResponse;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.servlet.http.HttpSession;
 
-public class RequestValidator {
+public class ValidationUtil {
+    private static BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Nullable
     public static ErrorResponse validateNotAuthorizedSession(HttpSession session) {
@@ -16,6 +18,7 @@ public class RequestValidator {
         }
         return null;
     }
+
     @Nullable
     public static ErrorResponse validateAlreadyAuthorizedSession(HttpSession session) {
         if (session.getAttribute(session.getId()) == null) {
@@ -28,4 +31,12 @@ public class RequestValidator {
         final boolean allowLocalAddresses = true;
         return EmailValidator.getInstance(allowLocalAddresses).isValid(email);
     }
+
+    public static String encodePassword(String original) {
+        return passwordEncoder.encode(original);
+    }
+    public static boolean passwordMatches(String userInput, String encodedPassword){
+        return passwordEncoder.matches(userInput, encodedPassword);
+    }
+
 }
