@@ -1,0 +1,7 @@
+CREATE TABLE score (
+id SERIAL PRIMARY KEY,
+score INT,
+user_ BIGINT,
+FOREIGN KEY (user_) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX ON score (id);

@@ -1,13 +1,15 @@
 package com.hexandria.mechanics.base;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Created by root on 23.04.17.
  */
-public class Ceil {
-    private Coordinates position;
-    public Squad squad;
+public class Cell {
+    private final Coordinates position;
+    protected Squad squad;
 
-    public Ceil(Coordinates position){
+    public Cell(Coordinates position){
         this.position = position;
         this.squad = null;
     }
@@ -16,12 +18,8 @@ public class Ceil {
         return squad;
     }
 
-    public void setSquad(Squad squad) {
+    public void setSquad(@Nullable Squad squad) {
         this.squad = squad;
-    }
-
-    public void setPosition(Coordinates coordinates){
-        this.position = coordinates;
     }
 
     public Coordinates getPosition(){
