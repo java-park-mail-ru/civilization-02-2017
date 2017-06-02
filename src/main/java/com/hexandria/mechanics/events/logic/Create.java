@@ -1,7 +1,6 @@
 package com.hexandria.mechanics.events.logic;
 
-import com.hexandria.mechanics.avatar.UserAvatar;
-import com.hexandria.mechanics.base.Squad;
+import com.hexandria.mechanics.base.Coordinates;
 import com.hexandria.mechanics.base.Town;
 import com.hexandria.websocket.Message;
 
@@ -16,11 +15,16 @@ public class Create extends Message {
     }
 
     public static class Payload{
-        public final Squad squad;
-        public final UserAvatar owner;
+        public final Integer count;
+        public final Integer morale;
+        public final String owner;
+        public final Coordinates position;
+
         public Payload(Town town) {
-            this.squad = new Squad(town.getTroopsGenerated(), town.getMoraleGenerated(), town.getOwner());
-            this.owner = town.getOwner();
+            this.count = town.getSquad().getCount();
+            this.morale = town.getSquad().getMorale();
+            this.owner = town.getOwner().getName();
+            this.position = town.getPosition();
         }
     }
 }

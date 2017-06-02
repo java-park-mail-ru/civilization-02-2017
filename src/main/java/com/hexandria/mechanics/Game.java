@@ -1,28 +1,61 @@
 package com.hexandria.mechanics;
 
-import com.hexandria.mechanics.avatar.UserAvatar;
-import com.hexandria.mechanics.base.*;
-import com.hexandria.mechanics.events.logic.AttackTown;
-import com.hexandria.mechanics.events.logic.Delete;
-import com.hexandria.mechanics.events.logic.Move;
-import com.hexandria.mechanics.events.logic.Update;
-import com.hexandria.websocket.Message;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+//TODO Remove hardcode from map generation
+
+import com.hexandria.mechanics.base.*;
+import com.hexandria.mechanics.events.game.GameResult;
+import com.hexandria.mechanics.events.game.Turn;
+import com.hexandria.mechanics.events.logic.*;
+import com.hexandria.mechanics.player.GamePlayer;
+import com.hexandria.websocket.Message;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 /**
  * Created by root on 25.04.17.
  */
 @SuppressWarnings({"MagicNumber"})
 public class Game {
-    private final List<UserAvatar> players;
+    private final List<GamePlayer> players;
     private int sizeX;
     private int sizeY;
-    private final Ceil[][] map;
+    private final Cell[][] map;
+    private long latestTurnStart;
+    private int currentPlayerId;
 
-    public Ceil[][] getMap() {
+    public synchronized long getLatestTurnStart() {
+        return latestTurnStart;
+    }
+
+    public synchronized List<Message> finishTurn() {
+        currentPlayerId = (currentPlayerId + 1) % players.size() ;
+        latestTurnStart = System.currentTimeMillis();
+        final List<Message> newTurnMessages = new ArrayList<>();
+        newTurnMessages.add(new Turn(new Turn.Payload()));
+        for(int i = 0; i < sizeX; ++i){
+            for(int j = 0; j < sizeY; ++j){
+                Cell cell = map[i][j];
+                if(shouldGenerate(cell)){
+                    if(cell.getSquad() != null){
+                        ((Town) cell).generateSquads();
+                        newTurnMessages.add(new Update((Town)cell));
+                    }
+                    else{
+                        ((Town) cell).generateSquads();
+                        newTurnMessages.add(new Create((Town) cell));
+                    }
+                }
+                if(cell.getSquad() != null){
+                    cell.getSquad().setMoved(false);
+                }
+            }
+        }
+        return newTurnMessages;
+    }
+
+    public Cell[][] getMap() {
         return map;
     }
 
@@ -43,41 +76,17 @@ public class Game {
         this.sizeY = sizeY;
     }
 
-    public List<UserAvatar> getPlayers() {
+    public List<GamePlayer> getPlayers() {
         return players;
     }
 
-    public Game(int sizeX, int sizeY, List<UserAvatar> avatars){
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
-        this.players = avatars;
-        this.map = new Ceil[sizeX][sizeY];
-
-        for(int i = 0; i < sizeX; ++i){
-            for(int j = 0; j < sizeY; ++j){
-                final Coordinates coordinates = new Coordinates(i, j);
-                if(i == j){
-                    this.map[i][j] = new Town(coordinates, "Town" + (i * sizeX + j));
-                }
-                else{
-                    this.map[i][j] = new Ceil(coordinates);
-                }
-            }
-        }
-        this.map[0][0] = new Capital(new Coordinates(0, 0), "Capital1", players.get(0));
-        this.map[sizeX - 1][sizeY - 1] = new Capital(
-                new Coordinates(sizeX - 1, sizeY - 1),
-                "Capital2",
-                players.get(2));
-    }
-
-    public Game(List<UserAvatar> players){
+    public Game(List<GamePlayer> players) {
         this.sizeX = 10;
         this.sizeY = 15;
-        this.map = new Ceil[sizeX][sizeY];
-        for(int i = 0; i < sizeX; ++i){
-            for(int j = 0; j < sizeY; ++j){
-                map[i][j] = new Ceil(new Coordinates(i, j));
+        this.map = new Cell[sizeX][sizeY];
+        for (int i = 0; i < sizeX; ++i) {
+            for (int j = 0; j < sizeY; ++j) {
+                map[i][j] = new Cell(new Coordinates(i, j));
             }
         }
         map[0][0] = new Capital(new Coordinates(0, 0), "capital1", players.get(0));
@@ -85,120 +94,152 @@ public class Game {
         map[2][3] = new Town(new Coordinates(2, 3), "Town1");
         map[7][8] = new Town(new Coordinates(7, 8), "Town2");
         this.players = players;
+        latestTurnStart = System.currentTimeMillis();
+        currentPlayerId = 0;
     }
 
-    public List<Message> interact(Message message) {
-        if(message.getClass() == Move.class && validate()) {
+    @Nullable
+    public synchronized List<Message> interact(Message message, Long userID) {
+        if (message.getClass() == Move.class && validate(userID, (Move) message)) {
             final Move move = ((Move) message);
-            final Ceil toCeil = map[move.getTo().getX()][move.getTo().getY()];
-            final Ceil fromCeil = map[move.getFrom().getX()][move.getFrom().getY()];
+            final Cell toCell = map[move.getTo().getX()][move.getTo().getY()];
+            final Cell fromCell = map[move.getFrom().getX()][move.getFrom().getY()];
 
-            if(toCeil.getSquad() == null && toCeil.getClass() == Ceil.class){
-                return move(move, fromCeil, toCeil);
+            if (toCell.getSquad() == null && toCell.getClass() == Cell.class) {
+                return move(fromCell, toCell);
+            } else if (toCell.getSquad() == null && toCell.getClass() == Town.class) {
+                return captureEmptyTown(fromCell, toCell);
+            } else if (Objects.equals(toCell.getSquad().getOwner(), fromCell.getSquad().getOwner())) {
+                return mergeSquads(fromCell, toCell);
+            } else if (!Objects.equals(toCell.getSquad().getOwner(), fromCell.getSquad().getOwner())) {
+                return fight(fromCell, toCell);
+            } else if ((toCell.getClass() == Capital.class) && !Objects.equals(((Capital) toCell).getOwner(), fromCell.getSquad().getOwner())) {
+                final List<Message> events = new ArrayList<>();
+                events.add(new GameResult(fromCell.getSquad().getOwner(), toCell.getSquad().getOwner(), "Capital captured"));
+                return events;
+            } else {
+                throw new IllegalStateException("ILLEGAL MESSAGE, CHEATING POSSIBLE");
             }
-
-            else if(toCeil.getSquad() == null && toCeil.getClass() == Town.class){
-                return captureEmptyTown(fromCeil, toCeil);
-            }
-
-            else if(Objects.equals(toCeil.getSquad().getOwner(), fromCeil.getSquad().getOwner())){
-                return mergeSquads(fromCeil, toCeil);
-            }
-            else if(!Objects.equals(toCeil.getSquad().getOwner(), fromCeil.getSquad().getOwner())){
-                return fight(move, fromCeil, toCeil);
-            }
-            else
-                return null;
-
+        }
+        else if(message.getClass() == Turn.class && Objects.equals(userID, players.get(currentPlayerId).getId())) {
+            return finishTurn();
         }
         else{
-            return null;
+            return Collections.emptyList();
         }
     }
 
-    public List<Message> captureEmptyTown(Ceil fromCeil, Ceil toCeil){
-        Town town = (Town) toCeil;
-        town.setOwner(fromCeil.getSquad().getOwner());
-        town.setSquad(fromCeil.getSquad());
-        fromCeil.setSquad(null);
-        List<Message> messages = new LinkedList<>();
-        messages.add(new AttackTown(toCeil.getPosition(), toCeil.getSquad().getOwner()));
-        messages.add(new Update(fromCeil.getPosition(), toCeil.getPosition(), null, null));
+    private static boolean shouldGenerate(Cell cell){
+        return cell instanceof Town && ((Town) cell).getOwner() != null || cell instanceof Capital;
+    }
+
+    public List<Message> captureEmptyTown(Cell fromCell, Cell toCell) {
+        final Town town = (Town) toCell;
+        town.setOwner(fromCell.getSquad().getOwner());
+        town.setSquad(fromCell.getSquad());
+        fromCell.setSquad(null);
+        final List<Message> messages = new ArrayList<>();
+        messages.add(new AttackTown(toCell.getPosition(), toCell.getSquad().getOwner()));
+        messages.add(new Update(fromCell.getPosition(), toCell.getPosition(), null, null));
+        toCell.getSquad().setMoved(true);
         return messages;
     }
 
-    public List<Message> fight(Move move, Ceil fromCeil, Ceil toCeil){
-        final List<Message> events = new LinkedList<>();
+    public List<Message> fight(Cell fromCell, Cell toCell) {
+        final List<Message> events = new ArrayList<>();
         //Attacker lost
-        if(fromCeil.getSquad().getCount() < toCeil.getSquad().getCount()){
-            toCeil.getSquad().setCount(toCeil.getSquad().getCount() - fromCeil.getSquad().getCount());
-            fromCeil.setSquad(null);
-            events.add(new Delete(fromCeil.getPosition()));
+        if (fromCell.getSquad().getCount() < toCell.getSquad().getCount()) {
+            toCell.getSquad().setCount(toCell.getSquad().getCount() - fromCell.getSquad().getCount());
+            fromCell.setSquad(null);
+            events.add(new Delete(fromCell.getPosition()));
             events.add(new Update(
-                    toCeil.getPosition(),
-                    null,
-                    toCeil.getSquad().getCount(),
-                    toCeil.getSquad().getMorale()
+                            toCell.getPosition(),
+                            null,
+                            toCell.getSquad().getCount(),
+                            toCell.getSquad().getMorale()
                     )
             );
         }
         //Attacker won
-        else if(fromCeil.getSquad().getCount() > toCeil.getSquad().getCount()){
-            final Squad toSquad = toCeil.getSquad();
-            final Squad fromSquad = fromCeil.getSquad();
-            fromCeil.setSquad(null);
-            toCeil.setSquad(fromSquad);
-            toCeil.getSquad().setCount(fromCeil.getSquad().getCount() - toSquad.getCount());
-            events.add(new Delete(toCeil.getPosition()));
+        else if (fromCell.getSquad().getCount() > toCell.getSquad().getCount()) {
+            final Squad toSquad = toCell.getSquad();
+            final Squad fromSquad = fromCell.getSquad();
+            fromCell.setSquad(null);
+            toCell.setSquad(fromSquad);
+            toCell.getSquad().setCount(fromSquad.getCount() - toSquad.getCount());
+            toCell.getSquad().setMoved(true);
+            if (toCell.getClass() == Capital.class) {
+                events.add(new GameResult(fromSquad.getOwner(), toSquad.getOwner(), "Capital captured"));
+                return events;
+            }
+            events.add(new Delete(toCell.getPosition()));
             events.add(new Update(
-                    fromCeil.getPosition(),
-                    toCeil.getPosition(),
-                    toCeil.getSquad().getCount(),
-                    toCeil.getSquad().getMorale()));
-            if(toCeil.getClass() == Town.class){
-                final Town capturedTown = (Town) toCeil;
+                    fromCell.getPosition(),
+                    toCell.getPosition(),
+                    toCell.getSquad().getCount(),
+                    toCell.getSquad().getMorale()));
+            //If attacker attacked town - set new owner of town;
+            if (toCell.getClass() == Town.class) {
+                final Town capturedTown = (Town) toCell;
                 capturedTown.setOwner(fromSquad.getOwner());
                 events.add(new AttackTown(capturedTown.getPosition(), fromSquad.getOwner()));
             }
         }
         //Draw
         else {
-            fromCeil.setSquad(null);
-            toCeil.setSquad(null);
-            events.add(new Delete(fromCeil.getPosition()));
-            events.add(new Delete(toCeil.getPosition()));
+            fromCell.setSquad(null);
+            toCell.setSquad(null);
+            events.add(new Delete(fromCell.getPosition()));
+            events.add(new Delete(toCell.getPosition()));
         }
         return events;
     }
 
-    public List<Message> mergeSquads(Ceil fromCeil, Ceil toCeil){
-        final Squad fromSquad = fromCeil.getSquad();
-        fromCeil.setSquad(null);
-        toCeil.getSquad().mergeSquads(fromSquad);
-        final List<Message> events = new LinkedList<>();
-        events.add(new Update(fromCeil.getPosition(),
-                toCeil.getPosition(),
-                toCeil.getSquad().getCount(),
-                toCeil.getSquad().getMorale()));
-        events.add(new Delete(fromCeil.getPosition()));
+    public List<Message> mergeSquads(Cell fromCell, Cell toCell) {
+        final Squad fromSquad = fromCell.getSquad();
+        fromCell.setSquad(null);
+        toCell.getSquad().mergeSquads(fromSquad);
+        toCell.getSquad().setMoved(true);
+        final List<Message> events = new ArrayList<>();
+        events.add(new Update(toCell.getPosition(),
+                null,
+                toCell.getSquad().getCount(),
+                toCell.getSquad().getMorale()));
+        events.add(new Delete(fromCell.getPosition()));
         return events;
     }
 
-    public List<Message> move(Move move, Ceil fromCeil, Ceil toCeil){
-        final Squad moveableSquad = fromCeil.getSquad();
-        toCeil.setSquad(moveableSquad);
-        final List<Message> events = new LinkedList<>();
+    public List<Message> move(Cell fromCell, Cell toCell) {
+        toCell.setSquad(fromCell.getSquad());
+        fromCell.setSquad(null);
+        final List<Message> events = new ArrayList<>();
         events.add(new Update(
-                fromCeil.getPosition(),
-                toCeil.getPosition(),
+                fromCell.getPosition(),
+                toCell.getPosition(),
                 null,
                 null));
-        events.add(new Delete(fromCeil.getPosition()));
-        fromCeil.setSquad(null);
+        toCell.getSquad().setMoved(true);
         return events;
     }
 
-    public boolean validate(){
-        return true;
+    public boolean validate(Long userID, Move move) {
+        final Coordinates from = move.getFrom();
+        final Coordinates to = move.getTo();
+        //noinspection OverlyComplexBooleanExpression
+        if(from.getX() < 0 || from.getY() < 0 || to.getX() < 0 || to.getY() < 0){
+            return false;
+        }
+        //noinspection OverlyComplexBooleanExpression
+        if(from.getX() >= sizeX || from.getY() >= sizeY || to.getX() >= sizeX || from.getY() >= sizeY){
+            return false;
+        }
+        if(Math.abs(to.getX() - from.getX()) > 1 || (Math.abs(to.getY() - from.getY()) > 1)){
+            return false;
+        }
+        if(!(Objects.equals(userID, players.get(currentPlayerId).getId()))){
+            return false;
+        }
+        return !(map[from.getX()][from.getY()].getSquad() == null
+                || map[from.getX()][from.getY()].getSquad().getMoved());
     }
 }
