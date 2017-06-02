@@ -2,25 +2,25 @@ package com.hexandria.websocket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hexandria.auth.common.score.ScoreManager;
 import com.hexandria.auth.common.user.UserEntity;
 import com.hexandria.auth.common.user.UserManager;
 import com.hexandria.mechanics.Game;
-import com.hexandria.mechanics.avatar.UserAvatar;
+import com.hexandria.mechanics.events.game.GameResult;
 import com.hexandria.mechanics.events.game.Start;
+import com.hexandria.mechanics.player.GamePlayer;
 import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.*;
 
 import static java.util.Collections.singletonMap;
 
@@ -32,7 +32,8 @@ import static java.util.Collections.singletonMap;
 @Service
 public class RemotePointService {
     @NotNull
-    private final UserManager manager;
+    private final UserManager userManager;
+    private final ScoreManager scoreManager;
     private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
     private final Logger LOGGER = LoggerFactory.getLogger(RemotePointService.class);
@@ -40,23 +41,121 @@ public class RemotePointService {
     private final Queue<Long> waiters = new ConcurrentLinkedDeque<>();
     private final List<Game> games = new ArrayList<>();
     private final Map<Long, Game> gameMap = new ConcurrentHashMap<>();
+    public static final long TURN_DURATION_MILLIS = 30 * 1000;
 
-    public RemotePointService(@NotNull UserManager manager, @NotNull ObjectMapper objectMapper) {
-        this.manager = manager;
+    public RemotePointService(@NotNull UserManager userManager,
+                              @NotNull ObjectMapper objectMapper,
+                              @NotNull ScoreManager scoreManager) {
+        this.userManager = userManager;
         this.objectMapper = objectMapper;
+        this.scoreManager = scoreManager;
     }
 
-    @SuppressWarnings("OverlyBroadThrowsClause")
+    final ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture future = service.scheduleAtFixedRate(new GameDispatcher(), 0, 1, TimeUnit.SECONDS);
+
+    private class GameDispatcher implements Runnable {
+        @Override
+        public void run() {
+                for (Game game : games) {
+                    if (game.getLatestTurnStart() + TURN_DURATION_MILLIS < System.currentTimeMillis()) {
+                        try {
+                            sendGameMessages(game.finishTurn(), game);
+                        } catch (IOException e) {
+                            LOGGER.warn("ERROR SENDING MESSAGE FROM GAMEDISPATCHER");
+                        }
+                    }
+                }
+        }
+
+        public void destroy (){
+            service.shutdown();
+        }
+    }
+
     public void handleGameMessage(Message message, Long userID) throws IOException {
         final Game game = gameMap.get(userID);
-        final List<Message> responces = game.interact(message);
-        for(Message responce : responces) {
-            final String jsonResponce = objectMapper.writeValueAsString(responce);
-            final WebSocketMessage webMessage = new TextMessage(jsonResponce);
-            for (Map.Entry<Long, Game> entry : gameMap.entrySet()) {
-                if (Objects.equals(entry.getValue(), game)) {
-                    sessions.get(entry.getKey()).sendMessage(webMessage);
+        sendGameMessages(game.interact(message, userID), game);
+    }
+
+    public void sendGameMessages(@Nullable List<Message> messages, Game game) throws IOException {
+        for(Message message : messages) {
+            for (GamePlayer player : game.getPlayers()) {
+                if(message.getClass() == GameResult.class){
+                    finishGame(game, (GameResult) message);
+                    return;
                 }
+                if (isConnected(player.getId())) {
+                    sendMessageToUser(player.getId(), message);
+                }
+            }
+        }
+    }
+
+    public void finishGame(Game game, GameResult gameResult) throws IOException {
+        final Long winnerId = gameResult.payload.winner.getId();
+        final Long loserId = gameResult.payload.loser.getId();
+        scoreManager.incrementScore(winnerId);
+        sendMessageToUser(winnerId, gameResult);
+        sendMessageToUser(loserId, gameResult);
+        sessions.get(winnerId).close();
+        sessions.get(loserId).close();
+        sessions.remove(winnerId);
+        sessions.remove(loserId);
+        games.remove(game);
+        gameMap.remove(loserId);
+        gameMap.remove(winnerId);
+    }
+
+    public void disconnectedHandler(Long userId) {
+        final WebSocketSession webSocketSession = sessions.get(userId);
+
+        if (webSocketSession != null && webSocketSession.isOpen()) {
+
+            try {
+                if(waiters.contains(userId)){
+                    waiters.remove(userId);
+                    webSocketSession.close();
+                    return;
+                }
+
+                final Game userGame = gameMap.get(userId);
+                for(Map.Entry<Long, Game> entry : gameMap.entrySet()){
+                    if(Objects.equals(entry.getValue(), userGame)){
+                        final GamePlayer winner;
+                        final GamePlayer loser;
+
+                        if(Objects.equals(userGame.getPlayers().get(0).getId(), userId)){
+                            winner = userGame.getPlayers().get(1);
+                            loser = userGame.getPlayers().get(0);
+                        }
+                        else{
+                            winner = userGame.getPlayers().get(0);
+                            loser = userGame.getPlayers().get(1);
+                        }
+
+                        sendMessageToUser(winner.getId(), new GameResult(
+                                winner, loser, "Your opponent disconnected"
+                        ));
+                        scoreManager.incrementScore(winner.getId());
+
+                        webSocketSession.close();
+
+                        WebSocketSession secondUserSesion = sessions.get(entry.getKey());
+                        if(secondUserSesion != null && secondUserSesion.isOpen()) {
+                            sessions.get(entry.getKey()).close();
+                        }
+
+                        sessions.remove(userId);
+                        gameMap.remove(winner.getId());
+                        gameMap.remove(loser.getId());
+                        break;
+                    }
+                }
+                games.remove(userGame);
+            } catch (IOException ignore) {
+                ignore.printStackTrace();
+                LOGGER.error("ERROR CLOSING WEBSOCKET");
             }
         }
     }
@@ -79,24 +178,23 @@ public class RemotePointService {
             sessions.get(firstUserId).sendMessage(message);
             sessions.get(secondUserId).sendMessage(message);
 
-            final UserEntity firstUser = manager.getUserById(firstUserId.intValue());
-            final UserEntity secondUser = manager.getUserById(secondUserId.intValue());
+            final UserEntity firstUser = userManager.getUserById(firstUserId);
+            final UserEntity secondUser = userManager.getUserById(secondUserId);
 
-            final List<UserAvatar> avatars = new ArrayList<>();
-            avatars.add(new UserAvatar((long) firstUser.getId(), firstUser.getLogin()));
-            avatars.add(new UserAvatar((long) secondUser.getId(), secondUser.getLogin()));
+            final List<GamePlayer> avatars = new ArrayList<>();
+            avatars.add(new GamePlayer((long) firstUser.getId(), firstUser.getLogin()));
+            avatars.add(new GamePlayer((long) secondUser.getId(), secondUser.getLogin()));
 
             final Game newGame = new Game(new ArrayList<>(avatars));
-            sessions.get(firstUserId).sendMessage(new TextMessage(objectMapper.writeValueAsString(new Start(newGame))));
-            sessions.get(secondUserId).sendMessage(new TextMessage(objectMapper.writeValueAsString(new Start(newGame))));
+            sendMessageToUser(firstUserId, new Start(newGame));
+            sendMessageToUser(secondUserId, new Start(newGame));
 
             games.add(newGame);
             gameMap.put((long) firstUser.getId(), newGame);
             gameMap.put((long) secondUser.getId(), newGame);
 
-            waiters.remove(1L);
-            waiters.remove(0L);
-        } else {
+        }
+        else {
             webSocketSession.sendMessage(
                     new TextMessage(objectMapper.writeValueAsString(
                             singletonMap("message", "waiting for new users")
@@ -107,20 +205,6 @@ public class RemotePointService {
 
     public boolean isConnected(Long userId) {
         return sessions.containsKey(userId) && sessions.get(userId).isOpen();
-    }
-
-    public void removeUser(Long userId) {
-        sessions.remove(userId);
-    }
-
-    public void cutDownConnection(Long userId, @NotNull CloseStatus closeStatus) {
-        final WebSocketSession webSocketSession = sessions.get(userId);
-        if (webSocketSession != null && webSocketSession.isOpen()) {
-            try {
-                webSocketSession.close(closeStatus);
-            } catch (IOException ignore) {
-            }
-        }
     }
 
     public void sendMessageToUser(Long userId, @NotNull Message message) throws IOException {

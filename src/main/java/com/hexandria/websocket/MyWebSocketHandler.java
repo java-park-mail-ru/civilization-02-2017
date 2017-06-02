@@ -2,11 +2,12 @@ package com.hexandria.websocket;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hexandria.auth.common.user.UserManager;
+import com.hexandria.mechanics.events.game.Turn;
 import com.hexandria.mechanics.events.logic.Move;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -22,15 +23,14 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MyWebSocketHandler.class);
     @NotNull
-    private final UserManager userManager;
-    @NotNull
     private final RemotePointService service;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private final ObjectMapper objectMapper;
 
-    public MyWebSocketHandler(@NotNull UserManager userManager, @NotNull RemotePointService service){
+    public MyWebSocketHandler(@NotNull RemotePointService service, ObjectMapper objectMapper){
         this.service = service;
-        this.userManager = userManager;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -42,8 +42,8 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         LOGGER.info("Disconnected user with id  " + session.getAttributes().get("userId"));
-        service.removeUser(new Long(session.getAttributes().get("userId").toString()));
-    }
+        service.disconnectedHandler(new Long(session.getAttributes().get("userId").toString()));
+        }
 
     @SuppressWarnings("OverlyBroadThrowsClause")
     @Override
@@ -57,7 +57,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         final Long userId = new Long((Integer) session.getAttributes().get("userId"));
         try {
             final Message message = objectMapper.readValue(jsonTextMessage.getPayload(), Message.class);
-            if(message.getClass() == Move.class) {
+            if(message.getClass() == Move.class || message.getClass() == Turn.class) {
                 service.handleGameMessage(message, userId);
             }
         } catch (JsonParseException e) {
